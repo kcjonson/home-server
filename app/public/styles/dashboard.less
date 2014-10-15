@@ -1,0 +1,110 @@
+@import url('./apps/dashboard/views/Dashboard.less');
+@import url('./apps/dashboard/views/Actions.less');
+@import url('./apps/dashboard/views/Devices.less');
+
+
+@base-color: rgb(44, 42, 42);
+
+	.view.dashboard {
+		
+		.alarm {
+			margin: .8em;
+			margin-bottom: 0;
+			background-color: lighten(@base-color, 10%);
+			box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.2);
+
+			h2 {
+				display: none;
+			}
+			
+			.details {
+				display: table;
+				width: 100%;
+				
+				> * {
+					display: table-cell;
+					box-sizing: border-box;
+					vertical-align: middle;
+					padding: .4em;
+				}
+				
+				.time {
+					font-size: 3em;
+				}
+				
+				.status {
+					color: rgba(255,255,255,.2);
+					text-align: center;
+					font-size: 3em;
+					
+					.isOn {
+						
+						&.true {
+							color: #96CA2D;
+						}
+					}
+					
+					.isRunning {
+						
+					}
+					
+					&:active {
+						color: #4BB5C1;
+					}
+					
+				}
+				
+			}
+			
+		}
+
+		.actions {
+			display: table;
+			width: 100%;
+			border-spacing: 1em;
+    		border-collapse: separate;
+
+			> * {
+				display: table-cell;
+				box-sizing: border-box;
+				text-align: center;
+				width: 25%;
+				background-color: lighten(@base-color, 10%);
+				box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.2);
+				padding: .4em;
+				vertical-align: middle;
+			}
+
+			.Action {
+				display: block;
+				width: 100%;
+
+				> * {
+					display: block;
+					text-align: center;
+				}
+
+				.icon {
+					font-size: 1.8em;
+				}
+
+				.label {
+					margin-top: .2em;
+					font-size: .4em;
+				}
+
+			}
+
+
+		}
+
+.placeholder {
+	height: 2000px;
+	background-color: green;
+}
+		
+		@media all and (max-width: 1024px) {
+
+		}
+		
+	}

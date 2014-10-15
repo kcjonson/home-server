@@ -1,0 +1,17 @@
+{
+  "name": "1825eglen",
+  "description": "1825eglen Home Server",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "x",
+    "indigo" : "x",
+    "body-parser": "x",
+    "cookie-parser": "x",
+    "express-session": "x",
+    "hbs": "x",
+    "http-proxy": "x",
+    "mongoose": "x",
+    "querystring": "x"
+  }
+}

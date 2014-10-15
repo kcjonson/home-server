@@ -1,0 +1,8 @@
+{
+	"ignore": [
+		"app/public/*",
+		"dbs/",
+		".tmp"
+	],
+	"verbose": true
+}
