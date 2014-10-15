@@ -31,7 +31,7 @@ node_modules
 # Other Stuff
 certs
 config/*
-!config/example.json
+!config/*.example
 dbs/*
 resources
-
+nodemon.json

@@ -1,5 +1,6 @@
 var database = require('./database');
 var userModel = require('../models/user');
+var indigo = require('./indigo');
 
 
 
@@ -45,11 +46,12 @@ function _authenticate(username, password){};
 function _setMostRecentCheckin(userId, checkinId, callback){
 	console.log('set current checkin', userId, checkinId);
 	_getById(userId, function(error, userModel){
+
+		// Update User Model
 		userModel.mostRecentCheckin = checkinId;
-		database.save(userModel, function(error, savedUserModel){
-			console.log(savedUserModel);
-		});
-	})
+		database.save(userModel, function(error, savedUserModel){});
+
+	});
 };
 
 
