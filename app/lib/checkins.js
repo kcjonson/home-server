@@ -1,5 +1,6 @@
 var database = require('./database');
 var checkinModel = require('../models/checkin');
+var config = require('../../config/checkins.json');
 
 
 exports.add = _add;
@@ -10,12 +11,12 @@ exports.getMostRecentByUserId = _getMostRecentByUserId;
 function _add(data, callback) {
 
 	if (!data.name) {
-		data.name = 'Unknown';  // Theres got to be a better way to do this.
+		data.name = config.CHECKINS_UNKNOWN_NAME;
 	}
 
 	var newCheckin = new checkinModel(data);
 	database.save(newCheckin, function(error){
-		console.log('saved new checkin');
+		console.log('Saved new checkin');
 		if (callback) {
 			callback();
 		}

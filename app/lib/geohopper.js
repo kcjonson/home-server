@@ -15,7 +15,7 @@ function _checkin(data) {
 			var location;
 			switch (data.event) {
 				case 'LocationEnter':
-					location = data.location;
+					location = data.location == config.GEOHOPPER_HOME_NAME ? config.GEOHOPPER_HOME_NAME : data.location
 					// TODO: Add lat,lng when known
 					break;
 				case 'LocationExit':

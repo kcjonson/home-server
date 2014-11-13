@@ -43,12 +43,22 @@ function _getById(id, callback) {
 function _authenticate(username, password){};
 
 
-function _setMostRecentCheckin(userId, checkinId, callback){
-	console.log('set current checkin', userId, checkinId);
+function _setMostRecentCheckin(userId, checkin, callback){
+	console.log('Setting current checkin');
 	_getById(userId, function(error, userModel){
 
+		// This is super janky.
+		var isAwayValue = true;
+		var isAwayVariableName = "isAway" + userModel.accounts.indigo;
+		if (checkin.name !== 'Home') {
+			isAwayValue == false;
+		}
+
+		// Update Indigo Variable
+		indigo.setVariable(isAwayVariableName, isAwayValue, function(error, variableData){});
+
 		// Update User Model
-		userModel.mostRecentCheckin = checkinId;
+		userModel.mostRecentCheckin = checkin._Id;
 		database.save(userModel, function(error, savedUserModel){});
 
 	});

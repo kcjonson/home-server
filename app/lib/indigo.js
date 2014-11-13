@@ -135,6 +135,7 @@ function _getVariable(variableName, callback) {
 };
 
 function _setVariable(variableName, value, callback) {
+	console.log('Setting Indigo variable ', variableName, value);
 	indigo.setVariable(
 		variableName,
 		value, 

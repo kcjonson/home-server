@@ -28,8 +28,9 @@ var userSchema = new mongoose.Schema({
 			unique: true
 		}
 	},
-	password: String
-});
+	password: String,
+	mostRecentCheckin: mongoose.Schema.Types.ObjectId
+})
 
 
 module.exports =  mongoose.model(config.USERS_COLLECTION, userSchema);

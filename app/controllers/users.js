@@ -22,7 +22,6 @@ exports.start = function(params){
 	app.get(config.USERS_API_URL, function(req, res) {
 		console.log('GET ' + config.USERS_API_URL);
 		users.getAll(function(error, users){
-			console.log('u', users)
 			if (error) {res.send(error)} else {
 				res.send(users);
 			}
