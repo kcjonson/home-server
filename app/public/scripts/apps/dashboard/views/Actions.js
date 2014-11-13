@@ -20,6 +20,9 @@ define([
 
 	// Init
 		name: 'Actions',
+		attributes: {
+			'class': 'scrollable'
+		},
 
 		initialize: function (args) {			
 			this._initializeTemplate();

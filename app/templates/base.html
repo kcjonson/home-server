@@ -37,27 +37,12 @@
 		<link rel="apple-touch-icon" sizes="76x76" href="images/apple-touch-icon-76x76.png">
 		<link rel="apple-touch-icon" sizes="120x120" href="images/apple-touch-icon-120x120.png">
 		<link rel="apple-touch-icon" sizes="152x152" href="images/apple-touch-icon-152x152.png">
+		<link rel="apple-touch-startup-image" href="images/apple-touch-startup-image-320x480.png">
 		<meta name="apple-mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="apple-mobile-web-app-status-bar-style" content="translucent">
 
     </head>
     <body class='view {{view}}'>
-    	<div class='header'>
-    		<h1>1825eglen</h1>
-    		<span class='user'>
-    			<a class='logout' href="/logout">logout</a>
-    			<span class='name'>{{userDisplayName}}</span>
-    		</span>
-    	</div>
-    	<div class='content'>
-			{{{body}}}
-    	</div>
-    	<div class='footer'>
-	    	<div class='navigation'>
-		    	<a class='dashboard' href='#'>Dashboard</a>
-		    	<a class='devices' href='#devices'>Devices</a>
-		    	<a class='actions' href='#actions'>Actions</a>
-	    	</div>
-    	</div>
+		{{{body}}}
     </body>
 </html>

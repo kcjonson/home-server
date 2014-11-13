@@ -1,61 +1,41 @@
 var config = require('../../config/geohopper.json');
+var users = require('./users');
+var checkins = require('./checkins');
 
-var EVENTS_MAP = {};
 var STARTED = false;
 
-exports.start = function(params) {
-	if (!STARTED) {
+exports.checkin = _checkin
 
-		// Check Params
-		var app = params.app;
-		var pushUrl = params.pushUrl;
 
-		// 	Listen for Events
-		app.post(config.GEOHOPPER_PUSH_URL, function(req, res){
-			console.log('Geohopper Push Recieved');
-			var data = req.body;
-			if (data) {
-				switch (data.event) {
-					case 'LocationEnter':
-						emit('enter', data);
-						break;
-					case 'LocationExit':
-						emit('exit', data);
-						break;
-					default:
-						emit('exit', data);
-				};
+function _checkin(data) {
+	console.log('Geohopper Checkin')
+	users.getByGeohopperName(data.sender, function(error, user){
+		if (user) {
+			console.log(user.username, data.location, data.event, data.time);
+			var location;
+			switch (data.event) {
+				case 'LocationEnter':
+					location = data.location;
+					// TODO: Add lat,lng when known
+					break;
+				case 'LocationExit':
+					// ?? 
+					break;
+				default:
+					// Everyone panic.
 			};
-			res.end();
-		});
-		STARTED = true;
-	};
+
+			checkins.add({
+				user: user._id,
+				name: location,  // May be null
+				date: data.time
+			});
+
+		} else {
+			console.log('Unrecognized Geohopper User', error);
+		}
+	});
 };
-
-// Temp
-exports.GEOHOPPER_HOME = config.GEOHOPPER_HOME;
-
-exports.on = function(event, callback) {
-	if (EVENTS_MAP[event]) {
-		EVENTS_MAP[event].callbacks.push(callback);
-	} else {
-		EVENTS_MAP[event] = {
-			name: event,
-			callbacks: [
-				callback
-			]
-		};
-	}
-};
-
-function emit(event, params) {
-	if (EVENTS_MAP[event]) {
-		EVENTS_MAP[event].callbacks.forEach(function(callback){
-			callback(params);
-		})
-	}
-}
-
 
 
 

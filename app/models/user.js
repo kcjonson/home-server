@@ -28,12 +28,7 @@ var userSchema = new mongoose.Schema({
 			unique: true
 		}
 	},
-	password: String,
-	mostRecentCheckin: mongoose.Schema.Types.ObjectId
-}).post('init', function(document){
-	console.log('user init');
-}).post('save', function(document){
-	console.log('Finished Saving Changes to user object');
+	password: String
 });
 
 

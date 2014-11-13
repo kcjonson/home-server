@@ -1,6 +1,7 @@
 // Config
 var authConfig = require('./config/auth.json');
 var appConfig = require('./config/app.json');
+var indigoConfig = require('./config/indigo.json')
 
 
 
@@ -10,6 +11,7 @@ var authController = require('./app/controllers/auth');
 var indigoController = require('./app/controllers/indigo');
 var dashboardController = require('./app/controllers/dashboard');
 var foursquareController = require('./app/controllers/foursquare');
+var geohopperController = require('./app/controllers/geohopper');
 
 // Lib (Utilities);
 var users = require('./app/lib/users');
@@ -37,7 +39,13 @@ app.set('view engine', 'html');
 app.engine('html', require('hbs').__express);
 app.set('views', __dirname + '/app/views');
 app.use(cookieParser(authConfig.AUTH_COOKIE_SECRET));
-app.use(session({secret: authConfig.AUTH_SESSION_SECRET}));
+app.use(session({
+	secret: authConfig.AUTH_SESSION_SECRET,
+	cookie: {
+		httpOnly: false,
+		maxAge: 2629743 // Approx one month
+	}
+}));
 app.use(authController.interceptor());
 //app.use(express.logger('dev'));
 app.use(express.static(__dirname + '/app/public'));
@@ -45,10 +53,10 @@ app.use(express.static(__dirname + '/app/public'));
 // Start Indigo Proxy
 var indigoProxy = httpProxy.createProxyServer();
 app.get("/indigo*", function(req, res){
-	indigoProxy.web(req, res, {target: 'http://localhost:' + INDIGO_PORT});
+	indigoProxy.web(req, res, {target: 'http://localhost:' + indigoConfig.INDIGO_PORT});
 });
 app.post("/indigo*", function(req, res){
-	indigoProxy.web(req, res, {target: 'http://localhost:' + INDIGO_PORT});
+	indigoProxy.web(req, res, {target: 'http://localhost:' + indigoConfig.INDIGO_PORT});
 });
 
 // bodyParser must go ofter proxy settings because it interrupts the 
@@ -63,48 +71,15 @@ authController.start({
 	app: app
 });
 
-
 // Start Foursquare Service
 foursquareController.start({
 	app: app
 });
 
-
-
 // Start Geohopper Service
-
-// geohopper.start({
-// 	app: app
-// });
-// geohopper.on('enter', function(data) {
-// 	console.log('Geohopper Service: enter');
-// 	users.getByGeohopperName(data.sender, function(error, user){
-// 		console.log('user', user.username, data.location, data.time);
-// 		if (user) {
-// 			var location = data.location == geohopper.GEOHOPPER_HOME ? users.LOCATION_HOME : data.location;
-// 			user.locations.push({
-// 				name: location,
-// 				date: data.time
-// 			});
-// 			user.save();
-// 		}
-// 	});
-// });
-// geohopper.on('exit', function(data){
-// 	console.log('Geohopper Service: exit');
-// 	users.getByGeohopperName(data.sender, function(error, user){
-// 		console.log('user', user.username, data.location, data.time);
-// 		if (user) {
-// 			user.locations.push({
-// 				name: users.LOCATION_UNKNOWN,
-// 				date: data.time
-// 			});
-// 			user.save();
-// 		}
-// 	});
-// });
-
-
+geohopperController.start({
+	app: app
+});
 
 //Set up Indigo REST Endpoints
 indigoController.start({
@@ -122,7 +97,11 @@ usersController.start({
 });
 
 
-// Start the Web Server
+
+
+
+// Actually Start the Web Server
+// Where we say "start" above is a bold faced lie.
 
 // Unsecure Server
 http.createServer(app).listen(appConfig.SERVER_PORT);

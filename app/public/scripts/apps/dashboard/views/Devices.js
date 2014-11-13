@@ -20,6 +20,9 @@ define([
 
 	// Init
 		name: 'Devices',
+		attributes: {
+			'class': 'scrollable'
+		},
 
 		initialize: function(args) {			
 			this._initializeTemplate();

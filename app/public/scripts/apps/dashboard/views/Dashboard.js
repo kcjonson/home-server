@@ -4,7 +4,6 @@ define([
 	'backbone',
 	'text!./Dashboard.html',
 	'./dashboard/Action',
-	'app/models/Alarm',
 	'app/models/Indigo'
 ], function(
 	$,
@@ -12,7 +11,6 @@ define([
 	Backbone,
 	templateString,
 	Action,
-	AlarmModel,
 	IndigoModel
 ){
 	
@@ -30,12 +28,13 @@ define([
 			
 			this._initializeTemplate();
 			this._alarmStatusNode.addEventListener("click", _.bind(this._onAlarmStatusClick, this));
+			this._isAwayKevinNode.addEventListener("click", _.bind(this._onIsAwayKevinClick, this));
+			this._isAwayMargaretNode.addEventListener("click", _.bind(this._onIsAwayMargaretClick, this));
 
-			this._updateDisplay();
+			//this._updateDisplay();
 			this.indigoModel.on('change', _.bind(this._onIndigoModelChange, this));
 
 			this._createActions();
-
 		},
 
 		
@@ -56,7 +55,6 @@ define([
 				}, this));
 			};
 			
-			
 		},
 		
 		
@@ -65,7 +63,8 @@ define([
 	// Public Functions
 
 		show: function() {
-			console.log('show')
+			//console.log('show')
+			this._updateDisplay();
 			this.$el.removeClass('hidden');
 		},
 
@@ -98,6 +97,14 @@ define([
 			};
 
 		},
+
+		_onIsAwayMargaretClick: function() {
+			this._toggleAwayStatus('Margaret');
+		},
+
+		_onIsAwayKevinClick: function() {
+			this._toggleAwayStatus('Kevin');
+		},
 		
 		
 		
@@ -113,41 +120,54 @@ define([
 	// Private
 
 		_updateDisplay: function() {
+
 			var variables = this.indigoModel.get('variables');
+
+			// Alarm
 			var hour = variables.findWhere({name: 'AlarmHour'}).get('value');
 			var minute = variables.findWhere({name: 'AlarmMinute'}).get('value');
 			var isOn = variables.findWhere({name: 'AlarmOn'}).get('value');
 			var isRunning = variables.findWhere({name: 'AlarmRunning'}).get('value');
-
 			if (hour && minute) {
 				this._alarmTimeNode.innerHTML = hour + ':' + minute;
 			}	
 			$(this._alarmIsOnNode).toggleClass('true', isOn);
 			$(this._alarmIsOnNode).toggleClass('hidden', isRunning);
 			$(this._alarmIsRunningNode).toggleClass('hidden', !isRunning);
+
+			// Away Status
+			var isAwayKevin = variables.findWhere({name: 'isAwayKevin'}).get('value');
+			var isAwayMargaret = variables.findWhere({name: 'isAwayMargaret'}).get('value');
+			$(this._isAwayKevinNode).toggleClass('true', !isAwayKevin);
+			$(this._isAwayMargaretNode).toggleClass('true', !isAwayMargaret);
+		},
+
+		_toggleAwayStatus: function(person) {
+			var variableModel = this.indigoModel.get('variables').findWhere({name: 'isAway' + person});
+			var value = variableModel.get('value');
+			variableModel.on("change", _.bind(this._updateDisplay, this));
+			variableModel.save({
+				value: !value
+			}, {patch: true});
 		},
 
 		_createActions: function() {
 			var actions = [
 				{
 					name: 'Turn Off All Lights',
-					label: 'Lights Off',
-					icon: 'fa-lightbulb-o'
+					label: 'Lights Off'
 				},
 				{
 					name: 'Set Movie Mood',
-					label: 'Movie Mood',
-					icon: 'fa-film'
+					label: 'Movie Mood'
 				},
 				{
 					name: 'Set Bedtime Mood',
-					label: 'Bedtime Mood',
-					icon: 'fa-cloud'
+					label: 'Bedtime Mood'
 				},
 				{
 					name: 'Turn On All Lights',
-					label: 'Lights On',
-					icon: 'fa-lightbulb-o'
+					label: 'Lights On'
 				}
 			].forEach(function(actionParams){
 				var action = new Action(actionParams).placeAt(this._actionsNode);

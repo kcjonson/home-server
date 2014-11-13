@@ -3,9 +3,6 @@ var users = require('../lib/users');
 var mongoose = require('mongoose');
 
 
-
-
-
 var checkinSchema = new mongoose.Schema({
 	name: String,
 	date: Date,
