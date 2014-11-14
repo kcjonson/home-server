@@ -39,7 +39,7 @@ nodemon.json
 
 
 
-
+native/platforms/**/www/
 default.properties
 gen
 assets/www/cordova.js

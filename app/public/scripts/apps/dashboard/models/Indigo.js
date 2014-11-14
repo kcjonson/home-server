@@ -27,7 +27,7 @@ define([
 	return Backbone.RelationalModel.extend({
 
 		url: function() {
-			return 'api/indigo'
+			return SERVER + 'api/indigo'
 		},
 
 		relations: [

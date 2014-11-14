@@ -9,4 +9,5 @@
     </author>
     <content src="dashboard.html" />
     <access origin="*" />
+    <preference name="DisallowOverscroll" value="true" />
 </widget>

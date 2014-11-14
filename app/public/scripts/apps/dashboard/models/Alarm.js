@@ -9,7 +9,7 @@ define([
 ){
 	
 	return Backbone.Model.extend({
-		urlRoot: 'api/dashboard'
+		urlRoot: SERVER + 'api/dashboard'
 	
 	});
 

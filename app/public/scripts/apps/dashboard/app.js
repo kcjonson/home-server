@@ -1,4 +1,6 @@
 
+SERVER = 'http://1825eglen.com/'
+
 require.config({
 	baseUrl: 'scripts',
 	paths: {

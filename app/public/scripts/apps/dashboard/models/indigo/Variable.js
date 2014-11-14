@@ -12,7 +12,7 @@ define([
 ){
 	
 	return Backbone.RelationalModel.extend({
-		urlRoot: 'api/indigo/variables',
+		urlRoot: SERVER + 'api/indigo/variables',
 		idAttribute: 'name'
 	
 	});

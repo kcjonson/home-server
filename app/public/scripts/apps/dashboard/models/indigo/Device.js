@@ -10,7 +10,7 @@ define([
 ){
 	
 	return Backbone.RelationalModel.extend({
-		urlRoot: 'api/indigo/devices',
+		urlRoot: SERVER + 'api/indigo/devices',
 		idAttribute: 'name',
 
 		get: function (attr) {
