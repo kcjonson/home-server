@@ -72,10 +72,8 @@ define([
 		*/
 		_updateDisplay: function () {
 			this._nameNode.innerHTML = this.model.get('name');
-			switch (this.model.get('type')) {
-				case "SwitchLinc Dimmer":
-				case "SwitchLinc Dimmer (dual-band)":
-				case "LampLinc":
+			switch (this.model.get('category')) {
+				case "light":
 					//this._stateNode.innerHTML = this.model.get('displayLongState');
 					var currentBrightness = this.model.get('brightness');
 					$(this._stateNode).addClass('icon fa fa-lightbulb-o');

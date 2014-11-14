@@ -7,14 +7,12 @@
 		<meta name="description" content="Private dashboard for 1825 E Glen St" />		
 		<meta name="viewport" content="width=device-width" />
 		<meta name="robots" content="noindex,nofollow" />
-        <title>{{title}}</title>
         
        <!-- Load Styles: Note, this must be done before loading the LESS Parser -->
 		<link rel="stylesheet/less" type="text/css" href="./styles/reset.css">
 		<link rel="stylesheet/less" type="text/less" href="./styles/global.less">
-		{{#if stylesheet}}
-		<link rel="stylesheet/less" type="text/less" href="{{stylesheet}}">
-		{{/if}}
+		<link rel="stylesheet/less" type="text/less" href="./styles/dashboard.less">
+
 		
 		<!-- Load Font -->
 		<link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
@@ -27,10 +25,10 @@
 		<script type="text/javascript">var less=less||{};less.env='development';</script>
 		<script src="./scripts/less.min.js"></script>
 		
-		{{#if app}}
+
 		<!-- Load RequireJS -->
-		<script data-main="{{app}}" src="./scripts/require.js"></script>
-		{{/if}}
+		<script data-main="scripts/apps/dashboard/app" src="./scripts/require.js"></script>
+
 
 		<!-- iOS Settings -->
 		<link rel="apple-touch-icon" href="images/apple-touch-icon-60x60">
@@ -42,7 +40,33 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="translucent">
 
     </head>
-    <body class='view {{view}}'>
-		{{{body}}}
+    <body class='view dashboard'>
+
+		<div class='views'></div>
+
+		<div class='notice loading'>
+			Loading
+		</div>
+
+		<div class='footer'>
+			<div class='navigation'>
+		    	<a class='dashboard' href='#'>
+		    		<span class='fa fa-tachometer'>Dashboard</span>
+		    	</a>
+		    	<a class='devices' href='#devices'>
+		    		<span class='fa fa-cubes'>Devices</span>
+		    	</a>
+		    	<a class='actions' href='#actions'>
+		    		<span class='fa fa-cogs'>Actions</span>
+		    	</a>
+			</div>
+		</div>
+
+		<div class='header'>
+			<h1>Home</h1>
+
+		</div>
+
+
     </body>
 </html>
