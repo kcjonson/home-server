@@ -1,0 +1,145 @@
+
+
+
+
+
+
+
+
+	.Dashboard {
+
+
+		.section {
+			margin: 1em;
+
+			&:first-child {
+				margin-top: 0;
+			}
+
+			> h2 {
+				border-bottom: 1px solid #eee;
+				margin-bottom: 8px;
+
+				> span {
+					background-color: #fff;
+					position: relative;
+					top: 6px;
+					padding-right: 1em;
+					color: #ccc;
+					font-size: .8em;
+					font-weight: lighter;
+				}
+			}
+
+		}
+
+
+		.list {
+			> * > * {
+				padding: .2em 0 .2em 0;
+			}
+		}
+
+
+
+		
+		.alarm {
+
+			
+			.details {
+				display: table;
+				width: 100%;
+				
+				> * {
+					display: table-cell;
+					box-sizing: border-box;
+					vertical-align: middle;
+				}
+				
+				.time {
+					font-size: 3em;
+				}
+				
+				.status {
+					color: #ccc;
+					text-align: right;
+					font-size: 2em;
+					
+					.isOn {
+						
+						&.true {
+							color: #96CA2D;
+						}
+					}
+					
+					.isRunning {
+						
+					}
+					
+					&:active {
+						color: #4BB5C1;
+					}
+					
+				}
+				
+			}
+			
+		}
+
+		.actions {
+
+
+			.Action {
+
+
+				.label {
+
+				}
+
+			}
+
+
+		}
+
+		.locations {
+
+
+			.person {
+				color: #ccc;
+
+				> * {
+					padding-top: .2em;
+					padding-bottom:  .2em;
+				}
+
+
+				
+				.status {
+					text-align: right;
+
+					> * {
+						font-size: 2em;
+						
+					}
+				}
+
+				&.true {
+					color: inherit;
+
+					.status > .home {
+						color: #96CA2D;
+					}
+				}
+
+			}
+
+
+		}
+
+		.devices {
+			.status {
+				text-align: right;
+			}
+		}
+
+	}
