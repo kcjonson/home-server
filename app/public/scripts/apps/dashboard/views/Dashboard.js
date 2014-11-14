@@ -14,6 +14,54 @@ define([
 	IndigoModel
 ){
 	
+
+
+	var QUICK_ACTIONS = [
+		{
+			name: 'Turn Off Everything',
+			label: 'Everything Off',
+			condition: function(conditions) {
+				return conditions.numLightsOn > 0;
+			}
+		},
+		{
+			name: 'Turn On All Lights',
+			label: 'All Lights On',
+			condition: function(conditions) {
+				return conditions.numLightsOn !== conditions.numLights;
+			}
+		},
+		{
+			name: 'Set Movie Mood',
+			label: 'Movie Mood',
+			condition: function(conditions) {
+				// TODO: Motion Detected in tv room recently
+				return true;
+			}
+		},
+		{
+			name: 'Set Bedtime Mood',
+			label: 'Bedtime Mood',
+			condition: function(conditions) {
+				// Todo: Motion detected in bedroom recently (need to install hardware)
+				return new Date().getHours() > 17;
+			}
+		},
+		{
+			name: 'Turn On Outside Lights',
+			label: 'Outside Lights On',
+			condition: function(conditions) {
+				return conditions.isDaylight == false && conditions.numOutsideLightsOn < conditions.numOutsideLights;
+			}
+		},
+		{
+			name: 'Turn Off Outside Lights',
+			label: 'Outside Lights Off',
+			condition: function(conditions) {
+				return conditions.numOutsideLightsOn > 0;
+			}
+		}
+	];
 	
 	
 
@@ -33,8 +81,6 @@ define([
 
 			//this._updateDisplay();
 			this.indigoModel.on('change', _.bind(this._onIndigoModelChange, this));
-
-			this._createActions();
 		},
 
 		
@@ -120,6 +166,7 @@ define([
 	// Private
 
 		_updateDisplay: function() {
+			console.log('Update Display', this.indigoModel);
 
 			var variables = this.indigoModel.get('variables');
 
@@ -142,21 +189,37 @@ define([
 			$(this._isAwayMargaretNode).toggleClass('true', !isAwayMargaret);
 
 			// Devices
+			// So ... this shold totally be moved to the collection.
 			var devicesCollection = this.indigoModel.get('devices');
+			var numLights = 0;
 			var numLightsOn = 0;
+			var numOutsideLights = 0;
+			var numOutsideLightsOn = 0;
 			var numThermostatsOn = 0;
 			devicesCollection.forEach(function (deviceModel) {
 				switch (deviceModel.get('category')) {
 					case 'light':
+						numLights += 1;
+						var isOutsideLight = false;
+						var deviceName = deviceModel.get('name');
+						switch (deviceName) {
+							case 'Outside Front Overhead Lights':
+							case 'Outside Front Door Wall Sconce':
+								numOutsideLights += 1;
+								isOutsideLight = true;
+								break;
+						}
 						if (deviceModel.get('brightness') > 0) {
 							numLightsOn += 1;
+							if (isOutsideLight) {
+								numOutsideLightsOn += 1;
+							}
 						}
 						break;
 					case 'thermostat':
 						if (deviceModel.get('hvacHeaterIsOn') === true) {
 							numThermostatsOn += 1;
 						}
-						
 						break;
 				}
 			}, this);
@@ -166,6 +229,14 @@ define([
 			} else {
 				this._thermostatsStatusNode.innerHTML = 'Off'
 			}
+
+			this._createActions({
+				numLights: numLights,
+				numLightsOn: numLightsOn,
+				numOutsideLights: numOutsideLights,
+				numOutsideLightsOn: numOutsideLightsOn,
+				isDaylight: variables.findWhere({name: 'isDaylight'}).get('value')
+			});
 		},
 
 		_toggleAwayStatus: function(person) {
@@ -177,26 +248,19 @@ define([
 			}, {patch: true});
 		},
 
-		_createActions: function() {
-			var actions = [
-				{
-					name: 'Turn Off All Lights',
-					label: 'Lights Off'
-				},
-				{
-					name: 'Set Movie Mood',
-					label: 'Movie Mood'
-				},
-				{
-					name: 'Set Bedtime Mood',
-					label: 'Bedtime Mood'
-				},
-				{
-					name: 'Turn On All Lights',
-					label: 'Lights On'
+		_createActions: function(conditions) {
+			//console.log('_createActions');
+			QUICK_ACTIONS.forEach(function(action, index){
+				isVisible = action.condition(conditions)
+				if (isVisible && !action.view && index < 4) {
+					action.view = new Action({
+						name: action.name,
+						label: action.label
+					}).placeAt(this._actionsNode);
+				} else if (action.view && !isVisible) {
+					action.view.remove();
+					action.view = undefined;
 				}
-			].forEach(function(actionParams){
-				var action = new Action(actionParams).placeAt(this._actionsNode);
 			}, this);
 		}
 

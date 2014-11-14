@@ -60,7 +60,6 @@ define([
 		},
 
 		_onModelChange: function () {
-			console.log(arguments);
 			this._updateDisplay();
 		},
 

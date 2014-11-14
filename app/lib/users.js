@@ -44,14 +44,14 @@ function _authenticate(username, password){};
 
 
 function _setMostRecentCheckin(userId, checkin, callback){
-	console.log('Setting current checkin');
+	console.log('Setting current checkin', checkin);
 	_getById(userId, function(error, userModel){
 
 		// This is super janky.
 		var isAwayValue = true;
 		var isAwayVariableName = "isAway" + userModel.accounts.indigo;
 		if (checkin.name !== 'Home') {
-			isAwayValue == false;
+			isAwayValue = false;
 		}
 
 		// Update Indigo Variable

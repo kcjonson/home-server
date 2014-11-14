@@ -27,6 +27,7 @@ define([
 
 		placeAt: function(node) {
 			node.appendChild(this.el);
+			return this;
 		},
 
 		_onClick: function() {
