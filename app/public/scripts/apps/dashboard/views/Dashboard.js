@@ -140,6 +140,32 @@ define([
 			var isAwayMargaret = variables.findWhere({name: 'isAwayMargaret'}).get('value');
 			$(this._isAwayKevinNode).toggleClass('true', !isAwayKevin);
 			$(this._isAwayMargaretNode).toggleClass('true', !isAwayMargaret);
+
+			// Devices
+			var devicesCollection = this.indigoModel.get('devices');
+			var numLightsOn = 0;
+			var numThermostatsOn = 0;
+			devicesCollection.forEach(function (deviceModel) {
+				switch (deviceModel.get('category')) {
+					case 'light':
+						if (deviceModel.get('brightness') > 0) {
+							numLightsOn += 1;
+						}
+						break;
+					case 'thermostat':
+						if (deviceModel.get('hvacHeaterIsOn') === true) {
+							numThermostatsOn += 1;
+						}
+						
+						break;
+				}
+			}, this);
+			this._numLightsOnNode.innerHTML = numLightsOn;
+			if (numThermostatsOn > 0) {
+				this._thermostatsStatusNode.innerHTML = 'On'
+			} else {
+				this._thermostatsStatusNode.innerHTML = 'Off'
+			}
 		},
 
 		_toggleAwayStatus: function(person) {
