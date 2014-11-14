@@ -18,10 +18,14 @@ exports.start = function(params) {
 	var app = params.app;
 	
 	app.get(config.DASHBOARD_URL, function(req, res) {
-		view.render(req, res, {
-			view: 'dashboard',
-			title: 'Home'
-		});
+		//res.redirect('/dashboard.html');
+
+		res.render('../public/dashboard.html');
+
+		// view.render(req, res, {
+		// 	view: 'dashboard',
+		// 	title: 'Home'
+		// });
 	});
 	
 	app.get(config.DASHBOARD_API_URL + '/:id', function(req, res) {
