@@ -33,7 +33,7 @@ certs
 config/*
 !config/*.example
 dbs/*
-resources
+/resources
 nodemon.json
 
 

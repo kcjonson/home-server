@@ -22,15 +22,18 @@ require.config({
 
 require([
 	'app/Router',
-	'app/models/Indigo'
+	'app/models/Indigo',
+	'app/views/Navigation'
 ], function(
 	Router,
-	IndigoModel
+	IndigoModel,
+	Navigation
 ){
 
 
 	var indigoModel;
 	var router;
+	var navigation;
 	var started = false;
 
 
@@ -65,7 +68,7 @@ require([
 
 // Init Methods
 
-	function initModel () {
+	function initModel() {
 		indigoModel = new IndigoModel({
 			id: '1',
 			variables: [
@@ -80,17 +83,22 @@ require([
 		indigoModel.fetch();
 	}
 
-	function initRouter (argument) {
+	function initRouter(argument) {
 		router = new Router({
 			indigoModel: indigoModel,
 			el: $('body > .views')
 		});
-
+		navigation = new Navigation({
+			el: $('body > .footer > .navigation'),
+			router: router
+		});
 	};
+
 
 	function start () {
 		Backbone.history.start({
-			root: '/home/'
+			root: '/home/',
+			pushState: true
 		});
 		$('body').addClass('loaded');
 		started = true;

@@ -4,14 +4,16 @@ define([
 	'backbone',
 	'app/views/Dashboard',
 	'app/views/Devices',
-	'app/views/Actions'
+	'app/views/Actions',
+	'app/views/Alarm'
 ], function(
 	$,
 	_,
 	Backbone,
 	Dashboard,
 	Devices,
-	Actions
+	Actions,
+	Alarm
 ){
 
 	// Store the loaded views in an object,
@@ -24,7 +26,8 @@ define([
 		routes: {
 			'': 'Dashboard',
 			'devices': 'Devices',
-			'actions': 'Actions'
+			'actions': 'Actions',
+			'alarm': 'Alarm'
 		},
 		
 		initialize: function(args) {
@@ -35,7 +38,8 @@ define([
 					var viewPrototype = eval(currentView);
 					if (viewPrototype) {
 						views[currentView] = new viewPrototype({
-							indigoModel: args.indigoModel
+							indigoModel: args.indigoModel,
+							router: this
 						});
 						this.el.append(views[currentView].$el);
 					}
@@ -56,11 +60,6 @@ define([
 
 		Dashboard: function() {
 			console.log('route to Dashboard');
-			// if (!views.dashboard) {
-			// 	views.dashboard = new Dashboard({});
-			// 	this.el.append(views.dashboard.$el);
-			// }
-			//views.dashboard.show();
 		},
 
 		Devices: function() {

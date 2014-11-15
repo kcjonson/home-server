@@ -89,7 +89,6 @@ exports.start = function(params){
 	app.post(config.API_URL + '/variables/:name', function(req, res) {
 		var variableName = req.params.name;
 		console.log('POST ' + config.API_URL + 'variables/', variableName);
-
 	});
 
 	app.patch(config.API_URL + '/variables/:name', function(req, res) {
@@ -101,7 +100,17 @@ exports.start = function(params){
 				res.send();
 			}
 		});
+	});
 
+	app.put(config.API_URL + '/variables/:name', function(req, res) {
+		var variableName = req.params.name;
+		var variableValue = req.body.value;
+		console.log('PUT ' + config.API_URL + 'variables/', variableName, variableValue);
+		indigo.setVariable(variableName, variableValue, function(error, variableData){
+			if (error) {res.send(error)} else {
+				res.send();
+			}
+		});
 	});
 
 

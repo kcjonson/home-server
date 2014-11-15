@@ -2,6 +2,7 @@
 
 	@base-color: rgb(44, 42, 42);
 	@highlight-color: #45C7EC;
+	@text-color-light: #ccc;
 	
 	
 	a {
@@ -56,6 +57,31 @@
 		}
 	}
 
+
+	.section {
+		margin: 1em;
+
+		&:first-child {
+			margin-top: 0;
+		}
+
+		> h2 {
+			border-bottom: 1px solid #eee;
+			margin-bottom: 8px;
+
+			> span {
+				background-color: #fff;
+				position: relative;
+				top: 6px;
+				padding-right: 1em;
+				color: @text-color-light;
+				font-size: .8em;
+				font-weight: lighter;
+			}
+		}
+
+	}
+
 	
 	
 
@@ -87,7 +113,11 @@
 			background-color: darken(@highlight-color, 10%);
 		}
 		
-
+		&.link {
+			background: transparent;
+			box-shadow: none;
+			color: @highlight-color;
+		}
 	}
 	
 	input[type='text'],
@@ -110,4 +140,19 @@
 			border-color: @highlight-color;
 			outline: none;
 		}
+	}
+
+	input[type='radio'] {
+		display: none;
+
+
+		& + label {
+			color: @highlight-color;
+		}
+
+		&:checked + label {
+			color: inherit;
+		}
+
+
 	}

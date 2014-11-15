@@ -73,13 +73,14 @@ define([
 
 		initialize: function(args) {
 			this.indigoModel = args.indigoModel;
+			this.router = args.router;
 			
 			this._initializeTemplate();
+			this._alarmTimeNode.addEventListener("click", _.bind(this._onAlarmTimeClick, this));
 			this._alarmStatusNode.addEventListener("click", _.bind(this._onAlarmStatusClick, this));
 			this._isAwayKevinNode.addEventListener("click", _.bind(this._onIsAwayKevinClick, this));
 			this._isAwayMargaretNode.addEventListener("click", _.bind(this._onIsAwayMargaretClick, this));
 
-			//this._updateDisplay();
 			this.indigoModel.on('change', _.bind(this._onIndigoModelChange, this));
 		},
 
@@ -120,6 +121,11 @@ define([
 		
 	
 	// User Event Handlers
+
+
+		_onAlarmTimeClick: function() {
+			this.router.navigate('alarm', {trigger: true});
+		},
 	
 		_onAlarmStatusClick: function() {
 			
