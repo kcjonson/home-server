@@ -36,5 +36,13 @@ Home Server
 **/app/views & /app/templates** - Handlebars backend templated views and templates.  Sparsely used as much of the templating and views are managed by the JS applications.
 
 **/app/public/scripts/apps/** - Base directory for front end JS applications.
+
+## ToDo List
+
+* Better refresh of data in app (sometimes view can get stale)
+* Add ability to see logs in app
+* Remove white flash after spash screen in native app
+* Add polling to app to update ui on increment, enhance to push if possible
+
   
   

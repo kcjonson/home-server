@@ -31,6 +31,11 @@ require([
 ){
 
 
+	// Fun Hack for iOS
+	document.addEventListener("touchstart", function() {},false);
+
+
+
 	var indigoModel;
 	var router;
 	var navigation;

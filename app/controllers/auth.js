@@ -7,7 +7,7 @@ var started;
 
 exports.interceptor = function() {
 	return function auth(req, res, next) {	
-		console.log(new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '') + ' Request for: ' + req.url);		
+		//console.log(new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '') + ' Request for: ' + req.url);		
 		if (started) {		
 			var isPublicUrl = false;
 			config.PUBLIC_URLS.forEach(function(publicUrl){
@@ -52,7 +52,6 @@ exports.start = function(params) {
 				console.log('Authentication Success');
 				var destination = req.session.destination || '/home';
 				req.session.regenerate(function(){
-					console.log('u', user) 
 					req.session.userId = user._id;
 					req.session.success = 'Authenticated as ' + user.username;
 					req.session.destination = null;

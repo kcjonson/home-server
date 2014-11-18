@@ -4,5 +4,5 @@
 		"dbs/",
 		".tmp"
 	],
-	"verbose": true
+	"verbose": false
 }

@@ -24,7 +24,7 @@ function _checkin(data) {
 				default:
 					// Everyone panic.
 			};
-
+			console.log('Location:', location);
 			checkins.add({
 				user: user._id,
 				name: location,  // May be null

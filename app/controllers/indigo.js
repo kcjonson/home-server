@@ -15,6 +15,16 @@ exports.start = function(params){
 // Connect Server
 
 	indigo.connectServer();
+
+
+
+// Listen for Events from Indigo
+
+	app.post(config.API_URL + '/push', function(req,res){
+		var data = req.body;
+		console.log('POST: ' + config.API_URL + '/push', data);
+		res.send();
+	});
 	
 
 // All
@@ -41,8 +51,6 @@ exports.start = function(params){
 	});
 
 
-
-
 // Actions
 
 	app.get(config.API_URL + '/actions/', function(req, res){
@@ -56,6 +64,7 @@ exports.start = function(params){
 
 	app.get(config.API_URL + '/actions/:name', function(req, res) {
 		var action = req.params.name;
+		console.log('GET ' + config.API_URL + 'actions/');
 		if (action) {
 			indigo.executeAction(req.params.name, function(error){
 				res.send();

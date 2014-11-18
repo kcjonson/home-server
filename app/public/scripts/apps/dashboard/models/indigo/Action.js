@@ -14,8 +14,9 @@ define([
 		idAttribute: 'name',
 
 		execute: function() {
+			console.log('Execute Action')
 			console.log('models.indigo.Action.execute()');
-			$.get(SERVER + '/api/indigo/actions/' + this.get('name'), {}).done(_.bind(this._onExecuteSuccess, this)).fail(_.bind(this._onExecuteSuccess, this));
+			$.get(SERVER + 'api/indigo/actions/' + this.get('name'), {}).done(_.bind(this._onExecuteSuccess, this)).fail(_.bind(this._onExecuteSuccess, this));
 		},
 
 		_onExecuteSuccess: function() {

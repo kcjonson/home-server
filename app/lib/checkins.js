@@ -10,9 +10,12 @@ exports.getMostRecentByUserId = _getMostRecentByUserId;
 
 function _add(data, callback) {
 
+
 	if (!data.name) {
 		data.name = config.CHECKINS_UNKNOWN_NAME;
 	}
+
+	console.log('Adding Checkin', data);
 
 	var newCheckin = new checkinModel(data);
 	database.save(newCheckin, function(error){

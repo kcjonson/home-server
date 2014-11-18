@@ -4,7 +4,8 @@
 @import url('./apps/dashboard/views/Alarm.less');
 
 
-@base-color: rgb(44, 42, 42);
+	@base-color: rgb(44, 42, 42);
+	@highlight-color: #45C7EC;
 
 
 
@@ -113,6 +114,8 @@
 			width: 100vw;
 			background-color: lighten(@base-color, 10%);
 			color: #fff;
+			-webkit-user-select: none;
+
 			.navigation {
 				display: table;
 				width: 100%;
@@ -122,6 +125,11 @@
 					text-align: center;
 					width: 33.33%;
 					padding: 10px 5px 5px 5px;
+					color: darken(#fff, 30%);
+
+					&:active {
+						color: @highlight-color;
+					}
 
 					> span {
 						display: block;
@@ -132,6 +140,10 @@
 							font-size: 30px;
 							padding-bottom: 5px;
 						}
+					}
+
+					&.selected {
+						color: #fff;
 					}
 
 				}

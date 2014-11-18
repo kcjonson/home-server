@@ -18,8 +18,23 @@ define([
 		name: 'Navigation',
 
 		initialize: function(args) {
+			this._options = {}; // Store node refs for nav options.
 			this.router = args.router;	
 			this._initializeTemplate();
+
+			this.router.on("route", _.bind(function(route, params) {
+			    console.log("Different Page: ", route, params);
+			    for (var option in this._options) {
+			    	if (this._options.hasOwnProperty(option)) {
+			    		var optionNode = this._options[option];
+			    		var optionName = this.router.routes[option];  // Use map on router
+			    		var selected = optionName == route;
+			    		$(optionNode).toggleClass('selected', selected);
+			    		console.log($(optionNode))
+			    	}
+			    }
+			}, this));
+
 		},
 		
 		_initializeTemplate: function() {
@@ -39,6 +54,7 @@ define([
 				}, this));
 				$('[data-route]', this.$el).each(_.bind(function(index, routeNode){
 					var route = routeNode.attributes['data-route'].value;
+					this._options[route] = routeNode;
 					routeNode.addEventListener("click", _.bind(this._onRouteClick, this, route));
 				}, this));
 			};

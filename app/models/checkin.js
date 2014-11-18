@@ -12,7 +12,7 @@ var checkinSchema = new mongoose.Schema({
 		lng: Number
 	}
 }).post('save', function(document){
-	console.log('Finished Saving Changes to checkin object');
+	console.log('Finished saving changes to checkin object', document);
 	if (document.user) {
 		users.setMostRecentCheckin(document.user, this);
 	}
