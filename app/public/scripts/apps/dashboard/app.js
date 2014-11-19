@@ -23,11 +23,13 @@ require.config({
 require([
 	'app/Router',
 	'app/models/Indigo',
-	'app/views/Navigation'
+	'app/views/Navigation',
+	'app/views/Header'
 ], function(
 	Router,
 	IndigoModel,
-	Navigation
+	Navigation,
+	Header
 ){
 
 
@@ -39,6 +41,7 @@ require([
 	var indigoModel;
 	var router;
 	var navigation;
+	var header;
 	var started = false;
 
 
@@ -95,6 +98,10 @@ require([
 		});
 		navigation = new Navigation({
 			el: $('body > .footer > .navigation'),
+			router: router
+		});
+		header = new Header({
+			el: $('body > .header'),
 			router: router
 		});
 	};

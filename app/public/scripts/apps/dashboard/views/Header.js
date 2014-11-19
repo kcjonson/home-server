@@ -2,7 +2,7 @@ define([
 	'jquery',
 	'underscore',
 	'backbone',
-	'text!./Navigation.html'
+	'text!./Header.html'
 ], function(
 	$,
 	_,
@@ -15,22 +15,14 @@ define([
 
 
 	// Init
-		name: 'Navigation',
+		name: 'Header',
 
 		initialize: function(args) {
-			this._options = {}; // Store node refs for nav options.
 			this.router = args.router;	
 			this._initializeTemplate();
 
 			this.router.on("route", _.bind(function(route, params) {
-			    for (var option in this._options) {
-			    	if (this._options.hasOwnProperty(option)) {
-			    		var optionNode = this._options[option];
-			    		var optionName = this.router.routes[option];  // Use map on router
-			    		var selected = optionName == route;
-			    		$(optionNode).toggleClass('selected', selected);
-			    	}
-			    }
+			    this._titleNode.innerHTML = route; 
 			}, this));
 
 		},
@@ -50,19 +42,9 @@ define([
 					var attachPointName = attachPointNode.attributes['data-attach-point'].value;
 					this[attachPointName] = attachPointNode;
 				}, this));
-				$('[data-route]', this.$el).each(_.bind(function(index, routeNode){
-					var route = routeNode.attributes['data-route'].value;
-					this._options[route] = routeNode;
-					routeNode.addEventListener("click", _.bind(this._onRouteClick, this, route));
-				}, this));
 			};
 
-		},
-
-		_onRouteClick: function(route) {
-			this.router.navigate(route, {trigger: true});
 		}
-
 
 
 	});

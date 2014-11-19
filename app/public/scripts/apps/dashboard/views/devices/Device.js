@@ -2,12 +2,14 @@ define([
 	'jquery',
 	'underscore',
 	'backbone',
-	'text!./Device.html'
+	'text!./Device.html',
+	'../Device'
 ], function(
 	$,
 	_,
 	Backbone,
-	templateString
+	templateString,
+	Device
 ){
 
 
@@ -18,11 +20,19 @@ define([
 		name: 'Device',
 
 		initialize: function(params) {
+			this.router = params.router;
 			this._initializeTemplate();
 			this.model.on("change", _.bind(this._onModelChange, this));
 			this._updateDisplay();
 			this._nameNode.addEventListener("click", _.bind(this._onNameNodeClick, this));
 			this._stateNode.addEventListener("click", _.bind(this._onStateNodeClick, this));
+
+			// Touch Events
+			// this.$el.on("touchstart", _.bind(this._onTouchStart, this));
+			// this.$el.on("touchend", _.bind(this._onTouchEnd, this));
+			// this.$el.on("touchcancel", _.bind(this._onTouchCancel, this));
+			// this.$el.on("touchleave", _.bind(this._onTouchLeave, this));
+			// this.$el.on("touchmove", _.bind(this._onTouchMove, this));
 		},
 
 
@@ -56,19 +66,39 @@ define([
 		},
 
 		_onNameNodeClick: function() {
-			
+			this.router.navigate('device', {trigger: true});
 		},
 
 		_onModelChange: function () {
 			this._updateDisplay();
 		},
 
+	// Private Events
 
-		/* 
+		_onTouchStart: function() {
+			console.log('_onTouchStart');
+		},
 
-			This is admittedly, a huge mess.
+		_onTouchEnd: function() {
+			console.log('_onTouchEnd')
+		},
 
-		*/
+		_onTouchCancel: function() {
+			console.log('_onTouchCancel')
+		},
+
+		_onTouchLeave: function() {
+			console.log('_onTouchLeave')
+		},
+
+		_onTouchMove: function() {
+			console.log('_onTouchMove')
+		},
+
+
+
+	// Private Functions
+
 		_updateDisplay: function () {
 			this._nameNode.innerHTML = this.model.get('name');
 			switch (this.model.get('category')) {

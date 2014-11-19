@@ -2,6 +2,8 @@
 @import url('./apps/dashboard/views/Actions.less');
 @import url('./apps/dashboard/views/Devices.less');
 @import url('./apps/dashboard/views/Alarm.less');
+@import url('./apps/dashboard/views/Navigation.less');
+@import url('./apps/dashboard/views/Header.less');
 
 
 	@base-color: rgb(44, 42, 42);
@@ -54,38 +56,6 @@
 			}
 		}
 
-		> .header {
-			position: fixed;
-			top: 0;
-			display: table;
-			width: 100vw;
-			background-color: lighten(@base-color, 10%);
-			color: #fff;
-			box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
-			margin-bottom: 1em;
-			padding-top: 20px;
-
-			* > {
-				display: table-cell;
-				padding: .7em;
-			}
-
-			h1 {
-				text-align: center;
-				font-weight: lighter;
-			}
-
-			.user {
-				.name {
-					text-align: right;
-					display: block;
-				}
-				.logout {
-					display: none;
-				}
-			}
-		}
-
 		> .notice {
 			box-sizing: border-box;
 			position: absolute;
@@ -114,40 +84,6 @@
 			width: 100vw;
 			background-color: lighten(@base-color, 10%);
 			color: #fff;
-			-webkit-user-select: none;
-
-			.navigation {
-				display: table;
-				width: 100%;
-
-				> * {
-					display: table-cell;
-					text-align: center;
-					width: 33.33%;
-					padding: 10px 5px 5px 5px;
-					color: darken(#fff, 30%);
-
-					&:active {
-						color: @highlight-color;
-					}
-
-					> span {
-						display: block;
-						font-size: 11px;
-
-						&:before {
-							display: block;
-							font-size: 30px;
-							padding-bottom: 5px;
-						}
-					}
-
-					&.selected {
-						color: #fff;
-					}
-
-				}
-			}
 		}
 
 		@-webkit-keyframes BACKGROUND {

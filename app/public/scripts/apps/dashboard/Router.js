@@ -5,7 +5,8 @@ define([
 	'app/views/Dashboard',
 	'app/views/Devices',
 	'app/views/Actions',
-	'app/views/Alarm'
+	'app/views/Alarm',
+	'app/views/Device'
 ], function(
 	$,
 	_,
@@ -13,7 +14,8 @@ define([
 	Dashboard,
 	Devices,
 	Actions,
-	Alarm
+	Alarm,
+	Device
 ){
 
 	// Store the loaded views in an object,
@@ -27,7 +29,8 @@ define([
 			'': 'Dashboard',
 			'devices': 'Devices',
 			'actions': 'Actions',
-			'alarm': 'Alarm'
+			'alarm': 'Alarm',
+			'device': 'Device'
 		},
 		
 		initialize: function(args) {

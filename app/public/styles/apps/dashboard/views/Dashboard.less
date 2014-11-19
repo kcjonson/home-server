@@ -1,6 +1,9 @@
 
+	
 
-
+	@base-color: rgb(44, 42, 42);
+	@highlight-color: #45C7EC;
+	@text-color-light: #ccc;
 
 
 
@@ -35,6 +38,10 @@
 				
 				.time {
 					font-size: 3em;
+
+					&:active {
+						color: @highlight-color;
+					}
 				}
 				
 				.status {
@@ -53,8 +60,11 @@
 						
 					}
 					
-					&:active {
-						color: #4BB5C1;
+					.isOn,
+					.isRunning {
+						&:active {
+							color: @highlight-color !important;
+						}
 					}
 					
 				}
@@ -70,7 +80,9 @@
 
 
 				.label {
-
+					&:active {
+						color: @highlight-color;
+					}
 				}
 
 			}
@@ -96,7 +108,9 @@
 
 					> * {
 						font-size: 2em;
-						
+						&:active {
+							color: @highlight-color !important;
+						}
 					}
 				}
 

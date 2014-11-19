@@ -2,14 +2,12 @@ define([
 	'jquery',
 	'underscore',
 	'backbone',
-	'text!./Devices.html',
-	'./devices/Device'
+	'text!./Device.html'
 ], function(
 	$,
 	_,
 	Backbone,
-	templateString,
-	Device
+	templateString
 ){
 	
 	
@@ -19,17 +17,14 @@ define([
 
 
 	// Init
-		name: 'Devices',
-		attributes: {
-			'class': 'scrollable'
-		},
+		name: 'Device',
 
 		initialize: function(args) {	
 			this._initializeTemplate();
-			this.router = args.router;
+
 			this.indigoModel = args.indigoModel;
-			this._populateDevicesList();
-			this.indigoModel.on("change", _.bind(this._onIndigoModelChange, this));
+			
+			//this.indigoModel.on("change", _.bind(this._onIndigoModelChange, this));
 
 
 		},
@@ -60,23 +55,7 @@ define([
 
 		hide: function() {
 			this.$el.addClass('hidden');
-		},
-
-		_onIndigoModelChange: function() {
-			this._populateDevicesList();
-		},
-
-		_populateDevicesList: function() {
-			if (this.indigoModel) {
-				var devicesCollection = this.indigoModel.get('devices');
-				devicesCollection.forEach(function (deviceModel) {
-					var deviceView = new Device({
-						model: deviceModel,
-						router: this.router
-					}).placeAt(this._devicesNode);
-				}, this);
-			}
-		},
+		}
 
 
 		

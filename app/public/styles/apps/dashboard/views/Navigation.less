@@ -1,0 +1,35 @@
+@highlight-color: #45C7EC;
+
+
+.Navigation {
+	display: table;
+	width: 100%;
+
+	> * {
+		display: table-cell;
+		text-align: center;
+		width: 33.33%;
+		padding: 10px 5px 5px 5px;
+		color: darken(#fff, 30%);
+
+		&:active {
+			color: @highlight-color;
+		}
+
+		> span {
+			display: block;
+			font-size: 11px;
+
+			&:before {
+				display: block;
+				font-size: 30px;
+				padding-bottom: 5px;
+			}
+		}
+
+		&.selected {
+			color: #fff;
+		}
+
+	}
+}
