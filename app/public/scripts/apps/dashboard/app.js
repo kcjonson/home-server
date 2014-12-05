@@ -90,6 +90,7 @@ require([
 			root: '/home/',
 			pushState: true
 		});
+		router.navigate('', { trigger: true });
 		$('body').addClass('loaded');
 		started = true;
 	};

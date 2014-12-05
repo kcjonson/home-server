@@ -26,7 +26,6 @@ define([
 	return Backbone.Router.extend({
 
 		routes: {
-			'dashboard.html': 'Dashboard',
 			'': 'Dashboard',
 			'devices': 'Devices',
 			'actions': 'Actions',
