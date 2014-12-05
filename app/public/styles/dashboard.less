@@ -26,22 +26,6 @@
 			-webkit-transform:translateZ(2px);
 		}
 
-		> .background {
-			width: 100vw;
-			height: 100vh;
-			position: fixed;
-			top: 0;
-			background-image: url('/images/exterior.jpg');
-			background-repeat: no-repeat;
-			background-size: auto 100vh;
-			-webkit-filter: blur(3px);
-			-moz-filter: blur(3px);
-			-ms-filter: blur(3px);
-			filter: blur(5px);
-			opacity: .2;
-			-webkit-animation: BACKGROUND 10s 0 1;
-		}
-
 		&.loaded {
 			> .header,
 			> .views,
@@ -52,20 +36,33 @@
 				display: none;
 			}
 
-			> .background {
-				-webkit-animation: none;
-				-webkit-animation-iteration-count: 0;
-			}
 		}
 
-		> .notice {
+		> .notice.loading {
 			box-sizing: border-box;
 			position: absolute;
 			width: 100vw;
-			height: 100vh;
-			padding-top: 40vh;
+			height: 0px;
+			top: 50vh;
 			text-align: center;
-			top: 0;
+
+			> svg {
+				width: 71.5px;
+				height: 75px;
+				position: relative;
+				top: -37.5px;
+
+				#arc-outer,
+				#arc-inner {
+					-webkit-animation-name: PULSE;
+					-webkit-animation-duration: 2s;
+					-webkit-animation-iteration-count: infinite;
+				}
+
+				#arc-outer {
+					-webkit-animation-delay: .5s;
+				}
+			}
 		}
 
 		> .views {
@@ -88,15 +85,12 @@
 			color: #fff;
 		}
 
-		@-webkit-keyframes BACKGROUND {
-			from {
-				background-position: 42% 50%;
-			}
-
-			to {
-				background-position: 58% 50%;
-			}
+		@-webkit-keyframes PULSE {
+			0%{opacity:0;}
+			90%{opacity:1;}
+			100%{opacity:0;}
 		}
+
 
 	}
 

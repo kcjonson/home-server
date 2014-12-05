@@ -3,7 +3,7 @@ define([
 	'underscore',
 	'backbone',
 	'text!./Dashboard.html',
-	'./dashboard/Action',
+	'./actions/Action',
 	'app/models/Indigo'
 ], function(
 	$,
@@ -256,13 +256,17 @@ define([
 
 		_createActions: function(conditions) {
 			//console.log('_createActions');
+			var actionsCollection = this.indigoModel.get('actions');
 			QUICK_ACTIONS.forEach(function(action, index){
 				isVisible = action.condition(conditions)
 				if (isVisible && !action.view && index < 4) {
-					action.view = new Action({
-						name: action.name,
-						label: action.label
-					}).placeAt(this._actionsNode);
+					var actionModel = actionsCollection.findWhere({name: action.name})
+					console.log(actionsCollection, action.name, actionModel);
+					if (actionModel) {
+						action.view = new Action({
+							model: actionModel
+						}).placeAt(this._actionsNode);
+					}
 				} else if (action.view && !isVisible) {
 					action.view.remove();
 					action.view = undefined;
