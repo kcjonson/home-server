@@ -8,6 +8,24 @@ define([
 	_,
 	Backbone
 ){
+
+
+	var NAME_TO_LOCATIONS_MAP = {
+		'Master Bathroom': 'Upstairs',
+		'Master Bedroom': 'Upstairs',
+		'Upstairs': 'Upstairs',
+		'Kitchen': 'Main Floor',
+		'Living Room': 'Main Floor',
+		'Pantry': 'Main Floor',
+		'Office': 'Downstairs',
+		'TV Room': 'Downstairs',
+		'Entry': 'Downstairs',
+		'Downstairs': 'Downstairs',
+		'Outside': 'Outside'
+	};
+
+
+
 	
 	return Backbone.RelationalModel.extend({
 		urlRoot: SERVER + 'api/indigo/devices',
@@ -36,6 +54,21 @@ define([
 				default:
 					return 'unknown'
 			}
+		},
+
+		location: function() {
+			var name = this.get('name');
+
+			// This is total hack.
+			// Should probally be moved to the backend.
+			var location = 'unknown';
+			for (var key in NAME_TO_LOCATIONS_MAP) {
+				if (name.indexOf(key) > -1) {
+					location = NAME_TO_LOCATIONS_MAP[key];
+				}
+			}
+			return location;
+
 		}
 
 

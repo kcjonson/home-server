@@ -19,11 +19,15 @@ define([
 
 		initialize: function(args) {
 			this.router = args.router;	
+			this.indigoModel = args.indigoModel;
 			this._initializeTemplate();
 
 			this.router.on("route", _.bind(function(route, params) {
 			    this._titleNode.innerHTML = route; 
 			}, this));
+
+			this.indigoModel.on("request", _.bind(this._onIndigoModelRequest, this));
+			this.indigoModel.on("sync", _.bind(this._onIndigoModelSync, this));
 
 		},
 		
@@ -44,6 +48,16 @@ define([
 				}, this));
 			};
 
+		},
+
+		_onIndigoModelRequest: function (model, xhr, options) {
+			//console.log('app._onIndigoModelRequest()', model, xhr, options);
+			$(this._statusNode).removeClass('hidden');
+		},
+
+		_onIndigoModelSync: function (model, response, options) {
+			//console.log('app._onIndigoModelRequest()', model, response, options);
+			$(this._statusNode).addClass('hidden');
 		}
 
 

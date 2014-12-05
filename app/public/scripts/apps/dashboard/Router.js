@@ -26,17 +26,20 @@ define([
 	return Backbone.Router.extend({
 
 		routes: {
+			'dashboard.html': 'Dashboard',
 			'': 'Dashboard',
 			'devices': 'Devices',
 			'actions': 'Actions',
 			'alarm': 'Alarm',
-			'device': 'Device'
+			'device/:device': 'Device'
 		},
 		
 		initialize: function(args) {
 			this.el = args.el;
-			this.on('route', function(currentView) {
+			this.on('route', function(currentView, params) {
 
+				// Create View if not Visited Yet.
+				// Alternately, we could do this all at init.
 				if (!views[currentView]) {
 					var viewPrototype = eval(currentView);
 					if (viewPrototype) {
@@ -48,16 +51,21 @@ define([
 					}
 				}
 
+				// Hide/Show Correct View
 				for (var key in views) {
 					if (views.hasOwnProperty(key)) {
 						var v = views[key];
 						if (v.name !== currentView) {
 							v.hide();
 						} else {
-							v.show();
+							v.show(params);
 						}
 					}
 				}
+
+				// Update Model
+				args.indigoModel.fetch();
+
 			})
 		},
 

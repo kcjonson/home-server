@@ -123,12 +123,20 @@
 			box-shadow: none;
 			background-color: darken(@highlight-color, 10%);
 		}
+
+		&:disabled,
+		&[disabled] {
+			background: lighten(@highlight-color, 30%);
+			box-shadow: none;
+		}
 		
 		&.link {
 			background: transparent;
 			box-shadow: none;
 			color: @highlight-color;
 		}
+
+
 	}
 	
 	input[type='text'],
@@ -161,11 +169,29 @@
 
 		& + label {
 			color: @highlight-color;
+			-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 		}
 
 		&:checked + label {
 			color: inherit;
 		}
+
+
+	}
+
+	.button-group {
+
+		> * {
+			display: inline-block;
+			border-radius: 0;
+			text-align: center;
+		}
+
+		&.two > * {
+			width: 50%;
+		}
+
+
 
 
 	}

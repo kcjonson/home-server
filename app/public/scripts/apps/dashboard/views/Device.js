@@ -2,60 +2,77 @@ define([
 	'jquery',
 	'underscore',
 	'backbone',
+	'app/View',
+	'./device/Thermostat',
+	'./device/Light',
 	'text!./Device.html'
 ], function(
 	$,
 	_,
 	Backbone,
+	View,
+	Thermostat,
+	Light,
 	templateString
 ){
 	
 	
 	
 
-	return Backbone.View.extend({
+	return View.extend({
 
 
 	// Init
 		name: 'Device',
+		templateString: templateString,
 
-		initialize: function(args) {	
-			this._initializeTemplate();
-
+		initialize: function(args) {
 			this.indigoModel = args.indigoModel;
-			
+			View.prototype.initialize.call(this);
 			//this.indigoModel.on("change", _.bind(this._onIndigoModelChange, this));
-
-
 		},
 
-		
-		_initializeTemplate: function() {
-		
-			// Consume template string
-			if (templateString) {
-				var templateDom = _.template(templateString);
-				this.$el.html(templateDom);
-				this.$el.addClass(this.name);
-			};
-			
-			// Collect attach points
-			if (this.$el) {
-				$('[data-attach-point]', this.$el).each(_.bind(function(index, attachPointNode){
-					var attachPointName = attachPointNode.attributes['data-attach-point'].value;
-					this[attachPointName] = attachPointNode;
-				}, this));
-			};
-			
+
+		show: function(params) {
+			View.prototype.show.call(this);
+			if (params && params.length > 0) {
+				var id = params[0];
+				var model = this.indigoModel.get('devices').findWhere({id: id});
+				if (model) {
+					this._displayDevice(model);
+				}
+			}
 		},
 
-		show: function() {
-			this.$el.removeClass('hidden');
-		},
 
-		hide: function() {
-			this.$el.addClass('hidden');
+		_displayDevice: function(model) {
+			var category = model.get('category');
+			console.log('dm', model, category);
+			this._nameNode.innerHTML = model.get('name');
+
+			var detailsType;
+			switch(category) {
+				case 'thermostat':
+					detailsType = Thermostat;
+					break;
+				case 'light':
+					detailsType = Light;
+					break;
+			}
+
+			if (this._detailsView) {
+				this._detailsView.remove();
+			}
+
+			if (detailsType) {
+				this._detailsView = new detailsType({
+					model: model
+				}).placeAt(this._detailsNode);
+			}
 		}
+
+
+
 
 
 		

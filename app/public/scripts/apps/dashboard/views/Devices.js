@@ -3,17 +3,15 @@ define([
 	'underscore',
 	'backbone',
 	'text!./Devices.html',
-	'./devices/Device'
+	'./devices/Category'
 ], function(
 	$,
 	_,
 	Backbone,
 	templateString,
-	Device
+	Category
 ){
-	
-	
-	
+
 
 	return Backbone.View.extend({
 
@@ -30,8 +28,8 @@ define([
 			this.indigoModel = args.indigoModel;
 			this._populateDevicesList();
 			this.indigoModel.on("change", _.bind(this._onIndigoModelChange, this));
-
-
+			$(this._typeInput).on("change", _.bind(this._onGroupingChange, this));
+			$(this._locationInput).on("change", _.bind(this._onGroupingChange, this));
 		},
 
 		
@@ -66,17 +64,48 @@ define([
 			this._populateDevicesList();
 		},
 
+		_onGroupingChange: function() {
+			this._populateDevicesList();
+		},
+
 		_populateDevicesList: function() {
 			if (this.indigoModel) {
 				var devicesCollection = this.indigoModel.get('devices');
+				var actionsCollection = this.indigoModel.get('actions');
+
+				for (var key in this._categoryViews) {
+					if (this._categoryViews.hasOwnProperty(key)) {
+						this._categoryViews[key].remove();
+					}
+				}
+				this._categoryViews = {};
+
+				var grouping = $("input:radio[name=devicesGrouping]:checked").val() || 'location';
+				
+				actionsCollection.forEach(function (actionModel) {
+					var category = actionModel.get(grouping) || 'unknown';
+					if (category !== 'unknown') {
+						this._checkAndCreateCategory(category);
+						this._categoryViews[category].addAction(actionModel);
+					}
+				}, this);
+
 				devicesCollection.forEach(function (deviceModel) {
-					var deviceView = new Device({
-						model: deviceModel,
-						router: this.router
-					}).placeAt(this._devicesNode);
+					var category = deviceModel.get(grouping) || 'unknown';
+					this._checkAndCreateCategory(category)
+					this._categoryViews[category].addDevice(deviceModel);
 				}, this);
 			}
 		},
+
+		_checkAndCreateCategory: function(category) {
+			if (!this._categoryViews[category]) {
+				this._categoryViews[category] = new Category({
+					title: category,
+					router: this.router
+				}).placeAt(this._categoriesNode);
+			};
+		}
 
 
 		

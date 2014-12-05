@@ -66,7 +66,8 @@ define([
 		},
 
 		_onNameNodeClick: function() {
-			this.router.navigate('device', {trigger: true});
+			var deviceId = this.model.get('id');
+			this.router.navigate('device/' + deviceId, {trigger: true});
 		},
 
 		_onModelChange: function () {
@@ -115,6 +116,11 @@ define([
 						 	brightness: newBrightness
 						}, {patch: true});
 					}
+					break;
+				case 'thermostat':
+					var isOn = this.model.get('hvacHeaterIsOn');
+					$(this._stateNode).addClass('icon fa fa-fire');
+					$(this._stateNode).toggleClass('on', isOn);
 					break;
 			}
 		}

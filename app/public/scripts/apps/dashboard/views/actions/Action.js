@@ -2,51 +2,29 @@ define([
 	'jquery',
 	'underscore',
 	'backbone',
+	'app/View',
 	'text!./Action.html'
 ], function(
 	$,
 	_,
 	Backbone,
+	View,
 	templateString
 ){
 
 
 
 
-	return Backbone.View.extend({
+	return View.extend({
 
 		name: 'Action',
+		templateString: templateString,
 
 		initialize: function(params) {
-			this._initializeTemplate();
+			View.prototype.initialize.call(this);
 			this.model.on("change", _.bind(this._onModelChange, this));
 			this._updateDisplay();
 			this.el.addEventListener("click", _.bind(this._onClick, this));
-		},
-
-
-		_initializeTemplate: function () {
-		
-			// Consume template string
-			if (templateString) {
-				var templateDom = _.template(templateString);
-				this.$el.html(templateDom);
-				this.$el.addClass(this.name);
-			};
-			
-			// Collect attach points
-			if (this.$el) {
-				$('[data-attach-point]', this.$el).each(_.bind(function(index, attachPointNode){
-					var attachPointName = attachPointNode.attributes['data-attach-point'].value;
-					this[attachPointName] = attachPointNode;
-				}, this));
-			};
-			
-		},
-
-		placeAt: function(node) {
-			node.appendChild(this.el);
-			return this;
 		},
 
 		_onClick: function() {

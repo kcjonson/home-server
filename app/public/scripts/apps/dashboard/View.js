@@ -2,12 +2,10 @@ define([
 	'jquery',
 	'underscore',
 	'backbone',
-	'text!./Group.html'
 ], function(
 	$,
 	_,
-	Backbone,
-	templateString
+	Backbone
 ){
 	
 	
@@ -15,24 +13,19 @@ define([
 
 	return Backbone.View.extend({
 
-
-	// Init
-		name: 'Group',
-
-		initialize: function(args) {			
+		initialize: function(args) {
 			this._initializeTemplate();
-			this.indigoModel = args.indigoModel;
 		},
 
-		
 		_initializeTemplate: function() {
-		
 			// Consume template string
-			if (templateString) {
-				var templateDom = _.template(templateString);
+			if (this.templateString) {
+				var templateDom = _.template(this.templateString);
 				this.$el.html(templateDom);
 				this.$el.addClass(this.name);
-			};
+			} else {
+				throw new Error('View Requires a templateString');
+			}
 			
 			// Collect attach points
 			if (this.$el) {
@@ -41,16 +34,20 @@ define([
 					this[attachPointName] = attachPointNode;
 				}, this));
 			};
-			
 		},
 
-		show: function() {
+		show: function(params) {
 			this.$el.removeClass('hidden');
 		},
 
 		hide: function() {
 			this.$el.addClass('hidden');
-		}
+		},
+
+		placeAt: function(node) {
+			node.appendChild(this.el);
+			return this;
+		},
 
 
 		

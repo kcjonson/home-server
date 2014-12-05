@@ -49,29 +49,6 @@ require([
 	initRouter();
 
 
-	// $('body').bind("touchmove", {}, function(event){
-	// 	event.preventDefault();
-	// });
-
-// var selScrollable = '.scrollable';
-// // Uses document because document will be topmost level in bubbling
-// $(document).on('touchmove',function(e){
-//   e.preventDefault();
-// });
-// // Uses body because jQuery on events are called off of the element they are
-// // added to, so bubbling would not work if we used document instead.
-// $('body').on('touchstart', selScrollable, function(e) {
-//   if (e.currentTarget.scrollTop === 0) {
-//     e.currentTarget.scrollTop = 1;
-//   } else if (e.currentTarget.scrollHeight === e.currentTarget.scrollTop + e.currentTarget.offsetHeight) {
-//     e.currentTarget.scrollTop -= 1;
-//   }
-// });
-// // Stops preventDefault from being called on document if it sees a scrollable div
-// $('body').on('touchmove', selScrollable, function(e) {
-//   e.stopPropagation();
-// });
-
 
 
 // Init Methods
@@ -102,12 +79,13 @@ require([
 		});
 		header = new Header({
 			el: $('body > .header'),
-			router: router
+			router: router,
+			indigoModel: indigoModel
 		});
 	};
 
 
-	function start () {
+	function start() {
 		Backbone.history.start({
 			root: '/home/',
 			pushState: true
@@ -117,18 +95,20 @@ require([
 	};
 
 
+
 // Event Handlers
 
-	function _onIndigoModelChange () {
+	function _onIndigoModelChange() {
 		console.log('app._onIndigoModelChange()', indigoModel);
 		if (!started) {
 			start();
 		}
 	}
 
-	function _onIndigoModelError (error) {
+	function _onIndigoModelError(error) {
 		console.log('app._onIndigoModelError()', error);
 	}
+
 
 
 
