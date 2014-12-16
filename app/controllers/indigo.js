@@ -33,13 +33,19 @@ exports.start = function(params){
 		console.log('GET ' + config.API_URL);
 		var indigoData = {};
 		indigo.getVariables(function(variablesError, variablesData){
+			log('getVariables:finish')
 			if (variablesError) {res.send(variablesError)} else {
+				log('getVariables:success')
 				indigoData.variables = variablesData;
 				indigo.getActions(function(actionsError, actionsData){
+					log('getActions:finish')
 					if (actionsError) {res.send(actionsError)} else {
+						log('getActions:success')
 						indigoData.actions = actionsData;
 						indigo.getDevices(function(devicesError, devicesData){
+							log('getDevices:finish')
 							if (devicesError) {res.send(devicesError)} else {
+								log('getDevices:success')
 								indigoData.devices = devicesData;
 								res.send(indigoData);
 							}
@@ -140,6 +146,10 @@ exports.start = function(params){
 
 
 };
+
+function log(message) {
+	//console.log(message);
+}
 
 
 
