@@ -23,7 +23,6 @@ define([
 			this.indigoModel = args.indigoModel;
 			this._initializeTemplate();
 			this.indigoModel.on('change', _.bind(this._onIndigoModelChange, this));
-			this._saveNode.addEventListener("click", _.bind(this._onSaveClick, this));
 		},
 		
 		_initializeTemplate: function() {
@@ -77,17 +76,30 @@ define([
 					break;
 			}
 			var variables = this.indigoModel.get('variables');
-			variables.findWhere({name: 'AlarmHour'}).set('value', date.getHours());
-			variables.findWhere({name: 'AlarmMinute'}).set('value', date.getMinutes());
-			this._updateDisplay();
-		},
 
-		_onSaveClick: function() {
-			var variables = this.indigoModel.get('variables');
+			// Set Hours
 			var hourModel = variables.findWhere({name: 'AlarmHour'});
+			hourModel.save({
+				value: date.getHours()
+			}, {patch: true});
+
+			// Set Minutes
 			var minuteModel = variables.findWhere({name: 'AlarmMinute'});
-			hourModel.save();
-			minuteModel.save();
+			minuteModel.save({
+				value: date.getMinutes()
+			}, {patch: true});
+
+			// Turn the alarm on with any changes
+			var alarmOnModel = this.indigoModel.get('variables').findWhere({name: 'AlarmOn'});
+			var isOn = alarmOnModel.get('value')
+			if (!isOn) {
+				alarmOnModel.save({
+					value: true
+				}, {patch: true});
+			}
+
+			// The models are not being watched, do it manually.
+			this._updateDisplay();
 		},
 
 		_onIndigoModelChange: function() {

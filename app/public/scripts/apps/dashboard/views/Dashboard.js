@@ -182,6 +182,9 @@ define([
 			var isOn = variables.findWhere({name: 'AlarmOn'}).get('value');
 			var isRunning = variables.findWhere({name: 'AlarmRunning'}).get('value');
 			if (hour && minute) {
+				if (minute.toString().length < 2) {
+					minute = "0" + minute;
+				}
 				this._alarmTimeNode.innerHTML = hour + ':' + minute;
 			}	
 			$(this._alarmIsOnNode).toggleClass('true', isOn);
@@ -261,7 +264,7 @@ define([
 				isVisible = action.condition(conditions)
 				if (isVisible && !action.view && index < 4) {
 					var actionModel = actionsCollection.findWhere({name: action.name})
-					console.log(actionsCollection, action.name, actionModel);
+					//console.log(actionsCollection, action.name, actionModel);
 					if (actionModel) {
 						action.view = new Action({
 							model: actionModel
