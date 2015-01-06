@@ -8,7 +8,7 @@ exports.render = function(req, res, params) {
 
 function _checkForStylesheet(req, res, params) {
 	// Check for CSS of same name
-	var path = 'app/public/styles/' + params.view + '.less';
+	var path = 'app/public/server-remote-web/styles/' + params.view + '.less';
 	fs.exists(path, function(exists) {
 		if (exists) {
 			params.stylesheet = 'styles/' + params.view + '.less';
@@ -19,7 +19,7 @@ function _checkForStylesheet(req, res, params) {
 
 // Is there a RequireJS/Backbone App for this view?
 function _checkForAppController(req, res, params) {
-	var path = 'app/public/scripts/apps/' + params.view + '/app.js';
+	var path = 'app/public/server-remote-web/scripts/apps/' + params.view + '/app.js';
 	fs.exists(path, function(exists) {
 		if (exists) {
 			params.app = 'scripts/apps/' + params.view + '/app';

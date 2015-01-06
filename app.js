@@ -48,7 +48,7 @@ app.use(session({
 }));
 app.use(authController.interceptor());
 //app.use(express.logger('dev'));
-app.use(express.static(__dirname + '/app/public'));
+app.use(express.static(__dirname + '/app/public/server-remote-web'));
 
 // Start Indigo Proxy
 var indigoProxy = httpProxy.createProxyServer();

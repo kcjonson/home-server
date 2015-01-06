@@ -20,7 +20,7 @@ exports.start = function(params) {
 	app.get(config.DASHBOARD_URL, function(req, res) {
 		//res.redirect('/dashboard.html');
 
-		res.render('../public/dashboard.html');
+		res.render('../public/server-remote-web/dashboard.html');
 
 		// view.render(req, res, {
 		// 	view: 'dashboard',
