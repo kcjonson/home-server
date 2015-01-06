@@ -1,0 +1,3 @@
+[submodule "app/public/server-remote-web"]
+	path = app/public/server-remote-web
+	url = https://github.com/kcjonson/server-remote-web.git
