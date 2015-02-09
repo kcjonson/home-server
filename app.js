@@ -3,8 +3,6 @@ var authConfig = require('./config/auth.json');
 var appConfig = require('./config/app.json');
 var indigoConfig = require('./config/indigo.json')
 
-
-
 // Controllers (Handle Endpoints)
 var usersController = require('./app/controllers/users');
 var authController = require('./app/controllers/auth');
@@ -48,7 +46,7 @@ app.use(session({
 }));
 app.use(authController.interceptor());
 //app.use(express.logger('dev'));
-app.use(express.static(__dirname + '/app/public/server-remote-web'));
+app.use(express.static(__dirname + '/app/public/'));
 
 // Start Indigo Proxy
 var indigoProxy = httpProxy.createProxyServer();

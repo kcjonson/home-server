@@ -1,6 +1,6 @@
 {
-  "name": "1825eglen",
-  "description": "1825eglen Home Server",
+  "name": "Server Backend",
+  "description": "Home Server Backend",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
@@ -13,5 +13,8 @@
     "http-proxy": "x",
     "mongoose": "x",
     "querystring": "x"
+  },
+  "scripts": {
+  	"start": "sudo nodemon app.js"
   }
 }
