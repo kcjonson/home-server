@@ -10,7 +10,6 @@ exports.getMostRecentByUserId = _getMostRecentByUserId;
 
 function _add(data, callback) {
 
-
 	if (!data.name) {
 		data.name = config.CHECKINS_UNKNOWN_NAME;
 	}

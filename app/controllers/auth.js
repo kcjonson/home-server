@@ -18,8 +18,9 @@ exports.interceptor = function() {
 			if (isPublicUrl || req.session.userId) {
 				next();
 			} else {
-				req.session.destination = req.url;
-				res.redirect(config.AUTH_LOGIN_URL);
+				//req.session.destination = req.url;
+				//res.redirect(config.AUTH_LOGIN_URL);
+				res.status(401).send('Unauthorized');
 			};	
 		} else {
 			next();
@@ -33,49 +34,54 @@ exports.start = function(params) {
 	var app = params.app;
 	publicUrls = params.publicUrls;
 	
-	// Server Login Page
-	app.get(config.AUTH_LOGIN_URL, function(req, res) {
-		view.render(req, res, {
-	    	view: 'login',
-	    	title: 'Login',
-	    	locals: {
-	    		error: req.session.error,
-	    		success: req.session.success
-	    	}
-	    });
-	});
-	
 	// Serve Login Endpoint
-	app.post(config.AUTH_LOGIN_URL, function(req, res) {
+	app.post(config.AUTH_LOGIN_API_URL, function(req, res) {
+		console.log('POST ', config.AUTH_LOGIN_API_URL)
 		_authenticate(req.body.username, req.body.password, function(err, user){
-			if (user) {
-				console.log('Authentication Success');
+			if (!err && user) {
+				console.log('Authentication Success', user);
 				var destination = req.session.destination || '/home';
 				req.session.regenerate(function(){
 					req.session.userId = user._id;
-					req.session.success = 'Authenticated as ' + user.username;
-					req.session.destination = null;
-					res.redirect(destination);
+					res.send(user);
 				});
 			} else {
 				console.log('Authentication Failed', err);
-				req.session.error = 'Authentication failed, please check your username and password.';
-				res.redirect(config.AUTH_LOGIN_URL);
+				res.send({
+					error: "Authentication failed, please check your username and password."
+				});
 			};
 		});
 	});
-	
-	// Serve Logout Page
-	app.get(config.AUTH_LOGOUT_URL, function(req, res){
-		// destroy the user's session to log them out
-		// will be re-created next request
+
+	// Serve Logout Endpoint
+	app.get(config.AUTH_LOGOUT_API_URL, function(req, res){
+		console.log('GET ', config.AUTH_LOGOUT_API_URL);
 		req.session.destroy(function(){
-			res.redirect(config.AUTH_LOGIN_URL);
+			res.send();
 		});
 	});
 
+	app.get(config.AUTH_CURRENT_USER_DATA_URL, function(req, res){
+		console.log('GET ', config.AUTH_CURRENT_USER_DATA_URL);
+		if (req.session.userId) {
+			users.getById(req.session.userId, function(error, user){
+				if (error) {
+					res.send({
+						error: error
+					});
+				} else {
+					res.send(user);
+				}
+			});
+		} else {
+			res.status(401).send('There is no user logged in');
+		}
+	})
+
 	started = true;
 }
+
 
 
 function _authenticate(username, password, callback) {
