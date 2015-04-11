@@ -13,6 +13,7 @@ var geohopperController = require('./app/controllers/geohopper');
 
 // Lib (Utilities);
 var users = require('./app/lib/users');
+var log = require('./app/lib/log');
 
 var geohopper = require('./app/lib/geohopper');
 // TODO Auth Lib
@@ -103,7 +104,7 @@ usersController.start({
 
 // Unsecure Server
 http.createServer(app).listen(appConfig.SERVER_PORT);
-console.log('Starting server on port ' + appConfig.SERVER_PORT);
+log.info('Starting server on port ' + appConfig.SERVER_PORT);
 
 // Secure Server
 var privateKey = fs.readFileSync(appConfig.SSL_PRIVATE_KEY);
@@ -113,9 +114,9 @@ if (privateKey && certificate) {
 		key: privateKey,
 		cert: certificate
 	}, app).listen(appConfig.SERVER_SECURE_PORT);
-	console.log('Starting secure server on port ' + appConfig.SERVER_SECURE_PORT);
+	log.info('Starting secure server on port ' + appConfig.SERVER_SECURE_PORT);
 } else {
-	console.log('Unable to start secure server: private key and certificate not found');
+	log.info('Unable to start secure server: private key and certificate not found');
 }
 
 

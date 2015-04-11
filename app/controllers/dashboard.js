@@ -1,6 +1,7 @@
 var view = require('../lib/view');
 var indigo = require('indigo/lib/indigo');
 var config = require('../../config/dashboard.json');
+var log = require('../lib/log');
 
 
 var ALARM_VARIABLES = [
@@ -27,9 +28,10 @@ exports.start = function(params) {
 		// 	title: 'Home'
 		// });
 	});
+
 	
 	app.get(config.DASHBOARD_API_URL + '/:id', function(req, res) {
-		console.log('GET ' + config.DASHBOARD_API_URL);
+		log.info('GET ' + config.DASHBOARD_API_URL);
 		getAlarmData(function(error, data) {
 			if (error) {
 				console.log('error');
@@ -40,14 +42,14 @@ exports.start = function(params) {
 	});
 	
 	app.post(config.DASHBOARD_API_URL + '/:id', function(req, res) {
-		console.log('POST ' + config.DASHBOARD_API_URL);
+		log.info('POST ' + config.DASHBOARD_API_URL);
 		setAlarmData(req.body, function(error){
 			res.send(req.body);
 		});
 	});
 
 	app.patch(config.DASHBOARD_API_URL + '/:id', function(req, res){
-		console.log('PATCH ' + config.DASHBOARD_API_URL);
+		log.info('PATCH ' + config.DASHBOARD_API_URL);
 		setAlarmData(req.body, function(error){
 			res.send(req.body);
 		});
@@ -59,13 +61,13 @@ exports.start = function(params) {
 
 function getNumOnDevices() {
 	indigo.getDevices(function(devices){
-			//console.log('devices', devices);
+			//log.info('devices', devices);
 			var numDevices = devices.length;
 			var numOnDevices = 0;
 			var numDevicesRead = 0;
 			devices.forEach(function(device){
 				indigo.getDevice(device.name, function(device){
-					//console.log(device);
+					//log.info(device);
 					numDevicesRead += 1;
 					if (device.isOn == true) {
 						numOnDevices += 1;
@@ -102,7 +104,7 @@ function getAlarmData(callback) {
 };
 
 function setAlarmData(data, callback) {
-	console.log('Set Alarm Data', data);
+	log.info('Set Alarm Data', data);
 	
 	var variablesChecked = 0;
 	ALARM_VARIABLES.forEach(function(alarmVariable){

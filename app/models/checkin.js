@@ -14,7 +14,7 @@ var checkinSchema = new mongoose.Schema({
 }).post('save', function(document){
 	console.log('Finished saving changes to checkin object', document);
 	if (document.user) {
-		users.setMostRecentCheckin(document.user, this);
+		users.setMostRecentCheckin(document.user, document);
 	}
 });
 

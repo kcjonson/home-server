@@ -1,5 +1,6 @@
 var config = require('../../config/geohopper.json');
 var appConfig  = require('../../config/app.json');
+var log = require('../lib/log');
 
 var geohopper = require('../lib/geohopper');
 
@@ -8,7 +9,7 @@ var geohopper = require('../lib/geohopper');
 var STARTED = false;
 
 exports.start = function(params){
-	console.log('Starting Geohopper REST Endpoints');
+	log.info('Starting Geohopper REST Endpoints');
 
 	if (!STARTED) {
 		var app = params.app;
@@ -16,7 +17,7 @@ exports.start = function(params){
 
 		// 	Listen for Events
 		app.post(config.GEOHOPPER_PUSH_URL, function(req, res){
-			console.log('Geohopper Push Recieved');
+			log.info('POST: ' + config.GEOHOPPER_PUSH_URL);
 			var data = req.body;
 			if (data) {
 				geohopper.checkin(data);

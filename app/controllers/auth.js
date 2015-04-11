@@ -1,13 +1,14 @@
 var view = require('../lib/view');
 var users = require('../lib/users');
 var config = require('../../config/auth.json');
+var log = require('../lib/log');
 
 var started;
 
 
 exports.interceptor = function() {
 	return function auth(req, res, next) {	
-		//console.log(new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '') + ' Request for: ' + req.url);		
+		//log.info(new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '') + ' Request for: ' + req.url);		
 		if (started) {		
 			var isPublicUrl = false;
 			config.PUBLIC_URLS.forEach(function(publicUrl){
@@ -20,6 +21,7 @@ exports.interceptor = function() {
 			} else {
 				//req.session.destination = req.url;
 				//res.redirect(config.AUTH_LOGIN_URL);
+				log.warn('Authentication Denied Request for:', req.url);
 				res.status(401).send('Unauthorized');
 			};	
 		} else {
@@ -36,17 +38,18 @@ exports.start = function(params) {
 	
 	// Serve Login Endpoint
 	app.post(config.AUTH_LOGIN_API_URL, function(req, res) {
-		console.log('POST ', config.AUTH_LOGIN_API_URL)
+		log.info('POST ', config.AUTH_LOGIN_API_URL)
 		_authenticate(req.body.username, req.body.password, function(err, user){
 			if (!err && user) {
-				console.log('Authentication Success', user);
+				log.info('Authentication Success');
+				log.debug(user)
 				var destination = req.session.destination || '/home';
 				req.session.regenerate(function(){
 					req.session.userId = user._id;
 					res.send(user);
 				});
 			} else {
-				console.log('Authentication Failed', err);
+				log.warn('Authentication Failed', err);
 				res.send({
 					error: "Authentication failed, please check your username and password."
 				});
@@ -56,14 +59,14 @@ exports.start = function(params) {
 
 	// Serve Logout Endpoint
 	app.get(config.AUTH_LOGOUT_API_URL, function(req, res){
-		console.log('GET ', config.AUTH_LOGOUT_API_URL);
+		log.info('GET ', config.AUTH_LOGOUT_API_URL);
 		req.session.destroy(function(){
 			res.send();
 		});
 	});
 
 	app.get(config.AUTH_CURRENT_USER_DATA_URL, function(req, res){
-		console.log('GET ', config.AUTH_CURRENT_USER_DATA_URL);
+		log.info('GET ', config.AUTH_CURRENT_USER_DATA_URL);
 		if (req.session.userId) {
 			users.getById(req.session.userId, function(error, user){
 				if (error) {
@@ -85,7 +88,7 @@ exports.start = function(params) {
 
 
 function _authenticate(username, password, callback) {
-	console.log('Authenticate', username, password);
+	log.info('Authenticating User:', username);
 	users.getByUsername(username, function(error, user){
 		if (!error && user) {
 			if (user.password == password) {

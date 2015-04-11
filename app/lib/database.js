@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 var config = require('../../config/users.json');
 var appConfig = require('../../config/app.json');
 var UserModel = require('../models/user');
+var log = require('../lib/log')
 
 
 
@@ -35,7 +36,7 @@ var CONNECTION;  // Holds Ref to DB Connection
 		function _doSave(model, callback) {
 			model.save(function (error) {
 				if (error) {
-					console.log('ERROR: Unable to save model to database ', error);
+					log.error('Unable to save model to database ', error);
 				} else if (callback) {
 					callback();
 				}
@@ -84,16 +85,16 @@ var CONNECTION;  // Holds Ref to DB Connection
 	function _connectDatabase(callback) {
 		CONNECTION = mongoose.connect(appConfig.DATABASE_URL, function (err, res) {
 			if (err) {
-				console.log ('ERROR connecting to: ' + appConfig.DATABASE_URL + '. ' + err);
+				log.error('Failed connecting to database: ' + appConfig.DATABASE_URL + '. ' + err);
 			} else {
-				console.log ('Succeeded connected to: ' + appConfig.DATABASE_URL);
+				log.info('Connected to database: ' + appConfig.DATABASE_URL);
 				callback();
 			}
 		});
 	};
 
 	function _seedDatabase() {
-		console.log('Seeding Users Collection');
+		log.debug('Seeding Users Collection');
 
 		if (CONNECTION) {
 			_doSeed();
@@ -105,7 +106,7 @@ var CONNECTION;  // Holds Ref to DB Connection
 		function _doSeed() {
 			config.SEED_USERS.forEach(function(SEED_USER){
 				var newUser = new UserModel(SEED_USER);
-				newUser.save(function (err) {if (err) console.log ('Error on save!')});
+				newUser.save(function (err) {if (err) log.error('Save was unsuccessful', err)});
 			})
 		}
 	};

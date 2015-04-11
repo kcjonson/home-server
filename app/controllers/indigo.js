@@ -1,6 +1,6 @@
 var indigo = require('../lib/indigo');
 var config = require('../../config/indigo.json');
-
+var log = require('../lib/log');
 
 
 
@@ -9,7 +9,7 @@ var config = require('../../config/indigo.json');
 
 exports.start = function(params){
 	var app = params.app;
-	console.log('Starting Indigo REST Endpoints');
+	log.info('Starting Indigo REST Endpoints');
 
 
 // Connect Server
@@ -22,7 +22,7 @@ exports.start = function(params){
 
 	app.post(config.API_URL + '/push', function(req,res){
 		var data = req.body;
-		console.log('POST: ' + config.API_URL + '/push', data);
+		log.info('POST: ' + config.API_URL + '/push', data);
 		res.send();
 	});
 	
@@ -30,22 +30,22 @@ exports.start = function(params){
 // All
 
 	app.get(config.API_URL, function(req, res) {
-		console.log('GET ' + config.API_URL);
+		log.info('GET ' + config.API_URL);
 		var indigoData = {};
 		indigo.getVariables(function(variablesError, variablesData){
-			log('getVariables:finish')
+			log.debug('getVariables:finish')
 			if (variablesError) {res.send(variablesError)} else {
-				log('getVariables:success')
+				log.debug('getVariables:success')
 				indigoData.variables = variablesData;
 				indigo.getActions(function(actionsError, actionsData){
-					log('getActions:finish')
+					log.debug('getActions:finish')
 					if (actionsError) {res.send(actionsError)} else {
-						log('getActions:success')
+						log.debug('getActions:success')
 						indigoData.actions = actionsData;
 						indigo.getDevices(function(devicesError, devicesData){
-							log('getDevices:finish')
+							log.debug('getDevices:finish')
 							if (devicesError) {res.send(devicesError)} else {
-								log('getDevices:success')
+								log.debug('getDevices:success')
 								indigoData.devices = devicesData;
 								res.send(indigoData);
 							}
@@ -60,17 +60,17 @@ exports.start = function(params){
 // Actions
 
 	app.get(config.API_URL + '/actions/', function(req, res){
-		console.log('GET ' + config.API_URL + 'actions/');
+		log.info('GET ' + config.API_URL + '/actions/');
 		indigo.getActions(function(error, actionsData){
 			if (error) {res.send(error)} else {
-				//console.log(actionsData);
+				//log.info(actionsData);
 			}
 		});
 	});
 
 	app.get(config.API_URL + '/actions/:name', function(req, res) {
 		var action = req.params.name;
-		console.log('GET ' + config.API_URL + 'actions/');
+		log.info('GET ' + config.API_URL + '/actions/');
 		if (action) {
 			indigo.executeAction(req.params.name, function(error){
 				res.send();
@@ -82,7 +82,7 @@ exports.start = function(params){
 // Variables
 
 	app.get(config.API_URL + '/variables/', function(req, res) {
-		console.log('GET ' + config.API_URL + 'variables/');
+		log.info('GET ' + config.API_URL + '/variables/');
 		indigo.getVariables(function(error, variablesData){
 			if (error) {res.send(error)} else {
 				res.send(variablesData);
@@ -91,7 +91,7 @@ exports.start = function(params){
 	});
 
 	app.get(config.API_URL + '/variables/:name', function(req, res) {
-		console.log('GET ' + config.API_URL);
+		log.info('GET ' + config.API_URL);
 		var variableName = req.params.name;
 		indigo.getVariable(variableName, function(error, variableData){
 			if (error) {res.send(error)} else {
@@ -103,13 +103,13 @@ exports.start = function(params){
 	
 	app.post(config.API_URL + '/variables/:name', function(req, res) {
 		var variableName = req.params.name;
-		console.log('POST ' + config.API_URL + 'variables/', variableName);
+		log.info('POST ' + config.API_URL + '/variables/', variableName);
 	});
 
 	app.patch(config.API_URL + '/variables/:name', function(req, res) {
 		var variableName = req.params.name;
 		var variableValue = req.body.value;
-		console.log('PATCH ' + config.API_URL + 'variables/', variableName, req.body);
+		log.info('PATCH ' + config.API_URL + '/variables/', variableName, req.body);
 		indigo.setVariable(variableName, variableValue, function(error, variableData){
 			if (error) {res.send(error)} else {
 				res.send();
@@ -120,7 +120,7 @@ exports.start = function(params){
 	app.put(config.API_URL + '/variables/:name', function(req, res) {
 		var variableName = req.params.name;
 		var variableValue = req.body.value;
-		console.log('PUT ' + config.API_URL + 'variables/', variableName, variableValue);
+		log.info('PUT ' + config.API_URL + '/variables/', variableName, variableValue);
 		indigo.setVariable(variableName, variableValue, function(error, variableData){
 			if (error) {res.send(error)} else {
 				res.send();
@@ -132,24 +132,18 @@ exports.start = function(params){
 // Devices
 
 	app.get(config.API_URL + '/devices/', function(req, res){
-		console.log('GET ' + config.API_URL + '/devices/');
+		log.info('GET ' + config.API_URL + '/devices/');
 	});
 
 	app.patch(config.API_URL + '/devices/:name', function(req, res) {
 		var deviceName = req.params.name;
-		console.log('PATCH ' + config.API_URL + 'variables/', deviceName, req.body);
+		log.info('PATCH ' + config.API_URL + 'variables/', deviceName, req.body);
 		indigo.setDeviceProperties(deviceName, req.body, function(error, deviceData){
 			res.send(deviceData);
 		});
 	});
 
-
-
 };
-
-function log(message) {
-	//console.log(message);
-}
 
 
 
