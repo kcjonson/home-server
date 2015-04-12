@@ -20,6 +20,8 @@ var LOCATION_UNKNOWN = exports.LOCATION_UNKNOWN = 'Unknown';
 exports.start = function(params){
 	var app = params.app;
 	log.info('Attaching Users API Endpoints');
+
+	// All users
 	app.get(config.USERS_API_URL, function(req, res) {
 		log.info('GET ' + config.USERS_API_URL);
 		users.getAll(function(error, users){
@@ -27,7 +29,32 @@ exports.start = function(params){
 				res.send(users);
 			}
 		});
-	})
+	});
+
+	// User by ID
+	app.get(config.USERS_API_URL + '/:id', function(req, res){
+		log.info('GET ' + config.USERS_API_URL + '/:id/');
+		var id = req.params.id;
+		res.send('TODO')
+	});
+
+	// Checkins
+	app.get(config.USERS_API_URL + '/:id/checkins', function(req, res){
+		log.info('GET ' + config.USERS_API_URL + '/:id/checkins');
+		var id = req.params.id;
+		checkins.getByUserId(id, function(error, data){
+			if (error) {
+				res.send('An error occured')
+			} else {
+				log.debug(data);
+				res.send(data)
+			}
+		});
+		
+
+	});
+
+	
 };
 
 

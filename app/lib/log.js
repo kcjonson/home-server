@@ -1,4 +1,4 @@
-
+var path = require('path');
 
 var LOG_LEVELS = [
 	'DEBUG',
@@ -56,9 +56,45 @@ function _addDate(str) {
 };
 
 function _doLog(args, level) {
+
+
+
+
+
 	if (LOG_LEVELS.indexOf(level) >= LOG_LEVELS.indexOf(LOG_LEVEL)) {
 		var output = _addDate('') + ' [' + level + '] ';
+		if (LOG_LEVEL === 'DEBUG') {
+			output += '- ' + _getPath() + ' - ';
+		}
 		output += _stringifyArguments(args);
 		console.log(output);
 	}
+}
+
+function _getPath() {
+	// Get Stack and Format
+	var stack = new Error().stack;
+	stack = stack.split('\n');
+	stack = stack.splice(1);  // Remove "Error" string.
+
+	// Grab Line and Trim
+	var line = stack [3];
+	var trimmedLine = line.substring(line.search('at ') + 3)
+
+	// Extract Function Name
+	var functionName = trimmedLine.substring(0, trimmedLine.search(' '));
+	if (functionName.search("Object.")) {
+		functionName = functionName.substring(functionName.search("Object."), "Object.".length);
+	};
+
+	// Extract Directory and Filename
+	var filePath = trimmedLine.substring(trimmedLine.search(' ') + 2, trimmedLine.search(':'));
+	var appDir = path.dirname(require.main.filename);
+	var directory = path.relative(appDir, path.dirname(filePath));
+	var file = path.basename(filePath)
+
+	var fullPath = directory + '/' + file + ':' + functionName + '()';
+
+	return fullPath;
+
 }

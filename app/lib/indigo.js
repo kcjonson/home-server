@@ -1,6 +1,6 @@
 var indigo = require('indigo/lib/indigo');
 var config = require('../../config/indigo.json');
-
+var log = require('./log');
 
 exports.connectServer = _connectServer;
 exports.getDevices = _getDevices;
@@ -135,7 +135,7 @@ function _getVariable(variableName, callback) {
 };
 
 function _setVariable(variableName, value, callback) {
-	console.log('Setting Indigo variable ', variableName, value);
+	log.info('Setting Indigo variable ', variableName, value);
 	indigo.setVariable(
 		variableName,
 		value, 
@@ -197,7 +197,7 @@ function _getAction(actionName, callback) {
 };
 
 function _executeAction(action, callback) {
-	console.log('Run Indigo Action', action);
+	log.info('Run Indigo Action', action);
 	indigo.executeAction(action, function(error){
 		if(!error) {
 			if (callback) {callback()}

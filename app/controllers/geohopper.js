@@ -8,7 +8,9 @@ var geohopper = require('../lib/geohopper');
 
 var STARTED = false;
 
-exports.start = function(params){
+exports.start = _start;
+
+function _start(params){
 	log.info('Starting Geohopper REST Endpoints');
 
 	if (!STARTED) {

@@ -5,6 +5,11 @@ var log = require('../lib/log');
 
 var started;
 
+var AUTH_DISABLED = true;
+
+if (AUTH_DISABLED) {
+	log.warn('Authentication Disabled');
+}
 
 exports.interceptor = function() {
 	return function auth(req, res, next) {	
@@ -16,7 +21,7 @@ exports.interceptor = function() {
 					isPublicUrl = true;
 				};
 			});			
-			if (isPublicUrl || req.session.userId) {
+			if (isPublicUrl || req.session.userId || AUTH_DISABLED) {
 				next();
 			} else {
 				//req.session.destination = req.url;

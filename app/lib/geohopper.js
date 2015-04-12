@@ -1,6 +1,7 @@
 var config = require('../../config/geohopper.json');
 var users = require('./users');
 var checkins = require('./checkins');
+var log = require('./log');
 
 var STARTED = false;
 
@@ -8,10 +9,11 @@ exports.checkin = _checkin
 
 
 function _checkin(data) {
-	console.log('Geohopper Checkin')
+	log.debug(data);
 	users.getByGeohopperName(data.sender, function(error, user){
 		if (user) {
-			console.log(user.username, data.location, data.event, data.time);
+			//console.log(user.username, data.location, data.event, data.time);
+			log.debug(user);
 			var location;
 			switch (data.event) {
 				case 'LocationEnter':
@@ -32,7 +34,7 @@ function _checkin(data) {
 			});
 
 		} else {
-			console.log('Unrecognized Geohopper User', error);
+			console.error('Unrecognized Geohopper User', error);
 		}
 	});
 };

@@ -1,6 +1,7 @@
 var database = require('./database');
 var userModel = require('../models/user');
 var indigo = require('./indigo');
+var log = require('./log');
 
 
 
@@ -44,23 +45,23 @@ function _authenticate(username, password){};
 
 
 function _setMostRecentCheckin(userId, checkin, callback){
-	console.log('Setting most recent checkin', checkin);
+	log.debug('Setting most recent checkin', checkin);
 	_getById(userId, function(error, userModel){
-		console.log('Got user to save checkin', userModel, checkin.name);
+		log.debug('Got user to save checkin', userModel, checkin.name);
 
 		// This is super janky.
 		var isAwayValue = true;
 		var isAwayVariableName = "isAway" + userModel.accounts.indigo;
 		if (checkin.name == 'Home') {
-			console.log('Checkin name is "Home"');
+			log.debug('Checkin name is "Home"');
 			isAwayValue = false;
 		}
 
-		console.log('about to update indigo', isAwayVariableName, isAwayValue);
+		log.debug('about to update indigo', isAwayVariableName, isAwayValue);
 
 		// Update Indigo Variable
 		indigo.setVariable(isAwayVariableName, isAwayValue, function(error, variableData){
-			console.log('finished saving changes to variable', error, variableData);
+			log.debug('finished saving changes to variable', error, variableData);
 		});
 
 		// Update User Model

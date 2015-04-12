@@ -17,6 +17,7 @@ var CONNECTION;  // Holds Ref to DB Connection
 
 	exports.getAll = _getAll;
 	exports.findOne = _findOne;
+	exports.find = _find;
 	exports.save = _save;
 
 
@@ -65,13 +66,13 @@ var CONNECTION;  // Holds Ref to DB Connection
 
 	function _findOne(model, query, callback) {
 		if (CONNECTION) {
-			_doFind(model, query, callback);
+			_doFindOne(model, query, callback);
 		} else {
 			_connectDatabase(function(){
-				_doFind(model, query, callback);
+				_doFindOne(model, query, callback);
 			})
 		}
-		function _doFind(model, query, callback) {
+		function _doFindOne(model, query, callback) {
 			model.findOne(query, function(error, docs){
 			  	if (error) {
 				  	callback('ERROR while trying to find');
@@ -81,6 +82,25 @@ var CONNECTION;  // Holds Ref to DB Connection
 		  	});
 		}
 	};
+
+	function _find(model, query, fields, options, callback) {
+		if (CONNECTION) {
+			_doFind(model, query, fields, options, callback);
+		} else {
+			_connectDatabase(function(){
+				_doFind(model, query, fields, options, callback);
+			})
+		};
+		function _doFind(model, query, fields, options, callback) {
+			model.find(query, fields, options, function(error, docs){
+			  	if (error) {
+				  	callback('ERROR while trying to find');
+			  	} else {
+				  	callback(null, docs);
+			  	}
+		  	});
+		}
+	}
 
 	function _connectDatabase(callback) {
 		CONNECTION = mongoose.connect(appConfig.DATABASE_URL, function (err, res) {
@@ -111,6 +131,6 @@ var CONNECTION;  // Holds Ref to DB Connection
 		}
 	};
 
-
+	//_seedDatabase();
 
 

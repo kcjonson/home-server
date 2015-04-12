@@ -1,6 +1,7 @@
 var config = require('../../config/checkins.json');
 var users = require('../lib/users');
 var mongoose = require('mongoose');
+var log = require('../lib/log');
 
 
 var checkinSchema = new mongoose.Schema({
@@ -12,7 +13,7 @@ var checkinSchema = new mongoose.Schema({
 		lng: Number
 	}
 }).post('save', function(document){
-	console.log('Finished saving changes to checkin object', document);
+	log.debug('Finished saving changes to checkin object', document);
 	if (document.user) {
 		users.setMostRecentCheckin(document.user, document);
 	}
