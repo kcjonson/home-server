@@ -10,13 +10,13 @@ var indigoController = require('./app/controllers/indigo');
 var dashboardController = require('./app/controllers/dashboard');
 var foursquareController = require('./app/controllers/foursquare');
 var geohopperController = require('./app/controllers/geohopper');
+var alarmsController = require('./app/controllers/alarms');
+var devicesController = require('./app/controllers/devices');
 
 // Lib (Utilities);
 var users = require('./app/lib/users');
 var log = require('./app/lib/log');
-
 var geohopper = require('./app/lib/geohopper');
-// TODO Auth Lib
 
 // Node Modules
 var express = require('express');
@@ -40,6 +40,8 @@ app.set('views', __dirname + '/app/views');
 app.use(cookieParser(authConfig.AUTH_COOKIE_SECRET));
 app.use(session({
 	secret: authConfig.AUTH_SESSION_SECRET,
+	resave: false,
+    saveUninitialized: true,
 	cookie: {
 		httpOnly: false,
 		maxAge: 2629743 // Approx one month
@@ -60,40 +62,26 @@ app.post("/indigo*", function(req, res){
 
 // bodyParser must go ofter proxy settings because it interrupts the 
 // post stream.
-app.use(bodyParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 
 
 
-
-// Start Auth
-authController.start({
-	app: app
-});
-
-// Start Foursquare Service
-foursquareController.start({
-	app: app
-});
-
-// Start Geohopper Service
-geohopperController.start({
-	app: app
-});
-
-//Set up Indigo REST Endpoints
-indigoController.start({
-	app: app
-});
-
-// Start Dashboard 
-dashboardController.start({
-	app: app
-});
-
-// Start Users REST Endpoints
-usersController.start({
-	app: app
-});
+// Start Endpoints
+//
+// This is a bit of a half assed way to manage routes. 
+// Each "controller" starts their own URL mappings and
+// begins listening.
+authController.start({app: app});
+foursquareController.start({app: app});
+geohopperController.start({app: app});
+indigoController.start({app: app});
+dashboardController.start({app: app});
+usersController.start({app: app});
+alarmsController.start({app: app})
+devicesController.start({app: app})
 
 
 

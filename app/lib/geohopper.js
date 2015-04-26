@@ -26,7 +26,7 @@ function _checkin(data) {
 				default:
 					// Everyone panic.
 			};
-			console.log('Location:', location);
+			log.debug('location: ', location);
 			checkins.add({
 				user: user._id,
 				name: location,  // May be null
@@ -34,7 +34,7 @@ function _checkin(data) {
 			});
 
 		} else {
-			console.error('Unrecognized Geohopper User', error);
+			log.error('Unrecognized Geohopper User', error);
 		}
 	});
 };

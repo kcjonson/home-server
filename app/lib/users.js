@@ -40,13 +40,14 @@ function _getById(id, callback) {
 	database.findOne(userModel, {'_id': id}, callback);
 };
 
-// TODO, then exclude password from _findOne
 function _authenticate(username, password){};
 
 
 function _setMostRecentCheckin(userId, checkin, callback){
 	log.debug('Setting most recent checkin', checkin);
 	_getById(userId, function(error, userModel){
+		if (error) {return;}
+		
 		log.debug('Got user to save checkin', userModel, checkin.name);
 
 		// This is super janky.
@@ -65,7 +66,7 @@ function _setMostRecentCheckin(userId, checkin, callback){
 		});
 
 		// Update User Model
-		userModel.mostRecentCheckin = checkin._Id;
+		userModel.mostRecentCheckin = checkin._id;
 		database.save(userModel, function(error, savedUserModel){});
 
 	});
