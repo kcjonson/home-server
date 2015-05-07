@@ -19,6 +19,4 @@ var checkinSchema = new mongoose.Schema({
 	}
 });
 
-
-
 module.exports =  mongoose.model(config.CHECKINS_COLLECTION, checkinSchema);

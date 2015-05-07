@@ -12,6 +12,7 @@ var foursquareController = require('./app/controllers/foursquare');
 var geohopperController = require('./app/controllers/geohopper');
 var alarmsController = require('./app/controllers/alarms');
 var devicesController = require('./app/controllers/devices');
+var nestController = require('./app/controllers/nest');
 
 // Lib (Utilities);
 var users = require('./app/lib/users');
@@ -42,9 +43,10 @@ app.use(session({
 	secret: authConfig.AUTH_SESSION_SECRET,
 	resave: false,
     saveUninitialized: true,
+    rolling: true,
 	cookie: {
 		httpOnly: false,
-		maxAge: 2629743 // Approx one month
+		expires: new Date(new Date().getTime()+5*60*1000)
 	}
 }));
 app.use(authController.interceptor());
@@ -68,7 +70,6 @@ app.use(bodyParser.urlencoded({
 }));
 
 
-
 // Start Endpoints
 //
 // This is a bit of a half assed way to manage routes. 
@@ -80,10 +81,9 @@ geohopperController.start({app: app});
 indigoController.start({app: app});
 dashboardController.start({app: app});
 usersController.start({app: app});
-alarmsController.start({app: app})
-devicesController.start({app: app})
-
-
+alarmsController.start({app: app});
+devicesController.start({app: app});
+nestController.start({app: app});
 
 
 

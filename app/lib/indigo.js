@@ -2,10 +2,12 @@ var indigo = require('indigo/lib/indigo');
 var config = require('../../config/indigo.json');
 var log = require('./log');
 
-exports.connectServer = _connectServer;
 exports.getDevices = _getDevices;
+exports.getDevicesByType = _getDevicesByType;
 exports.getDevice = _getDevice;
+exports.getDeviceByHardwareId = _getDeviceByHardwareId;
 exports.setDeviceProperties = _setDeviceProperties;
+exports.setDevicePropertiesByHardwareId = _setDevicePropertiesByHardwareId;
 exports.getVariables = _getVariables;
 exports.getVariable = _getVariable;
 exports.setVariable = _setVariable;
@@ -16,24 +18,53 @@ exports.executeAction = _executeAction;
 
 
 
+// Since the Indigo API only allows for info to be requested by "name"
+// but our API wants to request things by hardwareId we're going to maintain
+// a map to reduce the number of lookups.
+// 
+// We're using "addressStr" as "hardwareId" because thats whats printed on
+// the actual devices.
+var HARDWARE_ID_TO_NAME_MAP = {};
+
+
 
 
 // Server Connection
 
-function _connectServer() {
-	indigo.connectServer({
-		host: 'localhost',
-		port: config.INDIGO_PORT,
-		serverPath: config.INDIGO_ROOT_URL
-	});
-};
 
+indigo.connectServer({
+	host: 'localhost',
+	port: config.INDIGO_PORT,
+	serverPath: config.INDIGO_ROOT_URL
+});
+
+// Seed Map
+_getDevices(function(){});
 
 
 
 
 
 // Devices Helpers
+
+
+function _getDevicesByType(types, callback) {
+	var matchedDevices = [];
+	_getDevices(function(err, devicesData){
+		devicesData.forEach(function(deviceData){
+			if (types && types.forEach) {
+				types.forEach(function(type){
+					if (deviceData.type && deviceData.type == type) {
+						matchedDevices.push(deviceData);
+					}
+				});
+			} else {
+				callback('getDevicesByType types is malformed')
+			}
+		});
+		callback(null, matchedDevices);
+	});
+};
 
 
 function _getDevices(callback) {
@@ -66,12 +97,18 @@ function _getDevice(deviceName, callback) {
 	indigo.getDevice(
 		deviceName,
 		function(deviceData) {
+			HARDWARE_ID_TO_NAME_MAP[deviceData.addressStr] = deviceData.name;
 			callback(null, deviceData);
 		},  
 		function(error) {
 			callback(error);
 		}
 	);
+};
+
+function _getDeviceByHardwareId(hardwareId, callback) {
+	var deviceName = HARDWARE_ID_TO_NAME_MAP[hardwareId];
+	_getDevice(deviceName, callback);
 };
 
 function _setDeviceProperties(name, properties, callback) {
@@ -85,6 +122,11 @@ function _setDeviceProperties(name, properties, callback) {
 			callback(error);
 		}
 	)
+}
+
+function _setDevicePropertiesByHardwareId(hardwareId, properties, callback) {
+	var deviceName = HARDWARE_ID_TO_NAME_MAP[hardwareId];
+	_setDeviceProperties(deviceName, properties, callback)
 }
 
 

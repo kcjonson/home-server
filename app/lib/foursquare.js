@@ -24,7 +24,7 @@ function _checkin(data) {
 				checkins.add({
 					user: user._id,
 					name: data.venue.name,
-					date: data.createdAt,
+					date: data.createdAt * 1000,   /// WHAT THE FUCK?
 					location: {
 						lat: data.venue.location.lat,
 						lng: data.venue.location.lng

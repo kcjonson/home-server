@@ -14,7 +14,10 @@
     "mongoose": "x",
     "querystring": "x",
     "node-osascript": "1.0.2",
-    "merge": "1.2.0"
+    "merge": "1.2.0",
+    "firebase": "2.2.4",
+    "request": "2.55.0",
+    "mongodb": "2.0.28"
   },
   "scripts": {
   	"start": "sudo nodemon app.js"

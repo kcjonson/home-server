@@ -1,5 +1,4 @@
 var config = require('../../config/foursquare.json');
-var appConfig  = require('../../config/app.json');
 var log = require('../lib/log');
 
 var foursquare = require('../lib/foursquare');

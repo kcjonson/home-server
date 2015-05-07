@@ -5,6 +5,7 @@ var config = require('../../config/users.json');
 var appConfig = require('../../config/app.json');
 var UserModel = require('../models/user');
 var log = require('../lib/log')
+var ObjectId = require('mongodb').ObjectID;
 
 
 
@@ -19,6 +20,8 @@ var CONNECTION;  // Holds Ref to DB Connection
 	exports.findOne = _findOne;
 	exports.find = _find;
 	exports.save = _save;
+	exports.dropCollection = _dropCollection;
+	exports.getCollection = _getCollection;
 
 
 
@@ -35,14 +38,42 @@ var CONNECTION;  // Holds Ref to DB Connection
 			})
 		}
 		function _doSave(model, callback) {
-			model.save(function (error) {
+			model.save(function (error, doc) {
 				if (error) {
-					log.error('Unable to save model to database ', error);
+					callback('Unable to save model to database');
 				} else if (callback) {
-					callback();
+					callback(null, doc);
 				}
 			});
 		}
+	};
+
+	function _dropCollection(collectionName, callback) {
+		if (CONNECTION) {
+			_doDropCollection(collectionName, callback);
+		} else {
+			_connectDatabase(function(){
+				_doDropCollection(collectionName, callback);
+			})
+		}
+		function _doDropCollection(collectionName, callback) {
+			// Grab the mongodb object off of the mongoose collection and use it directly.
+			mongoose.connection.db.dropCollection(collectionName, callback)
+		};
+	};
+
+	function _getCollection(collectionName, callback) {
+		if (CONNECTION) {
+			_doGetCollection(collectionName, callback);
+		} else {
+			_connectDatabase(function(){
+				_doGetCollection(collectionName, callback);
+			})
+		}
+		function _doGetCollection(collectionName, callback) {
+			// Grab the mongodb object off of the mongoose collection and use it directly.
+			mongoose.connection.db.collection(collectionName).find().toArray(callback);
+		};
 	};
 
 	function _getAll(model, callback) {
@@ -64,22 +95,36 @@ var CONNECTION;  // Holds Ref to DB Connection
 		}
 	};
 
-	function _findOne(model, query, callback) {
+	function _findOne(modelOrCollection, query, callback) {
+		if (query && query._id) {
+			query._id = ObjectId(query._id.toString())
+		}
 		if (CONNECTION) {
-			_doFindOne(model, query, callback);
+			_doFindOne(modelOrCollection, query, callback);
 		} else {
 			_connectDatabase(function(){
-				_doFindOne(model, query, callback);
+				_doFindOne(modelOrCollection, query, callback);
 			})
 		}
-		function _doFindOne(model, query, callback) {
-			model.findOne(query, function(error, docs){
-			  	if (error) {
-				  	callback('ERROR while trying to find');
-			  	} else {
-				  	callback(null, docs);
-			  	}
-		  	});
+		function _doFindOne(modelOrCollection, query, callback) {
+
+			if (modelOrCollection.model) {
+				console.log('model')
+				modelOrCollection.findOne(query, function(error, docs){
+				  	if (error) {
+					  	callback('ERROR while trying to find');
+				  	} else {
+					  	callback(null, docs);
+				  	}
+			  	});
+			}
+
+			if (typeof modelOrCollection === 'string') {
+				var collection = mongoose.connection.db.collection(modelOrCollection);
+				if (collection) {
+					collection.findOne(query, callback);
+				}
+			}
 		}
 	};
 
@@ -113,23 +158,28 @@ var CONNECTION;  // Holds Ref to DB Connection
 		});
 	};
 
-	function _seedDatabase() {
-		log.debug('Seeding Users Collection');
 
-		if (CONNECTION) {
-			_doSeed();
-		} else {
-			_connectDatabase(function(){
-				_doSeed();
-			})
-		}
-		function _doSeed() {
-			config.SEED_USERS.forEach(function(SEED_USER){
-				var newUser = new UserModel(SEED_USER);
-				newUser.save(function (err) {if (err) log.error('Save was unsuccessful', err)});
-			})
-		}
-	};
+
+
+
+
+	// function _seedDatabase() {
+	// 	log.debug('Seeding Users Collection');
+
+	// 	if (CONNECTION) {
+	// 		_doSeed();
+	// 	} else {
+	// 		_connectDatabase(function(){
+	// 			_doSeed();
+	// 		})
+	// 	}
+	// 	function _doSeed() {
+	// 		config.SEED_USERS.forEach(function(SEED_USER){
+	// 			var newUser = new UserModel(SEED_USER);
+	// 			newUser.save(function (err) {if (err) log.error('Save was unsuccessful', err)});
+	// 		})
+	// 	}
+	// };
 
 	//_seedDatabase();
 

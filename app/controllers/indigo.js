@@ -12,10 +12,6 @@ exports.start = function(params){
 	log.info('Starting Indigo REST Endpoints');
 
 
-// Connect Server
-
-	indigo.connectServer();
-
 
 
 // Listen for Events from Indigo

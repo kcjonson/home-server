@@ -3,7 +3,7 @@ var path = require('path');
 
 // CURRENT LOG LEVEL
 // TODO: Load from elseehwre?
-var LOG_LEVEL = 'INFO';
+var LOG_LEVEL = 'DEBUG';
 
 
 

@@ -50,8 +50,6 @@ exports.start = function(params){
 				res.send(data)
 			}
 		});
-		
-
 	});
 
 	

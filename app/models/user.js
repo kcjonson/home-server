@@ -1,9 +1,6 @@
 var config = require('../../config/users');
 var mongoose = require('mongoose');
 
-
-
-
 var userSchema = new mongoose.Schema({
 	username: {
 		type: String,
@@ -29,7 +26,10 @@ var userSchema = new mongoose.Schema({
 		}
 	},
 	password: String,
-	mostRecentCheckin: mongoose.Schema.Types.ObjectId
+	mostRecentCheckin: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'checkins'
+	}
 })
 
 

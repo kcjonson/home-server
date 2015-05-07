@@ -1,3 +1,4 @@
+var log = require('../../lib/log');
 var osascript = require('node-osascript');
 var path = require('path')
 
@@ -10,24 +11,36 @@ function _get(id, callback) {
 		callback = id;
 		id = undefined;
 	}
-	if (id) {
-		_communicate('getSpeaker', {speakerId: id}, function(err, speakerData){
-			callback(err, speakerData);
-		});
-	} else {
-		_communicate('getSpeakers', null, function(err, speakersData){
-			callback(err, speakersData);
-		});
-	}
+
+	_communicate({command: 'get'}, function(err, data){
+		if (err) {callback(err); return;};
+		data.hardwareId = '127.0.0.1';
+		data.name = 'iTunes';
+		if (id) {
+			callback(null, data);
+		} else {
+			callback (null, [data])
+		}
+	});
 };
 
 function _set(id, props, callback) {
-	callback();
+	log.debug(id, props);
+
+	props.command = 'set';
+
+	// Playlist is a reserved word.
+	props.plist = props.playlist;
+	delete props.playlist;
+
+	_communicate(props, function(err, data){
+		console.log(data)
+		callback(err, data);
+	});
 };
 
-
-function _communicate(script, vars, callback) {
-	var scriptPath = path.join(__dirname, '/porthole-speaker/' + script + '.scpt');
+function _communicate(vars, callback) {
+	var scriptPath = path.join(__dirname, '/itunes/iTunes2.scpt');
 	osascript.executeFile(scriptPath, vars, function(error, result, raw){
 		if (error) {
 			callback(error);
@@ -38,10 +51,10 @@ function _communicate(script, vars, callback) {
 			callback(null, parsedResult);
 			return;
 		} else {
-			callback('Unable to communicate with porthole-speakers');
+			callback('Unable to communicate with itunes');
 		}
 	});
-}
+};
 
 function _parseJSON(string) {
 	if (typeof string === 'string') {
@@ -52,4 +65,4 @@ function _parseJSON(string) {
 	} else {
 		return;
 	}
-}
+};

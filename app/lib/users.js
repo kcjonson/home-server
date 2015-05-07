@@ -8,7 +8,19 @@ var log = require('./log');
 // Getters
 
 exports.getAll = function(callback) {
-	database.getAll(userModel, callback);
+	database.getAll(userModel, function(err, userModels){
+		if (err) {callback(err); return;}
+		var populatedUserModels = [];
+		userModels.forEach(function(userModel){
+			userModel.populate('mostRecentCheckin', function(err, populatedUserModel){
+				if (err) {callback(err); return;}
+				populatedUserModels.push(populatedUserModel);
+				if (populatedUserModels.length == userModels.length) {
+					callback(null, populatedUserModels)
+				}
+			});
+		});
+	});
 };
 
 exports.getById = _getById;

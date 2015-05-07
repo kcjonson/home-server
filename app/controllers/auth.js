@@ -2,6 +2,7 @@ var view = require('../lib/view');
 var users = require('../lib/users');
 var config = require('../../config/auth.json');
 var log = require('../lib/log');
+var cookieParser = require('cookie-parser');
 
 var started;
 
@@ -14,14 +15,20 @@ if (AUTH_DISABLED) {
 exports.interceptor = function() {
 	return function auth(req, res, next) {	
 		//log.info(new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '') + ' Request for: ' + req.url);		
-		if (started) {		
+		if (started) {
+
+			// Anylize URL
 			var isPublicUrl = false;
 			config.PUBLIC_URLS.forEach(function(publicUrl){
 				if (req.url.indexOf(publicUrl, 0) === 0) {
 					isPublicUrl = true;
 				};
-			});			
-			if (isPublicUrl || req.session.userId || AUTH_DISABLED) {
+			});
+
+			if (req.cookies) {
+				var insecureUserId = req.cookies['remote.userId'];
+			}
+			if (isPublicUrl || req.session.userId || (AUTH_DISABLED && insecureUserId)) {
 				next();
 			} else {
 				//req.session.destination = req.url;
@@ -37,9 +44,7 @@ exports.interceptor = function() {
 
 
 exports.start = function(params) {
-
 	var app = params.app;
-	publicUrls = params.publicUrls;
 	
 	// Serve Login Endpoint
 	app.post(config.AUTH_LOGIN_API_URL, function(req, res) {
@@ -51,6 +56,13 @@ exports.start = function(params) {
 				var destination = req.session.destination || '/home';
 				req.session.regenerate(function(){
 					req.session.userId = user._id;
+					req.session.cookie.expires = new Date(new Date().getTime()+5*60*1000)
+					req.session.cookie.maxAge = new Date(new Date().getTime()+5*60*1000)
+					//Send userId as seperate cookie for when auth is disabled.
+					res.cookie('remote.userId', user._id, {
+						expires: new Date(new Date().getTime()+5*60*1000)
+					});
+
 					res.send(user);
 				});
 			} else {
@@ -70,10 +82,17 @@ exports.start = function(params) {
 		});
 	});
 
+	// Current User Data Endpoint
 	app.get(config.AUTH_CURRENT_USER_DATA_URL, function(req, res){
 		log.info('GET ', config.AUTH_CURRENT_USER_DATA_URL);
-		if (req.session.userId) {
-			users.getById(req.session.userId, function(error, user){
+
+		if (req.cookies) {
+			var insecureUserId = req.cookies['remote.userId'];
+		}
+		if (req.session.userId || (AUTH_DISABLED && insecureUserId)) {
+			var userId = req.session.userId || insecureUserId;
+			console.log('uid', userId)
+			users.getById(userId, function(error, user){
 				if (error) {
 					res.send({
 						error: error
@@ -83,7 +102,7 @@ exports.start = function(params) {
 				}
 			});
 		} else {
-			res.status(401).send('There is no user logged in');
+			res.status(401).send('The user cannot be identified');
 		}
 	})
 

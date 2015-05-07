@@ -1,5 +1,4 @@
 var log = require('../lib/log');
-var indigo = require('./indigo');
 var database = require('./database');
 var AlarmModel = require('../models/alarm');
 
@@ -49,10 +48,13 @@ _loadAlarms(function(){
 
  				// Compute Dates
  				var now = new Date();
+ 				var nowTime = now.getTime();
  				var startDate = new Date(now.getTime());
  				startDate.setMinutes(alarm.minute);
 				startDate.setHours(alarm.hour);
+ 				var startTime = startDate.getTime();
 				var endDate = new Date(startDate.getTime() + ALARM_FADE_LENGTH);
+				var endTime = endDate.getTime();
 
 				// Start Alarm if Applicable
 				// This should only run on the minute
@@ -66,7 +68,7 @@ _loadAlarms(function(){
  				};
 
  				// End Alarm if Applicable
-				if ((now.getTime() > endDate.getTime() && alarm.running) || !alarm.isOn) {
+				if ((nowTime > endTime && alarm.running) || !alarm.isOn) {
 					log.info('Alarm Ending')
 					alarm.running = false;
 					database.findOne(AlarmModel, {'_id': alarm._id}, function(e, doc){
@@ -77,6 +79,31 @@ _loadAlarms(function(){
 
 				if (alarm.running) {
 					log.info('Alarm Running');
+
+					if (nowTime >= startTime && nowTime <= endTime) {
+						console.log('Within Alarm Range')
+						lightPercentage = Math.round(((nowTime - startTime) / ALARM_FADE_LENGTH) * 100);
+					}
+
+					if (nowTime >= (startTime + MUSIC_START_DELAY) && nowTime <= endTime) {
+						musicPercentage = Math.round(((nowTime - (startTime + MUSIC_START_DELAY)) / (ALARM_FADE_LENGTH - MUSIC_START_DELAY)) * 100);
+					}
+
+					if (lightPercentage) {
+						console.log('Setting Light Percantage', lightPercentage);
+						// indigo.setDeviceProperties('Master Bedroom Overhead Lights', {'brightness': lightPercentage}, function(e, data){
+						// 	if (e) {
+						// 		log.error(e);
+						// 	}
+						// })
+					};
+
+					if (musicPercentage) {
+						console.log('Setting Music Percantage', musicPercentage);
+						// TODO
+					}
+
+
 				}
  			});
 
