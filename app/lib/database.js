@@ -16,6 +16,7 @@ var CONNECTION;  // Holds Ref to DB Connection
 
 // Exports
 
+	exports.getConnection = _getConnection;
 	exports.getAll = _getAll;
 	exports.findOne = _findOne;
 	exports.find = _find;
@@ -28,6 +29,17 @@ var CONNECTION;  // Holds Ref to DB Connection
 
 
 // Private
+
+	function _getConnection(callback) {
+		if (CONNECTION) {
+			callback(CONNECTION)
+		} else {
+			_connectDatabase(function(){
+				callback(CONNECTION)
+			})
+		}
+
+	};
 
 	function _save(model, callback) {
 		if (CONNECTION) {
@@ -109,7 +121,6 @@ var CONNECTION;  // Holds Ref to DB Connection
 		function _doFindOne(modelOrCollection, query, callback) {
 
 			if (modelOrCollection.model) {
-				console.log('model')
 				modelOrCollection.findOne(query, function(error, docs){
 				  	if (error) {
 					  	callback('ERROR while trying to find');

@@ -21,6 +21,20 @@ exports.start = function(params) {
 		})
 	});
 
+	app.get(config.DEVICES_API_URL + '/push', function(req, res) {
+		log.info('GET ' + config.DEVICES_API_URL + '/push');
+		res.writeHead(200, {
+			'Content-Type': 'text/event-stream',
+			'Cache-Control': 'no-cache',
+			'Connection': 'keep-alive'
+		});
+
+		devices.events.on('change', function(deviceData){
+			res.write("data: " + JSON.stringify(deviceData) + "\n\n");
+		})
+
+	});
+
 	app.get(config.DEVICES_API_URL + '/:id', function(req, res) {
 		var id = req.params.id;
 		log.info('GET ' + config.DEVICES_API_URL + '/' + id);

@@ -35,7 +35,12 @@ function _get(id, callback) {
 }
 
 function _set(id, props, callback) {
-	indigo.setDevicePropertiesByHardwareId(id, props, callback);
+	indigo.setDevicePropertiesByHardwareId(id, props, function(err, deviceData){
+		if (deviceData) {
+			deviceData = _formatData(deviceData);
+		}
+		callback(err, deviceData)
+	});
 };
 
 function _formatData(deviceData) {

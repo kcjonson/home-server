@@ -1,6 +1,7 @@
 var log = require('../lib/log');
 var database = require('./database');
 var config = require('../../config/devices.json');
+var EventEmitter = require("events").EventEmitter;
 
 
 var PortholeSpeakerModel = require('../models/devices/porthole-speaker');
@@ -24,6 +25,8 @@ var itunes= require('./devices/itunes');
 
 exports.get = _get;
 exports.set = _set;
+exports.events = new EventEmitter();
+
 
 
 
@@ -72,6 +75,8 @@ var DEVICE_TYPES = {
 	}
 }
 
+var CHANGE_LISTENERS = [];
+
 
 /* 
 
@@ -108,10 +113,7 @@ function _get(callback) {
 			// the front end only deals with the mongo document ID.
 			_getDevice(deviceDoc, function(err, deviceData){
 				if (err) {callback(err); return;}
-				deviceData.type = deviceDoc.type;
-				deviceData._id = deviceDoc._id;
-				delete deviceData.hardwareId;
-				devicesData.push(deviceData);
+				devicesData.push(_formatData(deviceDoc, deviceData));
 				devicesLoaded += 1;
 				if (devicesLoaded === deviceDocs.length) {
 					callback(null, devicesData);
@@ -140,15 +142,22 @@ function _set(databaseId, props, callback) {
 	log.debug(databaseId, props);
 	database.findOne(config.DEVICES_COLLECTION, {'_id': databaseId}, function(err, deviceDoc){
 		var deviceLib = DEVICE_TYPES[deviceDoc.type].lib;
-		deviceLib.set(deviceDoc.hardwareId, props, callback);
+		deviceLib.set(deviceDoc.hardwareId, props, function(err, deviceData){
+			if (!err) {
+				exports.events.emit("change", _formatData(deviceDoc, deviceData));
+			}
+			callback(err, deviceData);
+		});
 	});
 };
 
 
-
-
-
-
+function _formatData(deviceDoc, deviceData) {
+	deviceData.type = deviceDoc.type;
+	deviceData._id = deviceDoc._id;
+	delete deviceData.hardwareId;
+	return deviceData;
+}
 
 
 

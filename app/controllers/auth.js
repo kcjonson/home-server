@@ -6,7 +6,7 @@ var cookieParser = require('cookie-parser');
 
 var started;
 
-var AUTH_DISABLED = true;
+var AUTH_DISABLED = false;
 
 if (AUTH_DISABLED) {
 	log.warn('Authentication Disabled');
@@ -27,6 +27,9 @@ exports.interceptor = function() {
 
 			if (req.cookies) {
 				var insecureUserId = req.cookies['remote.userId'];
+			}
+			if (!isPublicUrl && !req.session.userId && AUTH_DISABLED && insecureUserId) {
+				log.warn('Allowing Access From Insecure User Cookie');
 			}
 			if (isPublicUrl || req.session.userId || (AUTH_DISABLED && insecureUserId)) {
 				next();
@@ -56,11 +59,9 @@ exports.start = function(params) {
 				var destination = req.session.destination || '/home';
 				req.session.regenerate(function(){
 					req.session.userId = user._id;
-					req.session.cookie.expires = new Date(new Date().getTime()+5*60*1000)
-					req.session.cookie.maxAge = new Date(new Date().getTime()+5*60*1000)
 					//Send userId as seperate cookie for when auth is disabled.
 					res.cookie('remote.userId', user._id, {
-						expires: new Date(new Date().getTime()+5*60*1000)
+						expires: new Date(new Date().getTime()+30*24*60*60*1000)
 					});
 
 					res.send(user);
@@ -89,9 +90,9 @@ exports.start = function(params) {
 		if (req.cookies) {
 			var insecureUserId = req.cookies['remote.userId'];
 		}
+		log.debug(req.session.userId, AUTH_DISABLED, insecureUserId)
 		if (req.session.userId || (AUTH_DISABLED && insecureUserId)) {
 			var userId = req.session.userId || insecureUserId;
-			console.log('uid', userId)
 			users.getById(userId, function(error, user){
 				if (error) {
 					res.send({
@@ -102,7 +103,10 @@ exports.start = function(params) {
 				}
 			});
 		} else {
-			res.status(401).send('The user cannot be identified');
+			log.warn('The current user cannot be identified');
+			res.status(401).send({
+				error: 'The current user cannot be dentified'
+			});
 		}
 	})
 

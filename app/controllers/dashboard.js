@@ -17,7 +17,6 @@ exports.start = function(params) {
 		// 	title: 'Home'
 		// });
 	});
-
 	
 }
 
