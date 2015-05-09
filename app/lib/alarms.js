@@ -1,6 +1,7 @@
 var log = require('../lib/log');
 var database = require('./database');
 var AlarmModel = require('../models/alarm');
+var devices = require('./Devices');
 
 
 
@@ -15,7 +16,7 @@ var CHECK_INTERVAL = 60 * 1000; // Every Minute.
 var ALARM_FADE_LENGTH = 30 * 60 * 1000; // 30 Minutes
 var MUSIC_START_DELAY = 5 * 60 * 1000; // 5 Minutes
 var MUSIC_MAX_VOLUME = 40; // Percentage of volume.
-
+var LIGHT_ID = '554aacdd3572097d643897af';
 
 
 // Public API
@@ -68,7 +69,7 @@ _loadAlarms(function(){
  				};
 
  				// End Alarm if Applicable
-				if ((nowTime > endTime && alarm.running) || !alarm.isOn) {
+				if ((nowTime > endTime && alarm.running) || (!alarm.isOn && alarm.running)) {
 					log.info('Alarm Ending')
 					alarm.running = false;
 					database.findOne(AlarmModel, {'_id': alarm._id}, function(e, doc){
@@ -91,11 +92,9 @@ _loadAlarms(function(){
 
 					if (lightPercentage) {
 						console.log('Setting Light Percantage', lightPercentage);
-						// indigo.setDeviceProperties('Master Bedroom Overhead Lights', {'brightness': lightPercentage}, function(e, data){
-						// 	if (e) {
-						// 		log.error(e);
-						// 	}
-						// })
+						devices.set(LIGHT_ID, {'brightness': lightPercentage}, function(e, data){
+							if (e) {log.error(e)}
+						});
 					};
 
 					if (musicPercentage) {

@@ -4,8 +4,8 @@ var config = require('../../config/devices.json');
 var EventEmitter = require("events").EventEmitter;
 
 
-var PortholeSpeakerModel = require('../models/devices/porthole-speaker');
-var portholeSpeaker = require('./devices/porthole-speaker');
+var AirfoilSpeakerModel = require('../models/devices/airfoil-speaker');
+var airfoilSpeaker = require('./devices/airfoil-speaker');
 
 var NestThermostatModel = require('../models/devices/nest-thermostat');
 var nestThermostat = require('./devices/nest-thermostat');
@@ -25,8 +25,8 @@ var itunes= require('./devices/itunes');
 
 exports.get = _get;
 exports.set = _set;
+exports.sync = _sync;
 exports.events = new EventEmitter();
-
 
 
 
@@ -43,10 +43,10 @@ exports.events = new EventEmitter();
 
 
 var DEVICE_TYPES = {
-	PORTHOLE_SPEAKER: {
-		type: 'PORTHOLE_SPEAKER',
-		lib: portholeSpeaker,
-		model: PortholeSpeakerModel
+	AIRFOIL_SPEAKER: {
+		type: 'AIRFOIL_SPEAKER',
+		lib: airfoilSpeaker,
+		model: AirfoilSpeakerModel
 	},
 	NEST_THERMOSTAT: {
 		type: 'NEST_THERMOSTAT',
@@ -193,7 +193,7 @@ function _sync(callback) {
 };
 
 function _saveDevices(devicesData, callback) {
-	log.debug(devicesData);
+	log.debug('saving');
 	database.dropCollection(config.DEVICES_COLLECTION, function(err){
 		var totalDevices = devicesData.length;
 		var devicesSaved = 0;
@@ -214,9 +214,17 @@ function _saveDevices(devicesData, callback) {
 	})
 };
 
-// _sync(function(err){
-// 	console.log('sync complete')
-// 	if (err) {
-// 		log.error(err);
+
+// var didSync = false;
+// function sync() {
+// 	if (!didSync) {
+// 		didSync = true;
+// 		_sync(function(err){
+// 			console.log('sync complete')
+// 			if (err) {
+// 				log.error(err);
+// 			}
+// 		})
 // 	}
-// })
+// }
+// sync();

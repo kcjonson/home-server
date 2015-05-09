@@ -1,6 +1,3 @@
-
-
-
 if command is "get" then
 
 	my getInfo()
@@ -69,5 +66,3 @@ tell application "iTunes"
 end tell
 
 end getInfo
-
-

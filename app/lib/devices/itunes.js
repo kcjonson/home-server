@@ -40,7 +40,7 @@ function _set(id, props, callback) {
 };
 
 function _communicate(vars, callback) {
-	var scriptPath = path.join(__dirname, '/itunes/iTunes2.scpt');
+	var scriptPath = path.join(__dirname, '/iTunes.scpt');
 	osascript.executeFile(scriptPath, vars, function(error, result, raw){
 		if (error) {
 			callback(error);

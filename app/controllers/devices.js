@@ -21,6 +21,13 @@ exports.start = function(params) {
 		})
 	});
 
+	app.get(config.DEVICES_API_URL + '/sync', function(req, res) {
+		log.info('GET ' + config.DEVICES_API_URL + '/sync');
+		devices.sync(function(e){
+			res.send();
+		})
+	});
+
 	app.get(config.DEVICES_API_URL + '/push', function(req, res) {
 		log.info('GET ' + config.DEVICES_API_URL + '/push');
 		res.writeHead(200, {
@@ -29,9 +36,15 @@ exports.start = function(params) {
 			'Connection': 'keep-alive'
 		});
 
-		devices.events.on('change', function(deviceData){
+		var writeData = function(deviceData){
 			res.write("data: " + JSON.stringify(deviceData) + "\n\n");
-		})
+		};
+
+		devices.events.on('change', writeData);
+
+		req.on("close", function() {
+			devices.events.removeListener('change', writeData);
+		});
 
 	});
 
@@ -56,6 +69,9 @@ exports.start = function(params) {
 	});
 	
 };
+
+
+
 
 
 	
