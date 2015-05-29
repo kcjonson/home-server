@@ -4,6 +4,8 @@ var mongoose = require('mongoose');
 var indigoMotionDetectorSchema = new mongoose.Schema({
 	name: String,
 	hardwareId: String,
+	category: String,
+	location: String,
 	type: {
 		type: String,
 		default: 'INDIGO_MOTION_DETECTOR'

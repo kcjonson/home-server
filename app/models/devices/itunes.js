@@ -4,6 +4,8 @@ var mongoose = require('mongoose');
 var iTunesSchema = new mongoose.Schema({
 	name: String,
 	hardwareId: String,
+	category: String,
+	location: String,
 	type: {
 		type: String,
 		default: 'ITUNES'

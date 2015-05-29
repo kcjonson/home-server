@@ -165,8 +165,8 @@ function _getDevice(data, callback) {
 // unique across all device types.
 function _set(databaseId, props, callback) {
 	log.debug(databaseId, props);
-	database.findOne(config.DEVICES_COLLECTION, {'_id': databaseId}, function(err, deviceDoc){
-		if (deviceDoc && deviceDoc.type) {
+	database.findOne(config.DEVICES_COLLECTION, {'_id': databaseId}, function(err, deviceData){
+		if (deviceData && deviceData.type) {
 
 			var libProps = {};
 			var dbProps = {};
@@ -183,19 +183,44 @@ function _set(databaseId, props, callback) {
 				}
 			}
 
+			// Set Lib Props 
 			if (Object.keys(libProps).length > 0) {
 				log.debug('SETTING LIB PROP')
-				var deviceLib = DEVICE_TYPES[deviceDoc.type].lib;
-				deviceLib.set(deviceDoc.hardwareId, libProps, function(err, deviceData){
+				var deviceLib = DEVICE_TYPES[deviceData.type].lib;
+				deviceLib.set(deviceData.hardwareId, libProps, function(err, deviceData){
 					if (!err) {
-						exports.events.emit("change", _formatData(deviceDoc, deviceData));
+						exports.events.emit("change", _formatData(deviceData, deviceData));
 					}
 					callback(err, deviceData);
 				});
 			};
 
+			// Set Device Props
 			if (Object.keys(dbProps).length > 0) {
-				log.debug('SETTING DB PROP')
+				log.debug('SETTING DB PROP', deviceData)
+
+				// Since the findOne earlier was done on a collection at the
+				// Mongo layer, it did not return a document. We need to create one
+
+				database.findOne(DEVICE_TYPES[deviceData.type].model, {'_id': deviceData._id}, function(err, deviceDocument){
+					deviceDocument.set(dbProps);
+					deviceDocument.save(function(err, updatedDocument){
+						console.log(err, updatedDocument)
+						callback(err, updatedDocument)
+					})
+				});
+
+
+				// var hydratedModel = new DEVICE_TYPES[deviceData.type].model(deviceData);
+				// hydratedModel.set(dbProps);
+
+				// hydratedModel.save(function(err, deviceDocument){
+				// 	console.log(err, deviceDocument)
+				// 	callback(err, deviceDocument)
+				// })
+
+				//deviceDoc.set(dbProps);
+				//deviceDoc.save();
 			}
 		} else if (err) {
 			callback(err)
@@ -208,6 +233,8 @@ function _set(databaseId, props, callback) {
 
 function _formatData(deviceDoc, deviceData) {
 	deviceData.type = deviceDoc.type;
+	deviceData.category = deviceDoc.category;
+	deviceData.location = deviceDoc.location;
 	deviceData._id = deviceDoc._id;
 	delete deviceData.hardwareId;
 	return deviceData;
@@ -253,7 +280,6 @@ function _saveDevices(devicesData, callback) {
 		var devicesSaved = 0;
 		devicesData.forEach(function(deviceData, index){
 			var DeviceModel = DEVICE_TYPES[deviceData.type].model;
-			log.debug(deviceData.type)
 			delete deviceData.type;  // Schema has default
 			var hydratedDeviceModel = new DeviceModel(deviceData);
 			database.save(hydratedDeviceModel, function(err, doc){
