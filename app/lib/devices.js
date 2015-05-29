@@ -23,10 +23,7 @@ var ITunesModel = require('../models/devices/itunes');
 var itunes= require('./devices/itunes');
 
 
-exports.get = _get;
-exports.set = _set;
-exports.sync = _sync;
-exports.events = new EventEmitter();
+
 
 
 
@@ -37,7 +34,34 @@ exports.events = new EventEmitter();
 	device types that the application knows about and 
 	facilitates communication with them.
 
+
+
+
+	TODO:
+	- Add Devices:
+		- koubuchi
+		- lifx
+		- onkyo-reciever
+	- Change Monitoring
+	- Disconnected/Unavailable Devices
+	- Locations
+	- Groups
+
+
+
+
 */
+
+
+
+// PUBLIC API
+
+exports.get = _get;
+exports.set = _set;
+exports.sync = _sync;
+exports.events = new EventEmitter();
+
+
 
 
 
@@ -73,27 +97,28 @@ var DEVICE_TYPES = {
 		lib: itunes,
 		model: ITunesModel
 	}
-}
+};
 
-var CHANGE_LISTENERS = [];
+// Props that will trigger an error if 
+// they are attempted to be set.
+var PROTECTED_PROPS = [
+	'id',
+	'_id',
+	'type'
+];
+
+// Props that should be saved to the DB 
+// instead of sent to the device lib
+var DB_PROPS = [
+	'name',
+	'category',
+	'location'
+];
 
 
-/* 
-
-TODO:
-
-	- Add Devices:
-		- itunes
-		- koubuchi
-		- lifx
-		- onkyo-reciever
-	- Change Monitoring
-	- Disconnected/Unavailable Devices
-	- Locations
-	- Groups
 
 
-*/
+
 
 
 
@@ -136,18 +161,47 @@ function _getDevice(data, callback) {
 };
 
 
-// Note: databaseId not hardwareId since hardwareId are not 
+// Note: databaseId not hardwareId since hardwareId is not 
 // unique across all device types.
 function _set(databaseId, props, callback) {
 	log.debug(databaseId, props);
 	database.findOne(config.DEVICES_COLLECTION, {'_id': databaseId}, function(err, deviceDoc){
-		var deviceLib = DEVICE_TYPES[deviceDoc.type].lib;
-		deviceLib.set(deviceDoc.hardwareId, props, function(err, deviceData){
-			if (!err) {
-				exports.events.emit("change", _formatData(deviceDoc, deviceData));
+		if (deviceDoc && deviceDoc.type) {
+
+			var libProps = {};
+			var dbProps = {};
+
+			for (var prop in props) {
+				if (props.hasOwnProperty(prop)) {
+					if (PROTECTED_PROPS.indexOf(prop) >= 0) {
+						callback('Property ' + prop + ' is protected and cannot be set');
+					} else if (DB_PROPS.indexOf(prop) >= 0) {
+						dbProps[prop] = props[prop];
+					} else {
+						libProps[prop] = props[prop];
+					}
+				}
 			}
-			callback(err, deviceData);
-		});
+
+			if (Object.keys(libProps).length > 0) {
+				log.debug('SETTING LIB PROP')
+				var deviceLib = DEVICE_TYPES[deviceDoc.type].lib;
+				deviceLib.set(deviceDoc.hardwareId, libProps, function(err, deviceData){
+					if (!err) {
+						exports.events.emit("change", _formatData(deviceDoc, deviceData));
+					}
+					callback(err, deviceData);
+				});
+			};
+
+			if (Object.keys(dbProps).length > 0) {
+				log.debug('SETTING DB PROP')
+			}
+		} else if (err) {
+			callback(err)
+		} else {
+			callback('Unable to find device');
+		}
 	});
 };
 

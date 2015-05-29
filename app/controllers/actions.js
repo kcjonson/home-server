@@ -1,6 +1,7 @@
 var config = require('../../config/actions.json');
 var devices = require('../lib/devices');
 var log = require('../lib/log');
+var Actions = require('../lib/actions');
 
 
 
@@ -113,42 +114,54 @@ exports.start = function(params) {
 	app.get(config.ACTIONS_API_URL, function(req, res) {
 		log.info('GET ' + config.ACTIONS_API_URL);
 
-		var actionsData = [];
-		var actionsPolled = 0;
-		ACTIONS.forEach(function(ACTION){
-			ACTION.isEnabled(function(isEnabled){
-				actionsData.push({
-					name: ACTION.name,
-					_id: ACTION._id,
-					isEnabled: isEnabled
-				})
-				actionsPolled += 1;
-				if (actionsPolled == ACTIONS.length) {
-					res.send(actionsData);
-				}
-			})
+		Actions.get(function(err, actionsData){
+			if (err) {res.send({error: err})}
+			res.send(actionsData);
 		});
+
+		// var actionsData = [];
+		// var actionsPolled = 0;
+		// ACTIONS.forEach(function(ACTION){
+		// 	ACTION.isEnabled(function(isEnabled){
+		// 		actionsData.push({
+		// 			name: ACTION.name,
+		// 			_id: ACTION._id,
+		// 			isEnabled: isEnabled
+		// 		})
+		// 		actionsPolled += 1;
+		// 		if (actionsPolled == ACTIONS.length) {
+		// 			res.send(actionsData);
+		// 		}
+		// 	})
+		// });
 
 	});
 
 	app.post(config.ACTIONS_API_URL + '/execute/:id', function(req, res) {
 		var id = req.params.id;
 		log.info('POST ' + config.ACTIONS_API_URL + '/execute/' + id);
-		var actionFound = false;
-		ACTIONS.forEach(function(ACTION){
-			if (ACTION._id == id) {
-				actionFound = true;
-				log.info('Executing action: ', ACTION.name);
-				ACTION.execute(function(err){
-					res.send(err);
-				})
-			}
+
+
+		Actions.execute(id, function(err) {
+			if (err) {res.send({error: err})}
+			res.send();
 		});
-		if (!actionFound) {
-			res.send({
-				error: 'Action ' + id + 'does not exist'
-			})
-		};
+
+		// var actionFound = false;
+		// ACTIONS.forEach(function(ACTION){
+		// 	if (ACTION._id == id) {
+		// 		actionFound = true;
+		// 		log.info('Executing action: ', ACTION.name);
+		// 		ACTION.execute(function(err){
+		// 			res.send(err);
+		// 		})
+		// 	}
+		// });
+		// if (!actionFound) {
+		// 	res.send({
+		// 		error: 'Action ' + id + 'does not exist'
+		// 	})
+		// };
 	});
 
 	// app.patch(config.DEVICES_API_URL + '/:id', function(req, res) {

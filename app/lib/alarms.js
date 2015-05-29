@@ -16,7 +16,7 @@ var CHECK_INTERVAL = 60 * 1000; // Every Minute.
 var ALARM_FADE_LENGTH = 30 * 60 * 1000; // 30 Minutes
 var MUSIC_START_DELAY = 5 * 60 * 1000; // 5 Minutes
 var MUSIC_MAX_VOLUME = 40; // Percentage of volume.
-var LIGHT_ID = '554aacdd3572097d643897af';
+var LIGHT_ID = '554d3dce743ed3ca3e4742b8';
 
 
 // Public API
@@ -105,37 +105,6 @@ _loadAlarms(function(){
 
 				}
  			});
-
-
-
-
-
-			// if (RUNNING) {
-			// 	console.log('alarm running')
-			// 	if (nowTime >= startTime && nowTime <= endTime) {
-			// 		console.log('Within Alarm Range')
-			// 		lightPercentage = Math.round(((nowTime - startTime) / ALARM_FADE_LENGTH) * 100);
-			// 	}
-
-			// 	if (nowTime >= (startTime + MUSIC_START_DELAY) && nowTime <= endTime) {
-			// 		musicPercentage = Math.round(((nowTime - (startTime + MUSIC_START_DELAY)) / (ALARM_FADE_LENGTH - MUSIC_START_DELAY)) * 100);
-			// 	}
-
-			// 	if (lightPercentage) {
-			// 		console.log('Setting Light Percantage', lightPercentage)
-			// 		indigo.setDeviceProperties('Master Bedroom Overhead Lights', {'brightness': lightPercentage}, function(e, data){
-			// 			if (e) {
-			// 				log.error(e);
-			// 			}
-			// 		})
-			// 	};
-
-			// 	if (musicPercentage) {
-			// 		console.log('Setting Music Percantage', musicPercentage);
-			// 		// TODO
-			// 	}
-
-			// }
 
 		}, CHECK_INTERVAL);
 	}, startDelay);
