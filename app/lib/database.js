@@ -90,16 +90,16 @@ var CONNECTION;  // Holds Ref to DB Connection
 
 	function _getAll(model, callback) {
 		if (CONNECTION) {
-			_doFind(model, callback);
+			_doGetAll(model, callback);
 		} else {
 			_connectDatabase(function(){
-				_doFind(model, callback);
+				_doGetAll(model, callback);
 			})
 		}
-		function _doFind(model, callback) {
+		function _doGetAll(model, callback) {
 			model.find({}, '-password', function(error, docs){
 			  	if (error) {
-				  	callback('ERROR while trying to find');
+				  	callback('ERROR while trying to get all');
 			  	} else {
 				  	callback(null, docs);
 			  	}

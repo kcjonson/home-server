@@ -23,10 +23,6 @@ var ITunesModel = require('../models/devices/itunes');
 var itunes= require('./devices/itunes');
 
 
-
-
-
-
 /* 
 
 	This libary is the manager for linking to devices
@@ -59,11 +55,12 @@ var itunes= require('./devices/itunes');
 exports.get = _get;
 exports.set = _set;
 exports.sync = _sync;
+exports.startKeepAlive = _startKeepAlive;
 exports.events = new EventEmitter();
 
 
-
-
+// Devices that have keepAlive get checked
+var CHECK_INTERVAL = 10 * 1000; // Every ten seconds
 
 
 var DEVICE_TYPES = {
@@ -205,7 +202,7 @@ function _set(databaseId, props, callback) {
 				database.findOne(DEVICE_TYPES[deviceData.type].model, {'_id': deviceData._id}, function(err, deviceDocument){
 					deviceDocument.set(dbProps);
 					deviceDocument.save(function(err, updatedDocument){
-						console.log(err, updatedDocument)
+						//console.log(err, updatedDocument)
 						callback(err, updatedDocument)
 					})
 				});
@@ -295,16 +292,46 @@ function _saveDevices(devicesData, callback) {
 };
 
 
-// var didSync = false;
-// function sync() {
-// 	if (!didSync) {
-// 		didSync = true;
-// 		_sync(function(err){
-// 			console.log('sync complete')
-// 			if (err) {
-// 				log.error(err);
-// 			}
-// 		})
-// 	}
-// }
-// sync();
+
+
+var CHECK_INTERVAL_HANDLE;
+function _keepAlive(deviceDocs){
+	var startDelay = CHECK_INTERVAL - new Date() % CHECK_INTERVAL;
+	setTimeout(function(){
+		clearInterval(CHECK_INTERVAL_HANDLE);
+		CHECK_INTERVAL_HANDLE = setInterval(function(){
+			deviceDocs.forEach(function(deviceDoc){
+				var deviceLib = DEVICE_TYPES[deviceDoc.type].lib;
+				deviceLib.keepAlive(deviceDoc.hardwareId, function(err){
+					if (err) {console.error(err)}
+				});
+			})
+		}, CHECK_INTERVAL);
+	}, startDelay);
+};
+
+
+
+
+var KEEP_ALIVE_LOADED = false;
+function _startKeepAlive() {
+	if (KEEP_ALIVE_LOADED !== true) {
+		KEEP_ALIVE_LOADED = true;
+		setTimeout(function(){
+			var devicesToKeepAlive = [];
+			database.getCollection(config.DEVICES_COLLECTION, function(err, deviceDocs){
+				var docsChecked = 0;
+				deviceDocs.forEach(function(deviceDoc){
+					if (deviceDoc.type == 'AIRFOIL_SPEAKER') {
+						devicesToKeepAlive.push(deviceDoc);
+					}
+					docsChecked += 1;
+					if (docsChecked == deviceDocs.length) {
+						_keepAlive(devicesToKeepAlive);
+					}
+				});
+			});
+		}, 1000);
+	}
+};
+

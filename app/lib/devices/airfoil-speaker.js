@@ -2,9 +2,10 @@ var osascript = require('node-osascript');
 var path = require('path');
 var log = require('../log');
 
-
 exports.get = _get;
 exports.set = _set;
+exports.keepAlive = _keepAlive;
+
 
 
 function _get(hardwareId, callback) {
@@ -53,6 +54,15 @@ function _set(hardwareId, props, callback) {
 			}
 		});
 		callback(err, speakerFound);
+	});
+};
+
+
+function _keepAlive(hardwareId, callback) {
+	//log.debug(hardwareId)
+	_communicate({command: 'connect', hardwareId: hardwareId}, function(err){
+		if (err) {callback(err); return;};
+		callback();
 	});
 };
 

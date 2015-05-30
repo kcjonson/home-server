@@ -18,6 +18,7 @@ var actionsController = require('./app/controllers/actions');
 // Lib (Utilities);
 var log = require('./app/lib/log');
 var database = require('./app/lib/database');
+var devicesLib = require('./app/lib/devices');
 
 // Node Modules
 var express = require('express');
@@ -42,6 +43,7 @@ database.getConnection(function(){
 	configureExpress();
 	attachControllers();
 	startServer();
+	devicesLib.startKeepAlive();
 })
 
 

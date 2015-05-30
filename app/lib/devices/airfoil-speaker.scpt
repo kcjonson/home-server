@@ -16,6 +16,19 @@ else if command is "set" then
 	end tell
 	
 	my getInfo()
+
+else if command is "connect" then
+
+	tell application "Airfoil"
+		
+		try
+			set sp to first speaker whose id is hardwareId
+			connect to sp
+		end try
+		
+	end tell
+
+	my getInfo()
 	
 end if
 
