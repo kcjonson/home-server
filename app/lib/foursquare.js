@@ -28,7 +28,8 @@ function _checkin(data) {
 					location: {
 						lat: data.venue.location.lat,
 						lng: data.venue.location.lng
-					}
+					},
+					action: 'enter'
 				});
 			} else {
 				console.log('ERROR: Foursquare user ', data.user.id, ' not found');

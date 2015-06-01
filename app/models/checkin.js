@@ -11,7 +11,8 @@ var checkinSchema = new mongoose.Schema({
 	location: {
 		lat: Number,
 		lng: Number
-	}
+	},
+	action: String
 }).post('save', function(document){
 	log.debug('Finished saving changes to checkin object', document);
 	if (document.user) {

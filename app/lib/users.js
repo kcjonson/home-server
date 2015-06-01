@@ -1,12 +1,20 @@
 var database = require('./database');
 var userModel = require('../models/user');
 var indigo = require('./indigo');
+var checkins = require('./checkins');
 var log = require('./log');
+var speech = require('./speech');
+var EventEmitter = require("events").EventEmitter;
 
+
+
+
+// Setup
+exports.events = new EventEmitter();
+checkins.events.on('add', _onAddCheckin);
 
 
 // Getters
-
 exports.getAll = function(callback) {
 	database.getAll(userModel, function(err, userModels){
 		if (err) {callback(err); return;}
@@ -62,17 +70,17 @@ function _setMostRecentCheckin(userId, checkin, callback){
 		
 		log.debug('Got user to save checkin', userModel, checkin.name);
 
+		if (checkin.name == 'Home') {
+			speech.say(userModel.name.first + ' is arriving home')
+		}
+
 		// This is super janky.
 		var isAwayValue = true;
 		var isAwayVariableName = "isAway" + userModel.accounts.indigo;
 		if (checkin.name == 'Home') {
 			log.debug('Checkin name is "Home"');
 			isAwayValue = false;
-		}
-
-		log.debug('about to update indigo', isAwayVariableName, isAwayValue);
-
-		// Update Indigo Variable
+		};
 		indigo.setVariable(isAwayVariableName, isAwayValue, function(error, variableData){
 			log.debug('finished saving changes to variable', error, variableData);
 		});
@@ -83,6 +91,29 @@ function _setMostRecentCheckin(userId, checkin, callback){
 
 	});
 };
+
+
+// Event Handlers
+function _onAddCheckin(data) {
+	checkins.getRecent(function(e, checkinsData){
+		var isHome = false;
+		var wasHome = false;
+		checkinsData.forEach(function(checkinData){
+			if (checkinData.current.name == 'Home') {
+				isHome = true;
+			};
+			if (checkinData.previous.name == 'Home') {
+				wasHome = true;
+			};
+		});
+		if (isHome && !wasHome) {
+			exports.events.emit("change:areHome", true);
+		}
+		if (!isHome && wasHome) {
+			exports.events.emit("change:areHome", false);
+		}
+	})
+}
 
 
 

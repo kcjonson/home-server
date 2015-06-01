@@ -4,24 +4,25 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "express": "x",
-    "indigo" : "x",
     "body-parser": "x",
+    "connect-mongo": "0.8.1",
     "cookie-parser": "x",
+    "express": "x",
     "express-session": "x",
+    "firebase": "2.2.4",
+    "forecast": "^0.2.1",
     "hbs": "x",
     "http-proxy": "x",
-    "mongoose": "x",
-    "querystring": "x",
-    "node-osascript": "1.0.2",
+    "http2": "3.2.0",
+    "indigo": "x",
     "merge": "1.2.0",
-    "firebase": "2.2.4",
-    "request": "2.55.0",
     "mongodb": "2.0.28",
-    "connect-mongo": "0.8.1",
-    "http2": "3.2.0"
+    "mongoose": "x",
+    "node-osascript": "1.0.2",
+    "querystring": "x",
+    "request": "2.55.0"
   },
   "scripts": {
-  	"start": "sudo nodemon app.js"
+    "start": "sudo nodemon app.js"
   }
 }

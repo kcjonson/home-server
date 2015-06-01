@@ -14,11 +14,13 @@ var alarmsController = require('./app/controllers/alarms');
 var devicesController = require('./app/controllers/devices');
 var nestController = require('./app/controllers/nest');
 var actionsController = require('./app/controllers/actions');
+var settingsController = require('./app/controllers/settings');
 
 // Lib (Utilities);
 var log = require('./app/lib/log');
 var database = require('./app/lib/database');
 var devicesLib = require('./app/lib/devices');
+var triggersLib = require('./app/lib/triggers');
 
 // Node Modules
 var express = require('express');
@@ -43,7 +45,8 @@ database.getConnection(function(){
 	configureExpress();
 	attachControllers();
 	startServer();
-	devicesLib.startKeepAlive();
+	devicesLib.start();
+	triggersLib.start();
 })
 
 
@@ -105,6 +108,7 @@ function attachControllers() {
 	devicesController.start({app: app});
 	nestController.start({app: app});
 	actionsController.start({app: app});
+	settingsController.start({app: app});
 }
 
 function startServer() {

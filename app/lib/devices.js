@@ -40,9 +40,6 @@ var itunes= require('./devices/itunes');
 		- onkyo-reciever
 	- Change Monitoring
 	- Disconnected/Unavailable Devices
-	- Locations
-	- Groups
-
 
 
 
@@ -55,7 +52,7 @@ var itunes= require('./devices/itunes');
 exports.get = _get;
 exports.set = _set;
 exports.sync = _sync;
-exports.startKeepAlive = _startKeepAlive;
+exports.start = _start;
 exports.events = new EventEmitter();
 
 
@@ -112,7 +109,7 @@ var DB_PROPS = [
 	'location'
 ];
 
-
+var LISTENERS = {};
 
 
 
@@ -162,8 +159,8 @@ function _getDevice(data, callback) {
 // unique across all device types.
 function _set(databaseId, props, callback) {
 	log.debug(databaseId, props);
-	database.findOne(config.DEVICES_COLLECTION, {'_id': databaseId}, function(err, deviceData){
-		if (deviceData && deviceData.type) {
+	database.findOne(config.DEVICES_COLLECTION, {'_id': databaseId}, function(err, deviceDoc){
+		if (deviceDoc && deviceDoc.type) {
 
 			var libProps = {};
 			var dbProps = {};
@@ -182,11 +179,11 @@ function _set(databaseId, props, callback) {
 
 			// Set Lib Props 
 			if (Object.keys(libProps).length > 0) {
-				log.debug('SETTING LIB PROP')
-				var deviceLib = DEVICE_TYPES[deviceData.type].lib;
-				deviceLib.set(deviceData.hardwareId, libProps, function(err, deviceData){
+				var deviceLib = DEVICE_TYPES[deviceDoc.type].lib;
+				deviceLib.set(deviceDoc.hardwareId, libProps, function(err, deviceData){
 					if (!err) {
-						exports.events.emit("change", _formatData(deviceData, deviceData));
+						exports.events.emit("change", [_formatData(deviceDoc, deviceData)]);
+						exports.events.emit("change" + deviceDoc._id, _formatData(deviceDoc, deviceData));
 					}
 					callback(err, deviceData);
 				});
@@ -194,30 +191,15 @@ function _set(databaseId, props, callback) {
 
 			// Set Device Props
 			if (Object.keys(dbProps).length > 0) {
-				log.debug('SETTING DB PROP', deviceData)
-
 				// Since the findOne earlier was done on a collection at the
-				// Mongo layer, it did not return a document. We need to create one
-
-				database.findOne(DEVICE_TYPES[deviceData.type].model, {'_id': deviceData._id}, function(err, deviceDocument){
+				// Mongo layer, it did not return a document. We need to fetch the real document
+				// so we can modify it.  This is rather annoying. -KCJ
+				database.findOne(DEVICE_TYPES[deviceDoc.type].model, {'_id': deviceDoc._id}, function(err, deviceDocument){
 					deviceDocument.set(dbProps);
 					deviceDocument.save(function(err, updatedDocument){
-						//console.log(err, updatedDocument)
 						callback(err, updatedDocument)
 					})
 				});
-
-
-				// var hydratedModel = new DEVICE_TYPES[deviceData.type].model(deviceData);
-				// hydratedModel.set(dbProps);
-
-				// hydratedModel.save(function(err, deviceDocument){
-				// 	console.log(err, deviceDocument)
-				// 	callback(err, deviceDocument)
-				// })
-
-				//deviceDoc.set(dbProps);
-				//deviceDoc.save();
 			}
 		} else if (err) {
 			callback(err)
@@ -227,7 +209,6 @@ function _set(databaseId, props, callback) {
 	});
 };
 
-
 function _formatData(deviceDoc, deviceData) {
 	deviceData.type = deviceDoc.type;
 	deviceData.category = deviceDoc.category;
@@ -235,7 +216,9 @@ function _formatData(deviceDoc, deviceData) {
 	deviceData._id = deviceDoc._id;
 	delete deviceData.hardwareId;
 	return deviceData;
-}
+};
+
+
 
 
 
@@ -314,7 +297,13 @@ function _keepAlive(deviceDocs){
 
 
 var KEEP_ALIVE_LOADED = false;
-function _startKeepAlive() {
+function _start() {
+
+	// Start Device Libs
+	indigoMotionDetector.start();
+
+
+	// Start Keep Alive and Listen to events
 	if (KEEP_ALIVE_LOADED !== true) {
 		KEEP_ALIVE_LOADED = true;
 		setTimeout(function(){
@@ -322,8 +311,23 @@ function _startKeepAlive() {
 			database.getCollection(config.DEVICES_COLLECTION, function(err, deviceDocs){
 				var docsChecked = 0;
 				deviceDocs.forEach(function(deviceDoc){
+
+					// Attach Keepalive (hard coded for now)
 					if (deviceDoc.type == 'AIRFOIL_SPEAKER') {
 						devicesToKeepAlive.push(deviceDoc);
+					}
+
+					// Listen for change events
+					var deviceLib = DEVICE_TYPES[deviceDoc.type].lib;
+					if (deviceLib && deviceLib.events && deviceLib.events.on) {
+						var eventName = "change:" + deviceDoc.hardwareId;
+						if (LISTENERS[deviceDoc._id]) {
+							deviceLib.events.removeListener(eventName, LISTENERS[deviceDoc._id])
+						}
+						LISTENERS[deviceDoc._id] = deviceLib.events.on(eventName, function(deviceData){
+							exports.events.emit("change", [_formatData(deviceDoc, deviceData)]);
+							exports.events.emit("change" + deviceDoc._id, _formatData(deviceDoc, deviceData));
+						})
 					}
 					docsChecked += 1;
 					if (docsChecked == deviceDocs.length) {
@@ -333,5 +337,6 @@ function _startKeepAlive() {
 			});
 		}, 1000);
 	}
+
 };
 

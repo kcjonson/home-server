@@ -6,10 +6,8 @@ var log = require('../lib/log');
 
 
 
-
-
-
 exports.get = _get;
+exports.set = _set;
 exports.execute = _lookupAndExecute;
 
 
@@ -21,10 +19,15 @@ function _get(callback) {
 		returnedActions.push({
 			name: ACTION.name,
 			_id: ACTION._id,
-			isEnabled: true
+			isEnabled: true,
+			commands: ACTION.commands
 		})
 	});
 	callback(null, returnedActions);
+};
+
+function _set(id, properties, callback) {
+	callback(null, properties);
 };
 
 

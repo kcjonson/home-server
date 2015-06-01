@@ -1,4 +1,3 @@
-
 var indigo = require('indigo/lib/indigo');
 var mongoose = require('mongoose');
 var config = require('../../config/users.json');
@@ -21,6 +20,7 @@ var CONNECTION;  // Holds Ref to DB Connection
 	exports.findOne = _findOne;
 	exports.find = _find;
 	exports.save = _save;
+	exports.distinct = _distinct;
 	exports.dropCollection = _dropCollection;
 	exports.getCollection = _getCollection;
 
@@ -107,6 +107,33 @@ var CONNECTION;  // Holds Ref to DB Connection
 		}
 	};
 
+	function _find(modelOrCollection, query, fields, options, callback) {
+		if (query && query._id) {
+			query._id = ObjectId(query._id.toString())
+		}
+		if (CONNECTION) {
+			_doFind(modelOrCollection, query, fields, options, callback);
+		} else {
+			_connectDatabase(function(){
+				_doFind(modelOrCollection, query, fields, options, callback);
+			})
+		};
+		function _doFind(modelOrCollection, query, fields, options, callback) {
+
+			if (modelOrCollection.model) {
+				modelOrCollection.find(query, fields, options, function(error, docs){
+				  	if (error) {
+					  	callback('ERROR while trying to find');
+				  	} else {
+					  	callback(null, docs);
+				  	}
+			  	});
+			} else {
+				//todo
+			}
+		}
+	}
+
 	function _findOne(modelOrCollection, query, callback) {
 		if (query && query._id) {
 			query._id = ObjectId(query._id.toString())
@@ -134,29 +161,23 @@ var CONNECTION;  // Holds Ref to DB Connection
 				var collection = mongoose.connection.db.collection(modelOrCollection);
 				if (collection) {
 					collection.findOne(query, callback);
+				} else {
+					log.error('Unable to get collection');
+					callback('Unable to get collection')
 				}
 			}
 		}
 	};
 
-	function _find(model, query, fields, options, callback) {
-		if (CONNECTION) {
-			_doFind(model, query, fields, options, callback);
+	function _distinct(collection, field, callback) {
+		collection = mongoose.connection.db.collection(collection);
+		if (collection) {
+			collection.distinct(field, callback);
 		} else {
-			_connectDatabase(function(){
-				_doFind(model, query, fields, options, callback);
-			})
-		};
-		function _doFind(model, query, fields, options, callback) {
-			model.find(query, fields, options, function(error, docs){
-			  	if (error) {
-				  	callback('ERROR while trying to find');
-			  	} else {
-				  	callback(null, docs);
-			  	}
-		  	});
+			log.error('Unable to get collection');
+			callback('Unable to get collection')
 		}
-	}
+	};
 
 	function _connectDatabase(callback) {
 		CONNECTION = mongoose.connect(appConfig.DATABASE_URL, function (err, res) {

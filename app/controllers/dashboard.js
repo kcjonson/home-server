@@ -8,7 +8,7 @@ exports.start = function(params) {
 	
 	var app = params.app;
 	
-	app.get(config.DASHBOARD_URL + '*', function(req, res) {
+	app.get(/\/server-remote-web(?!(?:\/scripts|\/styles|\/fonts|\/images|\/cordova.js))/, function(req, res) {
 		//res.redirect('/dashboard.html');
 
 		res.render('../public/server-remote-web/dashboard.html');

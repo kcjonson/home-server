@@ -1,6 +1,7 @@
 var indigo = require('indigo/lib/indigo');
 var config = require('../../config/indigo.json');
 var log = require('./log');
+var EventEmitter = require("events").EventEmitter;
 
 exports.getDevices = _getDevices;
 exports.getDevicesByType = _getDevicesByType;
@@ -14,6 +15,8 @@ exports.setVariable = _setVariable;
 exports.getActions = _getActions;
 exports.getAction = _getAction;
 exports.executeAction = _executeAction;
+exports.push = _push;
+exports.events = new EventEmitter();
 
 
 
@@ -248,4 +251,18 @@ function _executeAction(action, callback) {
 		}
 	});
 };
+
+
+function _push(data) {
+	log.debug(data);
+	if (data.addressStr) {
+		_getDeviceByHardwareId(data.addressStr, function(err, deviceData){
+			log.debug(err, deviceData);
+			if (!err) {
+				exports.events.emit("change", [deviceData]);
+				exports.events.emit("change:" + data.hardwareId, deviceData);
+			}
+		});
+	}
+}
 

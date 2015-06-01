@@ -15,12 +15,15 @@ function _checkin(data) {
 			//console.log(user.username, data.location, data.event, data.time);
 			log.debug(user);
 			var location;
+			var action;
+			location = data.location == config.GEOHOPPER_HOME_NAME ? config.GEOHOPPER_HOME_NAME : data.location
 			switch (data.event) {
 				case 'LocationEnter':
-					location = data.location == config.GEOHOPPER_HOME_NAME ? config.GEOHOPPER_HOME_NAME : data.location
+					action = 'enter';
 					// TODO: Add lat,lng when known
 					break;
 				case 'LocationExit':
+					action = 'exit';
 					// ?? 
 					break;
 				default:
@@ -30,7 +33,8 @@ function _checkin(data) {
 			checkins.add({
 				user: user._id,
 				name: location,  // May be null
-				date: data.time
+				date: data.time,
+				action: action
 			});
 
 		} else {
