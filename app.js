@@ -16,6 +16,7 @@ var nestController = require('./app/controllers/nest');
 var actionsController = require('./app/controllers/actions');
 var settingsController = require('./app/controllers/settings');
 var weatherController = require('./app/controllers/weather'); 
+var collectorController = require('./app/controllers/collector'); 
 
 // Lib (Utilities);
 var log = require('./app/lib/log');
@@ -111,6 +112,7 @@ function attachControllers() {
 	actionsController.start({app: app});
 	settingsController.start({app: app});
 	weatherController.start({app: app});
+	collectorController.start({app: app});
 }
 
 function startServer() {

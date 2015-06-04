@@ -5,6 +5,7 @@ var appConfig = require('../../config/app.json');
 var users = require('../lib/users');
 var checkins = require('../lib/checkins');
 var log = require('../lib/log');
+var collector = require('./collector');
 
 
 
@@ -22,6 +23,7 @@ exports.start = function(params){
 	log.info('Attaching Users API Endpoints');
 
 	// All users
+	collector.registerEndpoint(config.USERS_API_URL);
 	app.get(config.USERS_API_URL, function(req, res) {
 		log.info('GET ' + config.USERS_API_URL);
 		users.getAll(function(error, users){

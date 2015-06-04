@@ -1,7 +1,7 @@
 var config = require('../../config/settings.json');
 var settings = require('../lib/settings');
 var log = require('../lib/log');
-
+var collector = require('./collector');
 
 
 exports.start = function(params) {
@@ -13,6 +13,7 @@ exports.start = function(params) {
 
 
 	// All Settings
+	collector.registerEndpoint(config.SETTINGS_API_URL);
 	app.get(config.SETTINGS_API_URL, _handleGet);
 	app.get(config.SETTINGS_API_URL + '/:id', _handleGet);
 	

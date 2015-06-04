@@ -2,13 +2,14 @@ var config = require('../../config/actions.json');
 var devices = require('../lib/devices');
 var log = require('../lib/log');
 var Actions = require('../lib/actions');
-
+var collector = require('./collector');
 
 
 exports.start = function(params) {
 	log.info('Starting Actions REST Endpoints');	
 	var app = params.app;
 
+	collector.registerEndpoint(config.ACTIONS_API_URL);
 	app.get(config.ACTIONS_API_URL, function(req, res) {
 		log.info('GET ' + config.ACTIONS_API_URL);
 		Actions.get(function(err, actionsData){

@@ -1,7 +1,7 @@
 var config = require('../../config/alarms.json');
 var alarms = require('../lib/alarms');
 var log = require('../lib/log');
-
+var collector = require('./collector');
 
 
 exports.start = function(params) {
@@ -13,7 +13,7 @@ exports.start = function(params) {
 
 
 	// All Alarms
-
+	collector.registerEndpoint(config.ALARM_API_URL);
 	app.get(config.ALARM_API_URL, function(req, res) {
 		log.info('GET ' + config.ALARM_API_URL);
 		alarms.get(function(e, alarmsData){

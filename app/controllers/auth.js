@@ -13,32 +13,40 @@ if (AUTH_DISABLED) {
 }
 
 exports.interceptor = function() {
-	return function auth(req, res, next) {	
+	return function auth(req, res, next) {
+
+
+
 		//log.info(new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '') + ' Request for: ' + req.url);		
 		if (started) {
 
-			// Anylize URL
-			var isPublicUrl = false;
-			config.PUBLIC_URLS.forEach(function(publicUrl){
-				if (req.url.indexOf(publicUrl, 0) === 0) {
-					isPublicUrl = true;
-				};
-			});
-
-			if (req.cookies) {
-				var insecureUserId = req.cookies['remote.userId'];
-			}
-			if (!isPublicUrl && !req.session.userId && AUTH_DISABLED && insecureUserId) {
-				log.warn('Allowing Access From Insecure User Cookie');
-			}
-			if (isPublicUrl || req.session.userId || (AUTH_DISABLED && insecureUserId)) {
+			if (req.ip == '::ffff:127.0.0.1') {
 				next();
 			} else {
-				//req.session.destination = req.url;
-				//res.redirect(config.AUTH_LOGIN_URL);
-				log.warn('Authentication Denied Request for:', req.url);
-				res.status(401).send('Unauthorized');
-			};	
+
+				// Anylize URL
+				var isPublicUrl = false;
+				config.PUBLIC_URLS.forEach(function(publicUrl){
+					if (req.url.indexOf(publicUrl, 0) === 0) {
+						isPublicUrl = true;
+					};
+				});
+
+				if (req.cookies) {
+					var insecureUserId = req.cookies['remote.userId'];
+				}
+				if (!isPublicUrl && !req.session.userId && AUTH_DISABLED && insecureUserId) {
+					log.warn('Allowing Access From Insecure User Cookie');
+				}
+				if (isPublicUrl || req.session.userId || (AUTH_DISABLED && insecureUserId)) {
+					next();
+				} else {
+					//req.session.destination = req.url;
+					//res.redirect(config.AUTH_LOGIN_URL);
+					log.warn('Authentication Denied Request for:', req.url);
+					res.status(401).send('Unauthorized');
+				};	
+			}
 		} else {
 			next();
 		};
