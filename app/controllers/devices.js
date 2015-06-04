@@ -12,12 +12,17 @@ exports.start = function(params) {
 	log.info('Starting Devices REST Endpoints');	
 
 
-
-
 	app.get(config.DEVICES_API_URL, function(req, res) {
 		log.info('GET ' + config.DEVICES_API_URL);
-		devices.get(function(e, devicesData){
-			res.send(devicesData);
+		devices.get(function(e, data){
+			if (e) {
+				log.error(e);
+				res.send({
+					error: e
+				})
+			} else {
+				res.send(data);
+			}
 		})
 	});
 

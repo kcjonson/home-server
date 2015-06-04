@@ -83,7 +83,12 @@ function _stringifyArguments(args) {
 		}
 		switch (typeof arg) {
 			case 'object':
-				str += JSON.stringify(arg);
+				if (arg && arg.message) {
+					str += arg.message;
+				} else {
+					str += JSON.stringify(arg);
+				}
+				
 				break;
 			default: 
 				str += arg;

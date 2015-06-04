@@ -126,7 +126,6 @@ function _get(callback) {
 	database.getCollection(config.DEVICES_COLLECTION, function(err, deviceDocs){
 		if (err) {callback(err); return;}
 		deviceDocs.forEach(function(deviceDoc){
-
 			// Fully Hydrate the Data Object since we don't store
 			// state in the DB.  Do modify the objects slightly so that
 			// the front end only deals with the mongo document ID.
@@ -210,6 +209,14 @@ function _set(databaseId, props, callback) {
 };
 
 function _formatData(deviceDoc, deviceData) {
+	// The individual devices will return null if the device
+	// was unable to be communicated with.  This is normal for
+	// some devices like Airplay Speakers that may be turned off.
+	if (!deviceData) {
+		deviceData = {
+			offline: true
+		}
+	}
 	deviceData.type = deviceDoc.type;
 	deviceData.category = deviceDoc.category;
 	deviceData.location = deviceDoc.location;

@@ -67,18 +67,12 @@ function _setMostRecentCheckin(userId, checkin, callback){
 	log.debug('Setting most recent checkin', checkin);
 	_getById(userId, function(error, userModel){
 		if (error) {return;}
-		
-		log.debug('Got user to save checkin', userModel, checkin.name);
-
-		if (checkin.name == 'Home') {
-			speech.say(userModel.name.first + ' is arriving home')
-		}
 
 		// This is super janky.
 		var isAwayValue = true;
 		var isAwayVariableName = "isAway" + userModel.accounts.indigo;
-		if (checkin.name == 'Home') {
-			log.debug('Checkin name is "Home"');
+		if (checkin.name == 'Home' && checkin.action == 'enter') {
+			speech.say(userModel.name.first + ' is arriving home')
 			isAwayValue = false;
 		};
 		indigo.setVariable(isAwayVariableName, isAwayValue, function(error, variableData){

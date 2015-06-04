@@ -13,6 +13,7 @@ function _get(id, callback) {
 	}
 
 	_communicate({command: 'get'}, function(err, data){
+		console.log(err)
 		if (err) {callback(err); return;};
 		data.hardwareId = '127.0.0.1';
 		data.name = 'iTunes';
@@ -43,8 +44,15 @@ function _communicate(vars, callback) {
 	var scriptPath = path.join(__dirname, '/iTunes.scpt');
 	osascript.executeFile(scriptPath, vars, function(error, result, raw){
 		if (error) {
-			callback(error);
-			return;
+			var message = error.message;
+			if (message.lastIndexOf('(-1728)') > -1) {  // Unable to get current track (nothing is playing)
+				callback(null, {})
+				return;
+			} else {
+				callback(error.message);
+				return;
+			}
+
 		}
 		var parsedResult = _parseJSON(result);
 		if (typeof parsedResult == 'object') {

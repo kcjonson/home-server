@@ -27,7 +27,9 @@ function _get(hardwareId, callback) {
 			if (speakerFound) {
 				callback(null, speakerFound)
 			} else {
-				callback('Unable to find airfoil speaker: ' + hardwareId);
+				// Sometimes speakers won't be online, and this is ok.
+				log.warn('Unable to find airfoil speaker: ' + hardwareId);
+				callback();
 			}
 		} else {
 			callback(null, speakersData)
@@ -71,7 +73,7 @@ function _communicate(vars, callback) {
 	var scriptPath = path.join(__dirname, '/airfoil-speaker.scpt');
 	osascript.executeFile(scriptPath, vars, function(error, result, raw){
 		if (error) {
-			callback(error);
+			callback(error.message);
 			return;
 		}
 		var parsedResult = _parseJSON(result);

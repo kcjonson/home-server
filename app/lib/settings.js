@@ -1,4 +1,5 @@
 var config = require('../../config/settings.json');
+var SettingModel = require('../models/setting');
 var log = require('../lib/log');
 var database = require('./database');
 
@@ -16,15 +17,17 @@ function _get(params, callback) {
 		callback = params;
 		params = undefined;
 	}
-	database.findOne(config.SETTINGS_COLLECTION, null, callback)
+	database.findOne(SettingModel, null, callback)
 }
 
 function _set(props, callback) {
 	log.debug(props);
-	database.findOne(config.SETTINGS_COLLECTION, null, function(err, deviceDoc){
+	database.findOne(SettingModel, null, function(err, deviceDoc){
 		if (deviceDoc) {
-			console.log(deviceDoc)
-			callback()
+			deviceDoc.set(props);
+			deviceDoc.save(function(err, updatedDocument){
+				callback(err, updatedDocument)
+			})
 		} else {
 			callback(err);
 		}
