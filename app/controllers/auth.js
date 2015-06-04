@@ -83,33 +83,6 @@ exports.start = function(params) {
 		});
 	});
 
-	// Current User Data Endpoint
-	app.get(config.AUTH_CURRENT_USER_DATA_URL, function(req, res){
-		log.info('GET ', config.AUTH_CURRENT_USER_DATA_URL);
-
-		if (req.cookies) {
-			var insecureUserId = req.cookies['remote.userId'];
-		}
-		log.debug(req.session.userId, AUTH_DISABLED, insecureUserId)
-		if (req.session.userId || (AUTH_DISABLED && insecureUserId)) {
-			var userId = req.session.userId || insecureUserId;
-			users.getById(userId, function(error, user){
-				if (error) {
-					res.send({
-						error: error
-					});
-				} else {
-					res.send(user);
-				}
-			});
-		} else {
-			log.warn('The current user cannot be identified');
-			res.status(401).send({
-				error: 'The current user cannot be dentified'
-			});
-		}
-	})
-
 	started = true;
 }
 

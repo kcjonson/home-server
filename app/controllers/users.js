@@ -35,7 +35,28 @@ exports.start = function(params){
 	app.get(config.USERS_API_URL + '/:id', function(req, res){
 		log.info('GET ' + config.USERS_API_URL + '/:id/');
 		var id = req.params.id;
-		res.send('TODO')
+		if (id === 'current') {
+			if (req.session.userId) {
+				users.getById(req.session.userId, function(error, user){
+					if (error) {
+						res.send({
+							error: "An error occured while trying to fetch the current user data"
+						});
+					} else {
+						res.send(user);
+					}
+				});
+			} else {
+				log.warn('The current user cannot be identified');
+				res.status(401).send({
+					error: 'The current user cannot be dentified'
+				});
+			}
+		} else {
+			res.send({
+				error: 'User fetching endpoint is not finished!'	
+			})
+		}
 	});
 
 	// Checkins

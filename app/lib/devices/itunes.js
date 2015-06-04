@@ -27,13 +27,10 @@ function _get(id, callback) {
 
 function _set(id, props, callback) {
 	log.debug(id, props);
-
 	props.command = 'set';
-
-	// Playlist is a reserved word.
+	// Playlist is a reserved word in applescript.
 	props.plist = props.playlist;
 	delete props.playlist;
-
 	_communicate(props, function(err, data){
 		console.log(data)
 		callback(err, data);
