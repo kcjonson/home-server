@@ -80,7 +80,6 @@ function _execute(action, callback) {
 };
 
 
-
 function _addDeviceStateFromCommand(deviceStates, command, devicesData) {
 	switch (command.type) {
 		case 'DEVICE':

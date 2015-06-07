@@ -259,8 +259,11 @@ function _push(data) {
 		_getDeviceByHardwareId(data.addressStr, function(err, deviceData){
 			log.debug(err, deviceData);
 			if (!err) {
-				exports.events.emit("change", [deviceData]);
-				exports.events.emit("change:" + data.hardwareId, deviceData);
+				exports.events.emit("change", [data]);
+				var prunedData = JSON.parse(JSON.stringify(data));
+				delete prunedData.hardwareId;
+				exports.events.emit("change[" + data.addressStr + "]", data);
+				// TODO: Emit specific prop changes
 			}
 		});
 	}

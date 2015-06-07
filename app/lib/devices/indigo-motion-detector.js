@@ -1,6 +1,7 @@
 var log = require('../../lib/log');
 var indigo = require('../indigo');
 var EventEmitter = require("events").EventEmitter;
+var EventUtil = require('../../util/Event');
 
 exports.get = _get;
 exports.set = _set;
@@ -41,11 +42,15 @@ function _get(id, callback) {
 			if (devicesData && devicesData.forEach) {
 				devicesData.forEach(function(deviceData){
 					normalizedDevicesData.push(_formatData(deviceData));
-					var eventName = "change:" + deviceData.hardwareId;
-					if (LISTENERS[deviceData.hardwareId]) {
-						indigo.events.removeListener(eventName, LISTENERS[deviceData.hardwareId])
+					var eventName = "change[" + deviceData.addressStr + "]";
+					if (LISTENERS[deviceData.addressStr]) {
+						indigo.events.removeListener(eventName, LISTENERS[deviceData.addressStr])
 					}
-					LISTENERS[deviceData.hardwareId] = indigo.events.on(eventName, _onChange);
+					LISTENERS[deviceData.addressStr] = indigo.events.on(eventName, function(indigoEventData){
+						var prunedData = JSON.parse(JSON.stringify(indigoEventData));
+						delete prunedData.addressStr;
+						_onChange(deviceData.addressStr, prunedData);
+					});
 				});
 				callback(null, normalizedDevicesData);
 			} else {
@@ -68,13 +73,17 @@ function _formatData(deviceData) {
 	return {
 		name: deviceData.name,
 		hardwareId: deviceData.addressStr,
-		lastChanged: new Date(deviceData.lastChangedRFC3339)
+		lastChanged: new Date(deviceData.lastChangedRFC3339),
+		isOn: deviceData.isOn
 	}
 }
 
-function _onChange(deviceData) {
-	log.debug(deviceData);
-	exports.events.emit("change", [_formatData(deviceData)]);
-	exports.events.emit("change:" + deviceData.addressStr, _formatData(deviceData));
-}
+function _onChange(addressStr, changeData) {
+	EventUtil.emit(exports.events, {
+		name: 'change',
+		id: addressStr,
+		data: changeData
+	})
+};
+
 

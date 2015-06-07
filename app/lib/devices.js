@@ -2,6 +2,7 @@ var log = require('../lib/log');
 var database = require('./database');
 var config = require('../../config/devices.json');
 var EventEmitter = require("events").EventEmitter;
+var EventUtil = require('../util/Event');
 
 
 var AirfoilSpeakerModel = require('../models/devices/airfoil-speaker');
@@ -181,8 +182,17 @@ function _set(databaseId, props, callback) {
 				var deviceLib = DEVICE_TYPES[deviceDoc.type].lib;
 				deviceLib.set(deviceDoc.hardwareId, libProps, function(err, deviceData){
 					if (!err) {
+						// The sub libraries do not emit their own change events as they should 
+						// only be accessed via this device lib.  Therefore we can just emit from
+						// here.
+						// This should be switched as it may fire events when no changes actually occur.
 						exports.events.emit("change", [_formatData(deviceDoc, deviceData)]);
-						exports.events.emit("change" + deviceDoc._id, _formatData(deviceDoc, deviceData));
+						exports.events.emit("change[" + deviceDoc._id + "]", _formatData(deviceDoc, deviceData));
+						for (var key in libProps) {
+							if (libProps.hasOwnProperty(key)) {
+								// Emit for each prop?  Not sure if they changed.
+							}
+						}
 					}
 					callback(err, deviceData);
 				});
@@ -327,14 +337,17 @@ function _start() {
 					// Listen for change events
 					var deviceLib = DEVICE_TYPES[deviceDoc.type].lib;
 					if (deviceLib && deviceLib.events && deviceLib.events.on) {
-						var eventName = "change:" + deviceDoc.hardwareId;
+						var eventName = "change[" + deviceDoc.hardwareId + "]";
 						if (LISTENERS[deviceDoc._id]) {
 							deviceLib.events.removeListener(eventName, LISTENERS[deviceDoc._id])
 						}
-						LISTENERS[deviceDoc._id] = deviceLib.events.on(eventName, function(deviceData){
-							exports.events.emit("change", [_formatData(deviceDoc, deviceData)]);
-							exports.events.emit("change" + deviceDoc._id, _formatData(deviceDoc, deviceData));
-						})
+						LISTENERS[deviceDoc._id] = deviceLib.events.on(eventName, function(eventPayload){
+							EventUtil.emit(exports.events, {
+								name: 'change',
+								id: deviceDoc._id,
+								data: eventPayload
+							});
+						});
 					}
 					docsChecked += 1;
 					if (docsChecked == deviceDocs.length) {

@@ -29,7 +29,8 @@ var userSchema = new mongoose.Schema({
 	mostRecentCheckin: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'checkins'
-	}
+	},
+	isHome: Boolean
 })
 
 

@@ -43,9 +43,11 @@ exports.start = function(params) {
 		});
 
 		var writeData = function(devicesData){
-			devicesData.forEach(function(deviceData){
-				res.write("data: " + JSON.stringify(deviceData) + "\n\n");
-			});
+			if (devicesData && devicesData.forEach) {
+				devicesData.forEach(function(deviceData){
+					res.write("data: " + JSON.stringify(deviceData) + "\n\n");
+				});
+			}
 		};
 
 		devices.events.on('change', writeData);

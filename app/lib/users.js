@@ -5,12 +5,14 @@ var checkins = require('./checkins');
 var log = require('./log');
 var speech = require('./speech');
 var EventEmitter = require("events").EventEmitter;
+var EventUtil = require('../util/Event');
 
 
 
 
 // Setup
 exports.events = new EventEmitter();
+exports.type = 'COLLECTION';
 checkins.events.on('add', _onAddCheckin);
 
 
@@ -74,7 +76,10 @@ function _setMostRecentCheckin(userId, checkin, callback){
 		if (checkin.name == 'Home' && checkin.action == 'enter') {
 			speech.say(userModel.name.first + ' is arriving home')
 			isAwayValue = false;
-		};
+			userModel.isHome = true;
+		} else {
+			userModel.isHome = false;
+		}
 		indigo.setVariable(isAwayVariableName, isAwayValue, function(error, variableData){
 			log.debug('finished saving changes to variable', error, variableData);
 		});
@@ -82,13 +87,24 @@ function _setMostRecentCheckin(userId, checkin, callback){
 		// Update User Model
 		userModel.mostRecentCheckin = checkin._id;
 		database.save(userModel, function(error, savedUserModel){});
+		exports.events.emit("change[" + userId + "]:mostRecentCheckin", userModel.mostRecentCheckin);
+		//exports.events.emit("change[" + userId + "]:isHome", userModel.isHome);
 
+		EventUtil.emit(exports.events, {
+			name: 'change',
+			id: userId,
+			property: 'isHome',
+			data: {
+				ishome: userModel.isHome
+			}
+		})
 	});
 };
 
 
 // Event Handlers
 function _onAddCheckin(data) {
+
 	checkins.getRecent(function(e, checkinsData){
 		var isHome = false;
 		var wasHome = false;
