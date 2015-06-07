@@ -9,6 +9,7 @@ var log = require('../lib/log');
 exports.get = _get;
 exports.set = _set;
 exports.execute = _lookupAndExecute;
+exports.executeCommand = _executeCommand;
 
 
 
@@ -47,38 +48,44 @@ function _lookupAndExecute(id, callback) {
 
 function _execute(action, callback) {
 	log.info('Executing action: ', action.name);
-
-
 	// Get all the devices up front to save mutliple queries.
 	Devices.get(function(err, devicesData){
-
 		// We're going to take a final product of all 
 		// the actions not actually run them in step.
 		var deviceStates = {};
 		action.commands.forEach(function(command){
 			_addDeviceStateFromCommand(deviceStates, command, devicesData);
 		});
-
-		// Update devices
-		var devicesToUpdate = 0;
-		var devicesUpdated = 0;
-		for (var deviceId in deviceStates) {
-			if (deviceStates.hasOwnProperty(deviceId)) {
-				devicesToUpdate += 1;
-				var props = {};
-				props[deviceStates[deviceId].property] = deviceStates[deviceId].value;
-				Devices.set(deviceId, props, function(err, deviceData){
-					if (err) {callback(err)};
-					devicesUpdated += 1;
-					if (devicesUpdated == devicesToUpdate) {
-						callback();
-					}
-				});
-			}
-		}
+		_updateDeviceStates(deviceStates, devicesData, callback)
 	});
 };
 
+function _executeCommand(command) {
+	var deviceStates = {}
+	Devices.get(function(err, devicesData){
+		_addDeviceStateFromCommand(deviceStates, command, devicesData);
+		_updateDeviceStates(deviceStates, devicesData, callback)
+	});
+};
+
+function _updateDeviceStates(deviceStates, deviceData, callback) {
+	var devicesToUpdate = 0;
+	var devicesUpdated = 0;
+	for (var deviceId in deviceStates) {
+		if (deviceStates.hasOwnProperty(deviceId)) {
+			devicesToUpdate += 1;
+			var props = {};
+			props[deviceStates[deviceId].property] = deviceStates[deviceId].value;
+			Devices.set(deviceId, props, function(err, deviceData){
+				if (err) {callback(err)};
+				devicesUpdated += 1;
+				if (devicesUpdated == devicesToUpdate) {
+					callback();
+				}
+			});
+		}
+	}
+};
 
 function _addDeviceStateFromCommand(deviceStates, command, devicesData) {
 	switch (command.type) {
@@ -176,22 +183,40 @@ var ACTIONS_DATA = [
 				type: 'DEVICE',
 				deviceId: '554d3dce743ed3ca3e4742b5',
 				property: 'brightness',
-				value: 40
+				value: 20
 			},
 			{
 				type: 'DEVICE',
 				deviceId: '554d3dce743ed3ca3e4742b6',
 				property: 'brightness',
-				value: 40
+				value: 20
 			},
 			{
 				type: 'DEVICE',
 				deviceId: '554d3dce743ed3ca3e4742b8',
 				property: 'brightness',
-				value: 40
+				value: 20
 			}
 		]
-	}
+	},
+	{
+		name: 'Turn On Outside Lights',
+		_id: 5,
+		commands: [
+			{
+				type: 'DEVICE',
+				deviceId: '554d3dce743ed3ca3e4742ba',
+				property: 'brightness',
+				value: 100
+			},
+			{
+				type: 'DEVICE',
+				deviceId: '554d3dce743ed3ca3e4742bb',
+				property: 'brightness',
+				value: 100
+			}
+		]
+	},
 ]
 
 

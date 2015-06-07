@@ -71,9 +71,9 @@ exports.start = function(params) {
 		var id = req.params.id;
 		var variableValue = req.body.value;
 		log.info('PATCH ' + config.DEVICES_API_URL + '/' + id);
-		devices.set(id, req.body, function(err){
+		devices.set(id, req.body, function(err, deviceData){
 			if (err) {res.send(err)} else {
-				res.send();
+				res.send(deviceData);
 			}
 		});
 	});

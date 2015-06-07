@@ -26,7 +26,7 @@ exports.start = function(params){
 	collector.registerEndpoint(config.USERS_API_URL);
 	app.get(config.USERS_API_URL, function(req, res) {
 		log.info('GET ' + config.USERS_API_URL);
-		users.getAll(function(error, users){
+		users.get(function(error, users){
 			if (error) {res.send(error)} else {
 				res.send(users);
 			}

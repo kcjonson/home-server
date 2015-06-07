@@ -10,14 +10,19 @@ var EventUtil = require('../util/Event');
 
 
 
-// Setup
-exports.events = new EventEmitter();
+// Public API
+exports.get = _get;
+exports.getById = _getById;
+exports.setMostRecentCheckin = _setMostRecentCheckin;
 exports.type = 'COLLECTION';
+
+// Events Setup
+exports.events = new EventEmitter();
 checkins.events.on('add', _onAddCheckin);
 
 
 // Getters
-exports.getAll = function(callback) {
+function _get(callback) {
 	database.getAll(userModel, function(err, userModels){
 		if (err) {callback(err); return;}
 		var populatedUserModels = [];
@@ -33,7 +38,7 @@ exports.getAll = function(callback) {
 	});
 };
 
-exports.getById = _getById;
+
 
 exports.getByUsername = function(username, callback) {
 	database.findOne(userModel, {'username': username}, callback);
@@ -52,7 +57,7 @@ exports.authenticate = function(username, password, callback) {
 	_authenticate(username, password, callback);
 };
 
-exports.setMostRecentCheckin = _setMostRecentCheckin;
+
 
 
 
