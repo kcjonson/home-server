@@ -22,11 +22,9 @@ function _checkin(data) {
 			switch (data.event) {
 				case 'LocationEnter':
 					action = 'ENTER';
-					// TODO: Add lat,lng when known
 					break;
 				case 'LocationExit':
-					action = 'ENTER';
-					// ?? 
+					action = 'EXIT';
 					break;
 				default:
 					// Everyone panic.

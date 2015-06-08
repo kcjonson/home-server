@@ -33,6 +33,23 @@ exports.start = function(params){
 		});
 	});
 
+	// Push Stream
+	app.get(config.USERS_API_URL + '/push', function(req, res) {
+		log.info('GET ' + config.USERS_API_URL + '/push');
+		res.writeHead(200, {
+			'Content-Type': 'text/event-stream',
+			'Cache-Control': 'no-cache',
+			'Connection': 'keep-alive'
+		});
+		var writeData = function(devicesData){
+			res.write("data: " + JSON.stringify(devicesData) + "\n\n");
+		};
+		users.events.on('change', writeData);
+		req.on("close", function() {
+			users.events.removeListener('change', writeData);
+		});
+	});
+
 	// User by ID
 	app.get(config.USERS_API_URL + '/:id', function(req, res){
 		log.info('GET ' + config.USERS_API_URL + '/:id/');
@@ -53,12 +70,12 @@ exports.start = function(params){
 				res.status(401).send({
 					error: 'The current user cannot be dentified'
 				});
-			}
+			};
 		} else {
 			res.send({
 				error: 'User fetching endpoint is not finished!'	
-			})
-		}
+			});
+		};
 	});
 
 	// Checkins
@@ -69,7 +86,6 @@ exports.start = function(params){
 			if (error) {
 				res.send('An error occured')
 			} else {
-				log.debug(data);
 				res.send(data)
 			}
 		});

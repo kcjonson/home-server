@@ -80,12 +80,43 @@ var TRIGGERS = [
 			}
 		],
 		actions: [
-			'Turn On Outside Lights'
+			{
+				type: 'ACTION',
+				name: 'Turn On All Lights'
+			}
+		]
+	},
+	{
+		name: 'Everyone Leaves',
+		_id: 3,
+		events: [
+			{
+				name: 'change',
+				property: 'isHome',
+				library: 'users',
+				equality: 'to',
+				value: false
+			}
+		],
+		conditions: [
+			{
+				property: 'isHome',
+				relation: 'every',
+				library: 'users',
+				equality: 'is',
+				value: false
+			}
+		],
+		actions: [
+			{
+				type: 'ACTION',
+				name: 'Turn Off All Lights'
+			}
 		]
 	},
 	{
 		name: 'Motion Detected While Away',
-		_id: 3,
+		_id: 4,
 		events: [
 			{
 				name: 'change',
@@ -103,9 +134,7 @@ var TRIGGERS = [
 				value: false
 			}
 		],
-		actions: [
-			'Turn On All Lights'
-		]
+		actions: []
 	}
 ]
 

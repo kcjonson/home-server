@@ -69,13 +69,15 @@ function _getById(id, callback) {
 function _authenticate(username, password){};
 
 
+// This should all be moved into a generic setter.
 function _setMostRecentCheckin(userId, checkin, callback){
 	log.debug('Setting most recent checkin', checkin);
 	_getById(userId, function(error, userModel){
 		if (error) {return;}
 
 		if (checkin.name == 'Home' && checkin.action == 'ENTER') {
-			speech.say(userModel.name.first + ' is arriving home')
+			// TODO Make sure we're not already home before announcing!
+			//speech.say(userModel.name.first + ' is arriving home')
 			userModel.isHome = true;
 		} else {
 			userModel.isHome = false;
@@ -83,18 +85,19 @@ function _setMostRecentCheckin(userId, checkin, callback){
 
 		// Update User Model
 		userModel.mostRecentCheckin = checkin._id;
-		database.save(userModel, function(error, savedUserModel){});
-		exports.events.emit("change[" + userId + "]:mostRecentCheckin", userModel.mostRecentCheckin);
-		//exports.events.emit("change[" + userId + "]:isHome", userModel.isHome);
+		database.save(userModel, function(error, savedUserModel){
+			savedUserModel.populate('mostRecentCheckin', function(err, populatedUserModel){
+				if (err) {callback(err); return;}
+				EventUtil.emit(exports.events, {
+					name: 'change',
+					id: userId,
+					property: 'isHome',
+					data: populatedUserModel
+				})
+			});
+		});
 
-		EventUtil.emit(exports.events, {
-			name: 'change',
-			id: userId,
-			property: 'isHome',
-			data: {
-				ishome: userModel.isHome
-			}
-		})
+
 	});
 };
 

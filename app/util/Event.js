@@ -15,19 +15,15 @@ exports.emit = function(emitter, props) {
 	}
 
 	// Property Specifc Event
-	if (props.data) {
-		for (var key in props.data) {
-			if (props.data.hasOwnProperty(key)) {
-				
-				log.debug('Emitting: ' + props.name + ':' + key, JSON.parse(JSON.stringify(props.data[key])))
-				emitter.emit(props.name + ':' + key, JSON.parse(JSON.stringify(props.data[key])))
+	if (props.data && props.property) {
 
-				if (props.id) {
-					log.debug('Emitting: ' + props.name + "[" + props.id + "]:" + key)
-					emitter.emit(props.name + "[" + props.id + "]:" + key, JSON.parse(JSON.stringify(props.data[key])));
-				} 
-			}
-		}
+		log.debug('Emitting: ' + props.name + ':' + props.property, props.data[props.property])
+		emitter.emit(props.name + ':' + props.property, JSON.parse(JSON.stringify(props.data[props.property])))
+
+		if (props.id) {
+			log.debug('Emitting: ' + props.name + "[" + props.id + "]:" + props.property, props.data[props.property])
+			emitter.emit(props.name + "[" + props.id + "]:" + props.property, JSON.parse(JSON.stringify(props.data[props.property])));
+		} 
 	}
 
 };

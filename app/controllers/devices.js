@@ -41,21 +41,13 @@ exports.start = function(params) {
 			'Cache-Control': 'no-cache',
 			'Connection': 'keep-alive'
 		});
-
 		var writeData = function(devicesData){
-			if (devicesData && devicesData.forEach) {
-				devicesData.forEach(function(deviceData){
-					res.write("data: " + JSON.stringify(deviceData) + "\n\n");
-				});
-			}
+			res.write("data: " + JSON.stringify(devicesData) + "\n\n");
 		};
-
 		devices.events.on('change', writeData);
-
 		req.on("close", function() {
 			devices.events.removeListener('change', writeData);
 		});
-
 	});
 
 	app.get(config.DEVICES_API_URL + '/:id', function(req, res) {
