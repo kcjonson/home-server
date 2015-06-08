@@ -7,11 +7,6 @@ exports.get = _get;
 exports.set = _set;
 
 
-
-
-
-
-
 function _get(params, callback) {
 	if (typeof params == 'function' && !callback) {
 		callback = params;

@@ -1,6 +1,5 @@
 var database = require('./database');
 var userModel = require('../models/user');
-var indigo = require('./indigo');
 var checkins = require('./checkins');
 var log = require('./log');
 var speech = require('./speech');
@@ -75,19 +74,12 @@ function _setMostRecentCheckin(userId, checkin, callback){
 	_getById(userId, function(error, userModel){
 		if (error) {return;}
 
-		// This is super janky.
-		var isAwayValue = true;
-		var isAwayVariableName = "isAway" + userModel.accounts.indigo;
-		if (checkin.name == 'Home' && checkin.action == 'enter') {
+		if (checkin.name == 'Home' && checkin.action == 'ENTER') {
 			speech.say(userModel.name.first + ' is arriving home')
-			isAwayValue = false;
 			userModel.isHome = true;
 		} else {
 			userModel.isHome = false;
 		}
-		indigo.setVariable(isAwayVariableName, isAwayValue, function(error, variableData){
-			log.debug('finished saving changes to variable', error, variableData);
-		});
 
 		// Update User Model
 		userModel.mostRecentCheckin = checkin._id;

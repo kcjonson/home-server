@@ -2,6 +2,8 @@ var config = require('../../config/geohopper.json');
 var users = require('./users');
 var checkins = require('./checkins');
 var log = require('./log');
+var settings = require('./settings');
+
 
 var STARTED = false;
 
@@ -19,24 +21,26 @@ function _checkin(data) {
 			location = data.location == config.GEOHOPPER_HOME_NAME ? config.GEOHOPPER_HOME_NAME : data.location
 			switch (data.event) {
 				case 'LocationEnter':
-					action = 'enter';
+					action = 'ENTER';
 					// TODO: Add lat,lng when known
 					break;
 				case 'LocationExit':
-					action = 'exit';
+					action = 'ENTER';
 					// ?? 
 					break;
 				default:
 					// Everyone panic.
 			};
-			log.debug('location: ', location);
-			checkins.add({
-				user: user._id,
-				name: location,  // May be null
-				date: data.time,
-				action: action
+			settings.get(function(err, settingsData){
+				checkins.add({
+					user: user._id,
+					name: location,  // May be null
+					date: data.time,
+					action: action,
+					coordinates: settingsData.coordinates,
+					source: 'GEOHOPPER'
+				});
 			});
-
 		} else {
 			log.error('Unrecognized Geohopper User', error);
 		}

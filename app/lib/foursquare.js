@@ -25,11 +25,12 @@ function _checkin(data) {
 					user: user._id,
 					name: data.venue.name,
 					date: data.createdAt * 1000,   /// WHAT THE FUCK?
-					location: {
-						lat: data.venue.location.lat,
-						lng: data.venue.location.lng
-					},
-					action: 'enter'
+					coordinates: [
+						data.venue.location.lng,
+						data.venue.location.lat
+					],
+					source: 'FOURSQUARE',
+					action: 'ENTER'
 				});
 			} else {
 				console.log('ERROR: Foursquare user ', data.user.id, ' not found');

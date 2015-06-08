@@ -75,12 +75,26 @@ exports.start = function(params){
 		});
 	});
 
+	app.post(config.USERS_API_URL + '/:id/checkins', function(req, res){
+		var id = req.params.id;
+		log.info('POST: ' + config.USERS_API_URL + '/:id/checkins');
+		var data = req.body;
+		if (data) {
+			checkins.add({
+				source: 'REMOTE',
+				user: id,
+				date: data.timestamp,
+				coordinates: [
+					data.coords.longitude,
+					data.coords.latitude
+				],
+				action: 'ENTER'
+			});
+		}
+		res.end();
+	});
+
 	
 };
-
-
-
-
-
 
 
