@@ -33,5 +33,4 @@ var userSchema = new mongoose.Schema({
 	isHome: Boolean
 })
 
-
 module.exports =  mongoose.model(config.USERS_COLLECTION, userSchema);

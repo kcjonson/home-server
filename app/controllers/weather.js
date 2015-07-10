@@ -8,6 +8,7 @@ exports.start = function(params) {
 	log.info('Starting Weather REST Endpoints');
 	collector.registerEndpoint(config.WEATHER_API_URL);
 	app.get(config.WEATHER_API_URL, _handleGet);
+	app.get(config.WEATHER_API_URL + '/push', _handlePush);
 	app.get(config.WEATHER_API_URL + '/:id', _handleGet);
 };
 
@@ -24,6 +25,22 @@ function _handleGet(req, res) {
 		}
 	})
 };
+
+function _handlePush(req, res) {
+	log.info('GET ' + config.WEATHER_API_URL + '/push');
+	res.writeHead(200, {
+		'Content-Type': 'text/event-stream',
+		'Cache-Control': 'no-cache',
+		'Connection': 'keep-alive'
+	});
+	// var writeData = function(devicesData){
+	// 	res.write("data: " + JSON.stringify(devicesData) + "\n\n");
+	// };
+	// devices.events.on('change', writeData);
+	// req.on("close", function() {
+	// 	devices.events.removeListener('change', writeData);
+	// });
+}
 
 
 	

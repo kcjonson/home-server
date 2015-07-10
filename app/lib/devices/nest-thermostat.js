@@ -80,7 +80,7 @@ function _authenticate(code) {
 		}},
 		function(err, httpResponse, body){
 			body = JSON.parse(body);
-			console.log('Nest Auth Success', body.access_token);
+			log.info('Nest Auth Success', body.access_token);
 			ACCESS_TOKEN_EXPIRES = body.expires_in;  // Should be added to date.
 			ACCESS_TOKEN = body.access_token;
 		}

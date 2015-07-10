@@ -1,14 +1,25 @@
 var log = require('../../lib/log');
 var indigo = require('../indigo');
+var _indigo = require('./_indigo');
+var EventEmitter = require("events").EventEmitter;
+var EventUtil = require('../../util/Event');
 
 exports.get = _get;
 exports.set = _set;
+exports.events = new EventEmitter();
+exports.start = _start;
 
 var DIMMER_NAMES = [
 	'SwitchLinc Dimmer (dual-band)',
 	'SwitchLinc Dimmer',
 	'LampLinc'
 ];
+
+var LISTENERS = {};
+
+function _start() {
+	_indigo.start.call(this, LISTENERS);
+};
 
 function _get(id, callback) {
 	if (typeof id === 'function') {
@@ -51,4 +62,5 @@ function _formatData(deviceData) {
 		hardwareId: deviceData.addressStr,
 		brightness: deviceData.brightness
 	}
-}
+};
+

@@ -20,10 +20,10 @@ exports.start = function(params) {
 			res.send(alarmsData);
 		})
 	});
+	app.get(config.ALARM_API_URL + '/push', _handlePush);
 
 	app.post(config.ALARM_API_URL, function(req, res) {
 		log.info('POST ' + config.ALARM_API_URL);
-		console.log(req.body);
 	});
 
 	app.patch(config.ALARM_API_URL, function(req, res) {
@@ -55,5 +55,21 @@ exports.start = function(params) {
 	
 };
 
+
+function _handlePush(req, res) {
+	log.info('GET ' + config.ALARM_API_URL + '/push');
+	res.writeHead(200, {
+		'Content-Type': 'text/event-stream',
+		'Cache-Control': 'no-cache',
+		'Connection': 'keep-alive'
+	});
+	// var writeData = function(devicesData){
+	// 	res.write("data: " + JSON.stringify(devicesData) + "\n\n");
+	// };
+	// devices.events.on('change', writeData);
+	// req.on("close", function() {
+	// 	devices.events.removeListener('change', writeData);
+	// });
+}
 
 	

@@ -62,10 +62,10 @@ function _set(hardwareId, props, callback) {
 
 function _keepAlive(hardwareId, callback) {
 	//log.debug(hardwareId)
-	_communicate({command: 'connect', hardwareId: hardwareId}, function(err){
-		if (err) {callback(err); return;};
-		callback();
-	});
+	// _communicate({command: 'connect', hardwareId: hardwareId}, function(err){
+	// 	if (err) {callback(err); return;};
+	// 	callback();
+	// });
 };
 
 

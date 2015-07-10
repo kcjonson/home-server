@@ -2,6 +2,7 @@ var indigo = require('indigo/lib/indigo');
 var config = require('../../config/indigo.json');
 var log = require('./log');
 var EventEmitter = require("events").EventEmitter;
+var EventUtil = require('../util/Event');
 
 exports.getDevices = _getDevices;
 exports.getDevicesByType = _getDevicesByType;
@@ -252,19 +253,17 @@ function _executeAction(action, callback) {
 	});
 };
 
-
+// Fire an event for given push change.
 function _push(data) {
 	log.debug(data);
 	if (data.addressStr) {
-		_getDeviceByHardwareId(data.addressStr, function(err, deviceData){
-			log.debug(err, deviceData);
-			if (!err) {
-				exports.events.emit("change", [data]);
-				var prunedData = JSON.parse(JSON.stringify(data));
-				delete prunedData.hardwareId;
-				exports.events.emit("change[" + data.addressStr + "]", data);
-				// TODO: Emit specific prop changes
-			}
+		var payload = {};
+		payload[data.property] = data.value;
+		EventUtil.emit(exports.events, {
+			name: 'change',
+			id: data.addressStr,
+			data: payload,
+			property: data.property
 		});
 	}
 }

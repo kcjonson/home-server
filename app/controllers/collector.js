@@ -58,9 +58,14 @@ exports.start = function(params) {
 					eventSourceRefs[endpoint].onerror = function(err) {
 						// This will fire if the endpoint is not mapped of if there
 						// is malformed payload
-						log.error('error connecting from the push event source: ', endpoint, err);
-						eventSourceRefs[endpoint].close();
-						delete eventSourceRefs[endpoint];
+						log.error('error', endpoint, err);
+						if (eventSourceRefs[endpoint]) {
+							if (eventSourceRefs[endpoint].close) {
+								eventSourceRefs[endpoint].close();
+							}
+							delete eventSourceRefs[endpoint];
+						}
+						
 					};
 				});
 

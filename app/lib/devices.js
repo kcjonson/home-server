@@ -3,6 +3,9 @@ var database = require('./database');
 var config = require('../../config/devices.json');
 var EventEmitter = require("events").EventEmitter;
 var EventUtil = require('../util/Event');
+var DeviceUpdateModel = require('../models/device.update');
+
+
 
 
 var AirfoilSpeakerModel = require('../models/devices/airfoil-speaker');
@@ -39,7 +42,6 @@ var itunes= require('./devices/itunes');
 		- koubuchi
 		- lifx
 		- onkyo-reciever
-	- Change Monitoring
 	- Disconnected/Unavailable Devices
 
 
@@ -132,7 +134,11 @@ function _get(callback) {
 			// the front end only deals with the mongo document ID.
 			_getDevice(deviceDoc, function(err, deviceData){
 				if (err) {callback(err); return;}
-				devicesData.push(_formatData(deviceDoc, deviceData));
+				if (deviceData) {
+					devicesData.push(_formatData(deviceDoc, deviceData));
+				} else {
+					log.warn('Unable to get device "' + deviceDoc.name + '" while getting all devices');
+				}
 				devicesLoaded += 1;
 				if (devicesLoaded === deviceDocs.length) {
 					callback(null, devicesData);
@@ -180,28 +186,35 @@ function _set(databaseId, props, callback) {
 			// Set Lib Props 
 			if (Object.keys(libProps).length > 0) {
 				var deviceLib = DEVICE_TYPES[deviceDoc.type].lib;
-				deviceLib.set(deviceDoc.hardwareId, libProps, function(err, deviceData){
-					if (!err) {
-						// The sub libraries do not emit their own change events as they should 
-						// only be accessed via this device lib.  Therefore we can just emit from
-						// here.
-						// This should be switched as it may fire events when no changes actually occur.
-						exports.events.emit("change", [_formatData(deviceDoc, deviceData)]);
-						exports.events.emit("change[" + deviceDoc._id + "]", _formatData(deviceDoc, deviceData));
-						for (var key in libProps) {
-							if (libProps.hasOwnProperty(key)) {
-								// Emit for each prop?  Not sure if they changed.
-							}
+
+				// If the device lib is an event emitter we'll allow it to handle
+				// originiating change events.  This is a bit of an assumption becuase
+				// there is no guarentee that its actually doing it correctly.
+				//
+				// This is where it would be beneficial to use another event lib that
+				// can enumerate the possible events fired (like Refulux actions) and
+				// we could more specifically test for a "change"
+				if (deviceLib && deviceLib.events && deviceLib.events.on) {
+					deviceLib.set(deviceDoc.hardwareId, libProps, function(err, deviceData){
+						if (!err) {
+							// Since we don't have access to the previous state without
+							// querying the lib, we're going to assume that a change actually
+							// happneed without doing a full diff.
+							EventUtil.emit(exports.events, {
+								name: 'change',
+								id: deviceDoc._id,
+								data: _formatData(deviceDoc, deviceData)
+							});
 						}
-					}
-					callback(err, deviceData);
-				});
+						callback(err, deviceData);
+					});
+				}
 			};
 
 			// Set Device Props
 			if (Object.keys(dbProps).length > 0) {
 				// Since the findOne earlier was done on a collection at the
-				// Mongo layer, it did not return a document. We need to fetch the real document
+				// Mongo layer, it did not return a mongose document. We need to fetch the real document
 				// so we can modify it.  This is rather annoying. -KCJ
 				database.findOne(DEVICE_TYPES[deviceDoc.type].model, {'_id': deviceDoc._id}, function(err, deviceDocument){
 					deviceDocument.set(dbProps);
@@ -240,9 +253,123 @@ function _formatData(deviceDoc, deviceData) {
 
 
 
+/*
+	Start Keep Alive and Listen To Change Events
+
+*/
+var KEEP_ALIVE_LOADED = false;
+function _start() {
+
+
+
+	// Start Keep Alive and Listen to events from sub-libs
+	if (KEEP_ALIVE_LOADED !== true) {
+		KEEP_ALIVE_LOADED = true;
+
+		// Start Device Libs
+		indigoMotionDetector.start();
+		indigoDimmer.start();
+
+		// Listen and Log Changes
+		exports.events.on('change', _logDeviceUpdate);
+
+		// Not sure why the wait?
+		setTimeout(function(){
+			_startKeepAlive();
+			_startEvents();
+		}, 1000);
+	};
+
+};
+
+function _startKeepAlive(deviceDocs) {
+	database.getCollection(config.DEVICES_COLLECTION, function(err, deviceDocs){
+		// Keep Alive
+		var docsChecked = 0;
+		var devicesToKeepAlive = [];
+		deviceDocs.forEach(function(deviceDoc){
+			// Attach Keepalive (hard coded for now)
+			if (deviceDoc.type == 'AIRFOIL_SPEAKER') {
+				devicesToKeepAlive.push(deviceDoc);
+			}
+			docsChecked += 1;
+			if (docsChecked == deviceDocs.length) {
+				_keepAlive(devicesToKeepAlive);
+			}
+		});
+	});
+};
+
+function _startEvents(deviceDocs) {
+	var deviceTypesKeys = Object.keys(DEVICE_TYPES);
+	deviceTypesKeys.forEach(function(key, index) {
+		var deviceLib = DEVICE_TYPES[key].lib;
+		// If lib is an event emitter
+		if (deviceLib && deviceLib.events && deviceLib.events.on) {
+			// Detach Exising Listener
+			if (LISTENERS[key]) {
+				deviceLib.events.removeListener('change', LISTENERS[key]);
+			}
+			// Attach listeners
+			LISTENERS[key] = deviceLib.events.on('change', function(eventPayload){
+				database.findOne(config.DEVICES_COLLECTION, {'hardwareId': eventPayload.id}, function(err, deviceDoc){
+					if (deviceDoc && deviceDoc.type) {
+						var payload = _formatData(deviceDoc, eventPayload.data);
+						EventUtil.emit(exports.events, {
+							name: 'change',
+							id: deviceDoc._id,
+							data: _formatData(deviceDoc, eventPayload.data),
+							property: eventPayload.property
+						});
+					};
+				});
+			});
+		};
+	});
+};
+
+function _logDeviceUpdate(e) {
+	var hydratedUpdateModel = new DeviceUpdateModel({
+		deviceId: e.id,
+		property: e.property,
+		value: e.data[e.property]
+	})
+	database.save(hydratedUpdateModel, function(err, doc){
+		if (err) {log.err(err)} 
+	})
+};
+
+var CHECK_INTERVAL_HANDLE;
+function _keepAlive(deviceDocs){
+	var startDelay = CHECK_INTERVAL - new Date() % CHECK_INTERVAL;
+	setTimeout(function(){
+		clearInterval(CHECK_INTERVAL_HANDLE);
+		CHECK_INTERVAL_HANDLE = setInterval(function(){
+			deviceDocs.forEach(function(deviceDoc){
+				var deviceLib = DEVICE_TYPES[deviceDoc.type].lib;
+				deviceLib.keepAlive(deviceDoc.hardwareId, function(err){
+					if (err) {log.error(err)}
+				});
+			})
+		}, CHECK_INTERVAL);
+	}, startDelay);
+};
+
+
+
+
+
+
+
+
+
+
 
 // Read all known device types from libraries and 
 // save the resulting list to the database.
+
+// WARNING: THIS IS DESTRUCTIVE.
+
 function _sync(callback) {
 	log.debug('starting');
 	var newDevices = [];
@@ -291,72 +418,4 @@ function _saveDevices(devicesData, callback) {
 	})
 };
 
-
-
-
-var CHECK_INTERVAL_HANDLE;
-function _keepAlive(deviceDocs){
-	var startDelay = CHECK_INTERVAL - new Date() % CHECK_INTERVAL;
-	setTimeout(function(){
-		clearInterval(CHECK_INTERVAL_HANDLE);
-		CHECK_INTERVAL_HANDLE = setInterval(function(){
-			deviceDocs.forEach(function(deviceDoc){
-				var deviceLib = DEVICE_TYPES[deviceDoc.type].lib;
-				deviceLib.keepAlive(deviceDoc.hardwareId, function(err){
-					if (err) {console.error(err)}
-				});
-			})
-		}, CHECK_INTERVAL);
-	}, startDelay);
-};
-
-
-
-
-var KEEP_ALIVE_LOADED = false;
-function _start() {
-
-	// Start Device Libs
-	indigoMotionDetector.start();
-
-
-	// Start Keep Alive and Listen to events
-	if (KEEP_ALIVE_LOADED !== true) {
-		KEEP_ALIVE_LOADED = true;
-		setTimeout(function(){
-			var devicesToKeepAlive = [];
-			database.getCollection(config.DEVICES_COLLECTION, function(err, deviceDocs){
-				var docsChecked = 0;
-				deviceDocs.forEach(function(deviceDoc){
-
-					// Attach Keepalive (hard coded for now)
-					if (deviceDoc.type == 'AIRFOIL_SPEAKER') {
-						devicesToKeepAlive.push(deviceDoc);
-					}
-
-					// Listen for change events
-					var deviceLib = DEVICE_TYPES[deviceDoc.type].lib;
-					if (deviceLib && deviceLib.events && deviceLib.events.on) {
-						var eventName = "change[" + deviceDoc.hardwareId + "]";
-						if (LISTENERS[deviceDoc._id]) {
-							deviceLib.events.removeListener(eventName, LISTENERS[deviceDoc._id])
-						}
-						LISTENERS[deviceDoc._id] = deviceLib.events.on(eventName, function(eventPayload){
-							EventUtil.emit(exports.events, {
-								name: 'change',
-								id: deviceDoc._id,
-								data: eventPayload
-							});
-						});
-					}
-					docsChecked += 1;
-					if (docsChecked == deviceDocs.length) {
-						_keepAlive(devicesToKeepAlive);
-					}
-				});
-			});
-		}, 1000);
-	}
-
-};
 

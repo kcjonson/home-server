@@ -15,6 +15,7 @@ exports.start = function(params) {
 	// All Settings
 	collector.registerEndpoint(config.SETTINGS_API_URL);
 	app.get(config.SETTINGS_API_URL, _handleGet);
+	app.get(config.SETTINGS_API_URL + '/push', _handlePush);
 	app.get(config.SETTINGS_API_URL + '/:id', _handleGet);
 	
 	app.patch(config.SETTINGS_API_URL, _handlePatch);
@@ -50,6 +51,22 @@ function _handlePatch(req, res) {
 			res.send(settingsData);
 		}
 	})
+}
+
+function _handlePush(req, res) {
+	log.info('GET ' + config.SETTINGS_API_URL + '/push');
+	res.writeHead(200, {
+		'Content-Type': 'text/event-stream',
+		'Cache-Control': 'no-cache',
+		'Connection': 'keep-alive'
+	});
+	// var writeData = function(devicesData){
+	// 	res.write("data: " + JSON.stringify(devicesData) + "\n\n");
+	// };
+	// devices.events.on('change', writeData);
+	// req.on("close", function() {
+	// 	devices.events.removeListener('change', writeData);
+	// });
 }
 
 

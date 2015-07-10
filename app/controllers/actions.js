@@ -17,6 +17,7 @@ exports.start = function(params) {
 			res.send(actionsData);
 		});
 	});
+	app.get(config.ACTIONS_API_URL + '/push', _handlePush);
 
 	app.post(config.ACTIONS_API_URL + '/execute/:id', function(req, res) {
 		var id = req.params.id;
@@ -39,5 +40,18 @@ exports.start = function(params) {
 
 };
 
-
-	
+function _handlePush(req, res) {
+	log.info('GET ' + config.ACTIONS_API_URL + '/push');
+	res.writeHead(200, {
+		'Content-Type': 'text/event-stream',
+		'Cache-Control': 'no-cache',
+		'Connection': 'keep-alive'
+	});
+	// var writeData = function(devicesData){
+	// 	res.write("data: " + JSON.stringify(devicesData) + "\n\n");
+	// };
+	// devices.events.on('change', writeData);
+	// req.on("close", function() {
+	// 	devices.events.removeListener('change', writeData);
+	// });
+}

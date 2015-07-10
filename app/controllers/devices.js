@@ -41,8 +41,8 @@ exports.start = function(params) {
 			'Cache-Control': 'no-cache',
 			'Connection': 'keep-alive'
 		});
-		var writeData = function(devicesData){
-			res.write("data: " + JSON.stringify(devicesData) + "\n\n");
+		var writeData = function(event){
+			res.write("data: " + JSON.stringify(event.data) + "\n\n");
 		};
 		devices.events.on('change', writeData);
 		req.on("close", function() {

@@ -15,47 +15,57 @@ exports.events = new EventEmitter();
 
 
 function _add(data, callback) {
-	//log.debug(data);
+	log.debug(data);
 	if (!data.name) {
 		data.name = config.CHECKINS_UNKNOWN_NAME;
-		if (data.coordinates) {
+	}
+	if (data.coordinates && data.coordinates.length === 2) {
 
-			// Look for significant change
-			var options = {
-				limit: 1,
-				sort: {
-					date: -1
-				}
+		// Look for significant change
+		var options = {
+			limit: 1,
+			sort: {
+				date: -1
 			}
-			database.find(checkinModel, {user: data.user}, null, options, function(e, lastCheckinData){
-				var distanceSinceLast = geolib.getDistance(
-					{latitude: data.coordinates[1], longitude: data.coordinates[0]},
-					{latitude: lastCheckinData[0].coordinates[1], longitude: lastCheckinData[0].coordinates[0]}
-				);
-				log.debug('Distance since last ', distanceSinceLast, config.CHECKINS_SAVE_DELTA_RADIUS)
-				if (distanceSinceLast > config.CHECKINS_SAVE_DELTA_RADIUS) {
-					// Save
-					settings.get(function(err, settingsData){
-						var distanceFromHome = geolib.getDistance(
-							{latitude: data.coordinates[1], longitude: data.coordinates[0]},
-							{latitude: settingsData.coordinates[1], longitude: settingsData.coordinates[0]}
-						);
-						if (distanceFromHome < config.CHECKINS_HOME_GEOFENCE_RADIUS) {
-							data.name = 'Home';
-						}
-						_saveCheckinData(data, callback);
-					});
-				}
-			});
-
-
-		} else {
-			_saveCheckinData(data, callback);
 		}
-	};
+		database.find(checkinModel, {user: data.user}, null, options, function(e, lastCheckinData){
+			log.debug('Last checkin data', lastCheckinData);
+
+			var distanceSinceLast = geolib.getDistance(
+				{latitude: data.coordinates[1], longitude: data.coordinates[0]},
+				{latitude: lastCheckinData[0].coordinates[1], longitude: lastCheckinData[0].coordinates[0]}
+			);
+			log.debug('Distance since last ', distanceSinceLast, config.CHECKINS_SAVE_DELTA_RADIUS)
+			var significantDistance = distanceSinceLast > config.CHECKINS_SAVE_DELTA_RADIUS;
+			var significantChange = false;
+			if (significantDistance || (lastCheckinData[0].action !== data.action)) {
+				significantChange = true;
+			}
+			if (significantChange) {
+				// Save
+				settings.get(function(err, settingsData){
+					log.debug('Settings data: ', settingsData);
+					var distanceFromHome = geolib.getDistance(
+						{latitude: data.coordinates[1], longitude: data.coordinates[0]},
+						{latitude: settingsData.coordinates[1], longitude: settingsData.coordinates[0]}
+					);
+					if (distanceFromHome < config.CHECKINS_HOME_GEOFENCE_RADIUS) {
+						data.name = 'Home';
+					}
+					_saveCheckinData(data, callback);
+				});
+			} else {
+				log.debug('No significantChange');
+			}
+		});
+	} else {
+		_saveCheckinData(data, callback);
+	}
+
 };
 
 function _saveCheckinData(data, callback) {
+	log.debug(data);
 	var newCheckin = new checkinModel(data);
 	database.save(newCheckin, function(error){
 		exports.events.emit("add", data);

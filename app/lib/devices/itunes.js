@@ -13,14 +13,13 @@ function _get(id, callback) {
 	}
 
 	_communicate({command: 'get'}, function(err, data){
-		console.log(err)
 		if (err) {callback(err); return;};
 		data.hardwareId = '127.0.0.1';
 		data.name = 'iTunes';
 		if (id) {
 			callback(null, data);
 		} else {
-			callback (null, [data])
+			callback(null, [data])
 		}
 	});
 };
@@ -32,7 +31,6 @@ function _set(id, props, callback) {
 	props.plist = props.playlist;
 	delete props.playlist;
 	_communicate(props, function(err, data){
-		console.log(data)
 		callback(err, data);
 	});
 };
@@ -46,10 +44,10 @@ function _communicate(vars, callback) {
 				callback(null, {})
 				return;
 			} else {
+				log.error(error);
 				callback(error.message);
 				return;
 			}
-
 		}
 		var parsedResult = _parseJSON(result);
 		if (typeof parsedResult == 'object') {
