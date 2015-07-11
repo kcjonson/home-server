@@ -3,9 +3,7 @@ var http = require('http');
 var EventSource = require('eventsource');
 
 var endpoints;
-var eventSourceRefs;
 if (!endpoints) {endpoints =[]}
-if (!eventSourceRefs) {eventSourceRefs = {}};
 
 exports.registerEndpoint = function(endpoint) {
 	endpoints.push(endpoint);
@@ -25,6 +23,7 @@ exports.start = function(params) {
 			'Connection': 'keep-alive'
 		});
 
+		var eventSourceRefs = {};
 		endpoints.forEach(function(endpoint){
 			http.get({
 				path: endpoint
@@ -48,6 +47,11 @@ exports.start = function(params) {
 					// through the same connection and trust that the browser will
 					// do the right thing.
 					eventSourceRefs[endpoint] = new EventSource(endpoint + '/push');
+
+					req.connection.addListener('close', function() {
+						_closeEventSource(eventSourceRefs, endpoint);
+					})
+
 					eventSourceRefs[endpoint].onmessage = function(e) {
 						res.write('event: modelpush\n')
 						res.write('data: ' + JSON.stringify({
@@ -59,13 +63,7 @@ exports.start = function(params) {
 						// This will fire if the endpoint is not mapped of if there
 						// is malformed payload
 						log.error('error', endpoint, err);
-						if (eventSourceRefs[endpoint]) {
-							if (eventSourceRefs[endpoint].close) {
-								eventSourceRefs[endpoint].close();
-							}
-							delete eventSourceRefs[endpoint];
-						}
-						
+						_closeEventSource(eventSourceRefs, endpoint);
 					};
 				});
 
@@ -73,9 +71,14 @@ exports.start = function(params) {
 			})
 		});
 	});
-
-
 };
 
 
-	
+function _closeEventSource(refs, endpoint) {
+	if (refs[endpoint]) {
+		if (refs[endpoint].close) {
+			refs[endpoint].close();
+		}
+		delete refs[endpoint];
+	}
+}

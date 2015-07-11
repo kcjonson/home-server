@@ -168,7 +168,7 @@ function _start() {
 
 
 function _checkEventEquality(trigger, event, eventPayload) {
-	log.debug(event.equality);
+	log.debug(trigger, event, eventPayload);
 	if (_checkEquality(event.equality, eventPayload, event.value)) {
 		_checkConditions(trigger, event, eventPayload);
 	}

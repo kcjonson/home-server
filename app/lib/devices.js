@@ -194,17 +194,19 @@ function _set(databaseId, props, callback) {
 				// This is where it would be beneficial to use another event lib that
 				// can enumerate the possible events fired (like Refulux actions) and
 				// we could more specifically test for a "change"
-				if (deviceLib && deviceLib.events && deviceLib.events.on) {
+				if (deviceLib) {
 					deviceLib.set(deviceDoc.hardwareId, libProps, function(err, deviceData){
 						if (!err) {
 							// Since we don't have access to the previous state without
 							// querying the lib, we're going to assume that a change actually
 							// happneed without doing a full diff.
-							EventUtil.emit(exports.events, {
-								name: 'change',
-								id: deviceDoc._id,
-								data: _formatData(deviceDoc, deviceData)
-							});
+							if (!deviceLib.events) {
+								EventUtil.emit(exports.events, {
+									name: 'change',
+									id: deviceDoc._id,
+									data: _formatData(deviceDoc, deviceData)
+								});
+							}
 						}
 						callback(err, deviceData);
 					});
@@ -329,14 +331,18 @@ function _startEvents(deviceDocs) {
 };
 
 function _logDeviceUpdate(e) {
-	var hydratedUpdateModel = new DeviceUpdateModel({
-		deviceId: e.id,
-		property: e.property,
-		value: e.data[e.property]
-	})
-	database.save(hydratedUpdateModel, function(err, doc){
-		if (err) {log.err(err)} 
-	})
+	if (e.id && e.property && e.data && e.data[e.property]) {
+		var hydratedUpdateModel = new DeviceUpdateModel({
+			deviceId: e.id,
+			property: e.property,
+			value: e.data[e.property]
+		})
+		database.save(hydratedUpdateModel, function(err, doc){
+			if (err) {log.err(err)} 
+		})
+	} else {
+		log.error('Unexpected event format while trying to log device change', e);
+	}
 };
 
 var CHECK_INTERVAL_HANDLE;
