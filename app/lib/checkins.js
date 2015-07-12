@@ -74,7 +74,7 @@ function _saveCheckinData(data, callback) {
 
 // Get all checkins
 function _getByUserId(userId, callback) {
-	database.find(checkinModel, {user: userId}, null, {sort: {date: -1}, limit: 20}, callback)
+	database.find(checkinModel, {user: userId}, null, {sort: {date: -1}, limit: 50}, callback)
 };
 
 function _getRecent(callback) {
