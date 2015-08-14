@@ -29,12 +29,10 @@ node_modules
 .lock-wscript
 
 # Other Stuff
-certs
-config/*
-!config/*.example
-dbs/*
-/resources
-nodemon.json
+certs/*
+config.json
+public/
+
 
 
 

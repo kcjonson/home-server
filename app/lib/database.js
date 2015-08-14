@@ -1,10 +1,8 @@
-var indigo = require('indigo/lib/indigo');
 var mongoose = require('mongoose');
-var config = require('../../config/users.json');
-var appConfig = require('../../config/app.json');
-var UserModel = require('../models/user');
-var log = require('../lib/log')
 var ObjectId = require('mongodb').ObjectID;
+var config = require('./config');
+var log = require('./log');
+
 
 
 
@@ -31,14 +29,12 @@ var CONNECTION;  // Holds Ref to DB Connection
 // Private
 
 	function _getConnection(callback) {
+		log.debug('')
 		if (CONNECTION) {
-			callback(CONNECTION)
+			callback(null, mongoose.connection)
 		} else {
-			_connectDatabase(function(){
-				callback(CONNECTION)
-			})
+			_connectDatabase(callback)
 		}
-
 	};
 
 	function _save(model, callback) {
@@ -52,6 +48,7 @@ var CONNECTION;  // Holds Ref to DB Connection
 		function _doSave(model, callback) {
 			model.save(function (error, doc) {
 				if (error) {
+					log.error(error);
 					callback('Unable to save model to database');
 				} else if (callback) {
 					callback(null, doc);
@@ -180,39 +177,27 @@ var CONNECTION;  // Holds Ref to DB Connection
 	};
 
 	function _connectDatabase(callback) {
-		CONNECTION = mongoose.connect(appConfig.DATABASE_URL, function (err, res) {
-			if (err) {
-				log.error('Failed connecting to database: ' + appConfig.DATABASE_URL + '. ' + err);
-			} else {
-				log.info('Connected to database: ' + appConfig.DATABASE_URL);
-				callback();
-			}
-		});
+		log.debug('')
+
+
+		var url = config.get('DATABASE_URL')
+		if (url){
+			url = 'mongodb://' + url;
+			mongoose.connect(url);
+			mongoose.connection.on('error', function onMongooseError(err){
+				callback(log.error('Unable to connect to database: ' + err))
+			}.bind(this));
+			mongoose.connection.once('open', function onMongooseOpen() {
+				CONNECTION = true;
+				callback(null, mongoose.connection);
+			}.bind(this));
+		} else {
+			callback(log.error('Unable to get database url from config'));
+		}
 	};
 
 
 
 
-
-
-	// function _seedDatabase() {
-	// 	log.debug('Seeding Users Collection');
-
-	// 	if (CONNECTION) {
-	// 		_doSeed();
-	// 	} else {
-	// 		_connectDatabase(function(){
-	// 			_doSeed();
-	// 		})
-	// 	}
-	// 	function _doSeed() {
-	// 		config.SEED_USERS.forEach(function(SEED_USER){
-	// 			var newUser = new UserModel(SEED_USER);
-	// 			newUser.save(function (err) {if (err) log.error('Save was unsuccessful', err)});
-	// 		})
-	// 	}
-	// };
-
-	//_seedDatabase();
 
 

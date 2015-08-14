@@ -1,6 +1,6 @@
 var database = require('./database');
 var checkinModel = require('../models/checkin');
-var config = require('../../config/checkins.json');
+var config = require('../lib/config');
 var log = require('./log');
 var settings = require('./settings');
 var EventEmitter = require("events").EventEmitter;
@@ -17,7 +17,7 @@ exports.events = new EventEmitter();
 function _add(data, callback) {
 	log.debug(data);
 	if (!data.name) {
-		data.name = config.CHECKINS_UNKNOWN_NAME;
+		data.name = config.get('CHECKINS_UNKNOWN_NAME');
 	}
 	if (data.coordinates && data.coordinates.length === 2) {
 
@@ -34,7 +34,7 @@ function _add(data, callback) {
 				{latitude: data.coordinates[1], longitude: data.coordinates[0]},
 				{latitude: lastCheckinData[0].coordinates[1], longitude: lastCheckinData[0].coordinates[0]}
 			);
-			var significantDistance = distanceSinceLast > config.CHECKINS_SAVE_DELTA_RADIUS;
+			var significantDistance = distanceSinceLast > config.get('CHECKINS_SAVE_DELTA_RADIUS');
 			var significantChange = false;
 			if (significantDistance || (lastCheckinData[0].action !== data.action)) {
 				significantChange = true;
@@ -46,7 +46,7 @@ function _add(data, callback) {
 						{latitude: data.coordinates[1], longitude: data.coordinates[0]},
 						{latitude: settingsData.coordinates[1], longitude: settingsData.coordinates[0]}
 					);
-					if (distanceFromHome < config.CHECKINS_HOME_GEOFENCE_RADIUS) {
+					if (distanceFromHome < config.get('CHECKINS_HOME_GEOFENCE_RADIUS')) {
 						data.name = 'Home';
 					}
 					_saveCheckinData(data, callback);

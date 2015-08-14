@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "app-root-path": "^1.0.0",
     "body-parser": "x",
     "connect-mongo": "0.8.1",
     "cookie-parser": "x",
@@ -23,9 +24,13 @@
     "mongoose": "x",
     "node-osascript": "1.0.2",
     "querystring": "x",
-    "request": "2.55.0"
+    "request": "2.55.0",
+    "yargs": "^3.18.0"
   },
   "scripts": {
-    "start": "sudo nodemon app.js"
+    "start": "./server-backend -s"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0"
   }
 }

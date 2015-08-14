@@ -1,0 +1,71 @@
+#!/usr/bin/env node
+
+var app = require('./app');
+var config = require('./app/lib/config');
+var spawnSync = require('child_process').spawnSync;
+var spawn = require('child_process').spawn;
+
+var argv = require('yargs')
+
+	.usage       ('Usage: corvair [options]')
+
+	.boolean     ('s')
+	.alias       ('s', 'start')
+	.describe    ('s', 'Start the server')
+
+	.boolean     ('b')
+	.alias       ('b', 'build')
+	.describe    ('b', 'Build dependencies')
+
+	.boolean     ('d')
+	.alias       ('d', 'debug')
+	.describe    ('d', 'Turn on debug mode')
+
+	.boolean     ('w')
+	.alias       ('w', 'watch')
+	.describe    ('w', 'Turn on watch mode')
+
+	.help        ('h')
+	.alias       ('h', 'help')
+	.describe    ('h', 'Show this help message')
+
+	.example     ('server-backend -dsb', 'Start server in debug mode and build dependencies')
+	.example     ('server-backend -s', 'Start the server in production mode')
+
+	.argv;
+
+
+if (argv.build) {
+	if (config.get('DASHBOARD_ENABLED')) {
+		runSync('gulp compile-dashboard')
+	}
+}
+
+if (argv.watch) {
+	if (config.get('DASHBOARD_ENABLED')) {
+		run('gulp watch-dashboard')
+	}
+}
+
+if (argv.start) {
+	app.start(argv);
+}
+
+
+function runSync(cmd, where){
+	return spawnSync('sh', ['-c', cmd], {
+		env   : process.env,
+		cwd   : where ? __dirname + '/' + where : __dirname,
+		stdio : 'inherit',
+	})
+}
+
+function run(cmd, where){
+	return spawn('sh', ['-c', cmd], {
+		env   : process.env,
+		cwd   : where ? __dirname + '/' + where : __dirname,
+		stdio : 'inherit',
+	})
+}
+
+

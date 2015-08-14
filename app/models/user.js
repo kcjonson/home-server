@@ -1,4 +1,4 @@
-var config = require('../../config/users');
+var config = require('../lib/config');
 var mongoose = require('mongoose');
 
 var userSchema = new mongoose.Schema({
@@ -33,4 +33,4 @@ var userSchema = new mongoose.Schema({
 	isHome: Boolean
 })
 
-module.exports =  mongoose.model(config.USERS_COLLECTION, userSchema);
+module.exports =  mongoose.model(config.get('USERS_COLLECTION'), userSchema);

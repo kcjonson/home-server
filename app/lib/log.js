@@ -17,11 +17,11 @@ var LOG_LEVELS = [
 ];
 
 var LEVEL_TO_COLOR_MAP = {
-	'default': '\033[30m',
+	'default': '\033[0m',
 	'light': '\033[90m'
 };
 LEVEL_TO_COLOR_MAP[LOG_LEVELS[0]] = '\033[36m';
-LEVEL_TO_COLOR_MAP[LOG_LEVELS[1]] = '\033[30m';
+LEVEL_TO_COLOR_MAP[LOG_LEVELS[1]] = '\033[0m';
 LEVEL_TO_COLOR_MAP[LOG_LEVELS[2]] = '\033[33m';
 LEVEL_TO_COLOR_MAP[LOG_LEVELS[3]] = '\033[31m';
 
@@ -34,19 +34,19 @@ var MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'
 // Log Levels
 
 exports.debug = function() {
-	_doLog(arguments, 'DEBUG');
+	return _doLog(arguments, 'DEBUG');
 };
 
 exports.info = function() {
-	_doLog(arguments, 'INFO');
+	return _doLog(arguments, 'INFO');
 }
 
 exports.warn = function() {
-	_doLog(arguments, 'WARN');
+	return _doLog(arguments, 'WARN');
 }
 
 exports.error = function() {
-	_doLog(arguments, 'ERROR');
+	return _doLog(arguments, 'ERROR');
 }
 
 
@@ -67,6 +67,7 @@ function _doLog(args, level) {
 		output += _stringifyArguments(args);
 		output += LEVEL_TO_COLOR_MAP['default'];
 		console.log(output);
+		return  _stringifyArguments(args)
 	}
 }
 
