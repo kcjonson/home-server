@@ -1,9 +1,9 @@
 var log = require('./lib/log');
 var config = require('./lib/config');
 
-// // Controllers (Handle Endpoints)
-var users = require('./controllers/users');
-var auth = require('./controllers/auth');
+
+
+
 // var indigoController = require('./app/controllers/indigo');
 // var foursquareController = require('./app/controllers/foursquare');
 // var geohopperController = require('./app/controllers/geohopper');
@@ -11,8 +11,8 @@ var auth = require('./controllers/auth');
 // var devicesController = require('./app/controllers/devices');
 // var nestController = require('./app/controllers/nest');
 // var actionsController = require('./app/controllers/actions');
-// var settingsController = require('./app/controllers/settings');
-var collector = require('./controllers/collector'); 
+
+
 
 
 
@@ -25,8 +25,17 @@ module.exports = {
 function _attach(params) {
 	var app = params.app;
 	
+	// Authenticion
+	var auth = require('./controllers/auth');
 	auth.start({app: app});
+
+	// User Data
+	var users = require('./controllers/users');
 	users.start({app: app});
+
+	// App Settings
+	var settings = require('./controllers/settings');
+	settings.start({app: app});
 
 	// Serve Weather Data
 	if (config.get('WEATHER_API_ENABLED')) {
@@ -42,6 +51,7 @@ function _attach(params) {
 	
 	// Needs to be last since it serves as a proxy
 	// to other endpoints.
+	var collector = require('./controllers/collector'); 
 	collector.start({app: app});
 
 }

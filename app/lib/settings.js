@@ -32,16 +32,27 @@ function _get(params, callback) {
 
 function _set(props, callback) {
 	log.debug(props);
-	database.findOne(SettingModel, null, function(err, settingDoc){
-		if (settingsDoc) {
-			settingDoc.set(props);
-			settingDoc.save(function(err, updatedDocument){
-				callback(err, updatedDocument)
-			})
-		} else if (!err && !settingDoc){
-			callback('An unknown error occured while saving settings');
-		} else {
-			callback(err);
-		}
-	})
+
+	if (props._id) {
+		// TODO: Actually use _id
+		database.findOne(SettingModel, null, function(err, settingDoc){
+			if (settingDoc) {
+				settingDoc.set(props);
+				settingDoc.save(function(err, updatedDocument){
+					callback(err, updatedDocument)
+				})
+			} else if (!err && !settingDoc){
+				callback('An unknown error occured while saving settings');
+			} else {
+				callback(err);
+			}
+		})
+	} else {
+		// Save initial settings
+		var setting = new SettingModel(props);
+		database.save(setting, function(error, savedSetting){
+			if (error) {log.error(error)}
+			callback(error, savedSetting);
+		});
+	}
 }

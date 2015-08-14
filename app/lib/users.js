@@ -48,7 +48,6 @@ function _set(props, callback) {
 	if (!props._id) {
 		// Create new user
 		var user = new UserModel(props);
-		console.log('user', user);
 		database.save(user, function(error, savedUser){
 			if (error) {log.error(error)}
 			callback(error, savedUser);

@@ -37,7 +37,6 @@ exports.start = function(params){
 			'Connection': 'keep-alive'
 		});
 		var writeData = function(event){
-			console.log('writeData', event.data);
 			res.write("data: " + JSON.stringify(event.data) + "\n\n");
 		};
 		users.events.on('change', writeData);
