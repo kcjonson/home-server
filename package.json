@@ -12,10 +12,8 @@
     "express": "x",
     "express-session": "x",
     "firebase": "2.2.4",
-    "forecast": "^0.2.1",
     "forecastio": "^0.2.0",
     "geolib": "^2.0.14",
-    "hbs": "x",
     "http-proxy": "x",
     "http2": "3.2.0",
     "indigo": "x",
@@ -31,6 +29,10 @@
     "start": "./server-backend -s"
   },
   "devDependencies": {
-    "gulp": "^3.9.0"
+    "gulp": "^3.9.0",
+    "nodemon": "^1.4.1"
+  },
+  "engines": {
+    "node": ">= 0.12.7"
   }
 }

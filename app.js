@@ -28,16 +28,15 @@ var services = require('./app/services');
 // var triggersLib = require('./app/lib/triggers');
 
 
-var app;
+var app;  // Ref to express application instance
+
 
 module.exports = {
 
 	start: function(args) {
 		log.info('Beginning server startup')
 		if (args.debug) {
-			log.info('Setting log level: DEBUG');
-			// set log level
-			// TODO
+			log.setLevel(log.levels[1]);
 		}
 
 		connectDatabase()
@@ -49,6 +48,11 @@ module.exports = {
 				process.exit();
 			});
 
+
+			// TODO: Shouldn't the device eventing be started
+			// before the endpoints are set up?
+			// NOTE: Should we do this manually?  Why not just
+			// have it done at require time?
 			// devicesLib.start();
 			// triggersLib.start();
 	}
@@ -95,18 +99,12 @@ function configureExpress() {
 	app.use(auth);
 	app.use(request);
 	//app.use(express.logger('dev'));
-	var publicDirectory = path.resolve(__dirname, config.get('SERVER_PUBLIC_DIRECTORY'));
-	log.info('Mapping public directory: ', publicDirectory);
-	app.use(express.static(publicDirectory));
 
-	// Start Indigo Proxy
-	// var indigoProxy = httpProxy.createProxyServer();
-	// app.get("/indigo*", function(req, res){
-	// 	indigoProxy.web(req, res, {target: 'http://localhost:' + indigoConfig.INDIGO_PORT});
-	// });
-	// app.post("/indigo*", function(req, res){
-	// 	indigoProxy.web(req, res, {target: 'http://localhost:' + indigoConfig.INDIGO_PORT});
-	// });
+	if (config.get('DASHBOARD_ENABLED')) {
+		var publicDirectory = path.resolve(__dirname, config.get('SERVER_PUBLIC_DIRECTORY'));
+		log.info('Mapping public directory: ', publicDirectory);
+		app.use(express.static(publicDirectory));
+	}
 
 	// bodyParser must go ofter proxy settings because it interrupts the 
 	// post stream.
@@ -124,17 +122,21 @@ function attachServices() {
 
 function createServer() {
 
-	// Secure Server
-	https.createServer({
-		key: fs.readFileSync(config.get('SERVER_SSL_PRIVATE_KEY')),
-		cert: fs.readFileSync(config.get('SERVER_SSL_CERT'))
-	}, app).listen(config.get('SERVER_SECURE_PORT'));
+	if (config.get('SERVER_SSL_ENABLED')) {
+		// Secure Server
+		https.createServer({
+			key: fs.readFileSync(config.get('SERVER_SSL_PRIVATE_KEY')),
+			cert: fs.readFileSync(config.get('SERVER_SSL_CERT'))
+		}, app).listen(config.get('SERVER_SECURE_PORT'));
+		log.info('Secure Server started on port ' + config.get('SERVER_SECURE_PORT'));
+	}
 
 	// Unsecure Server
 	http.createServer(app).listen(config.get('SERVER_PORT'));
-	
 	log.info('Server started on port ' + config.get('SERVER_PORT'));
-	log.info('Secure Server started on port ' + config.get('SERVER_SECURE_PORT'));
+
+
+	
 }
 
 

@@ -2,12 +2,56 @@
 
 var app = require('./app');
 var config = require('./app/lib/config');
-var spawnSync = require('child_process').spawnSync;
-var spawn = require('child_process').spawn;
+var log = require('./app/lib/log');
+var nodemon = require('nodemon');
+var gulp = require('gulp');
+require('./gulpfile'); // Gulp tasks will be available in this process
+
+
+//var nodemon = require('nodemon');
+
+
+
+
+/*
+
+	== Server Backend ==
+
+	Primary launch script for the application.
+
+	NOTE: Allthough most of the build utilities that are being used
+		have node modules that could be consumed here, we want to keep 
+		the abiltiy to run the various steps directly from outside this 
+		manager.  For example, `gulp` keeps its external config 
+		files and can be launched directly.  This is mainly because it's 
+		simpler to debug the various steps that way.  We use `child_process`
+		here to run them exactly as they would be from the command line.
+
+*/
+
+
+
+
+// Store for child processes that need to be killed when the app exits.
+// This is primarly for the watch mode processes that are launced with spawn.
+var childProcesses = []; 
+process.on('exit', function cleanup() {
+	childProcesses.forEach(function(childProcess){
+		childProcess.exit();
+	});
+});
+
+// 
+if (!process.env.NODE_ENV) {
+	log.error('NODE_ENV not set, exiting');
+	log.debug('Recommended: Add "export NODE_ENV=development" to your ./bash_profile')
+	process.exit();
+}
+
 
 var argv = require('yargs')
 
-	.usage       ('Usage: corvair [options]')
+	.usage       ('Usage: server-backend [options]')
 
 	.boolean     ('s')
 	.alias       ('s', 'start')
@@ -20,6 +64,7 @@ var argv = require('yargs')
 	.boolean     ('d')
 	.alias       ('d', 'debug')
 	.describe    ('d', 'Turn on debug mode')
+	.describe    ('d', 'Debug mode will default to on if the NODE_ENV is development')
 
 	.boolean     ('w')
 	.alias       ('w', 'watch')
@@ -30,42 +75,32 @@ var argv = require('yargs')
 	.describe    ('h', 'Show this help message')
 
 	.example     ('server-backend -dsb', 'Start server in debug mode and build dependencies')
-	.example     ('server-backend -s', 'Start the server in production mode')
+	.example     ('server-backend -s', 'Start the server')
 
 	.argv;
 
 
+
 if (argv.build) {
 	if (config.get('DASHBOARD_ENABLED')) {
-		runSync('gulp compile-dashboard')
+		gulp.start('compile-dashboard');
 	}
 }
 
 if (argv.watch) {
 	if (config.get('DASHBOARD_ENABLED')) {
-		run('gulp watch-dashboard')
+		gulp.start('watch-dashboard');
 	}
 }
 
 if (argv.start) {
-	app.start(argv);
+	if (argv.watch) {
+		// TODO: Use nodemon to launch in watch mode
+	} else {
+		app.start(argv);
+	}
 }
 
 
-function runSync(cmd, where){
-	return spawnSync('sh', ['-c', cmd], {
-		env   : process.env,
-		cwd   : where ? __dirname + '/' + where : __dirname,
-		stdio : 'inherit',
-	})
-}
-
-function run(cmd, where){
-	return spawn('sh', ['-c', cmd], {
-		env   : process.env,
-		cwd   : where ? __dirname + '/' + where : __dirname,
-		stdio : 'inherit',
-	})
-}
 
 

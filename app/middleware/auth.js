@@ -32,9 +32,8 @@ module.exports = function auth(req, res, next) {
 		if (authorized(req) || isPublicUrl) {
 			next();
 		} else {
-			//req.session.destination = req.url;
-			//res.redirect(config.AUTH_LOGIN_URL);
-			log.warn('Authentication Denied Request for:', req.url);
+			// TODO More info?
+			log.debug('Auth middleware denied request for:', req.url);
 			res.status(401).send('Unauthorized');
 		};	
 	}

@@ -6,10 +6,11 @@ module.exports = {
 }
 
 var defaults = _load('../../config.default.json');
-var user = _load('../../config.json');
+var user = _load('../../config.json', true);
 
 function _get(prop) {
-	if (user[prop] !== undefined) {
+
+	if (user && user[prop] !== undefined) {
 		if (_isValidValue(user[prop])) {
 			return user[prop];
 		} else {
@@ -19,7 +20,7 @@ function _get(prop) {
 		if (_isValidValue(defaults[prop])) {
 			return defaults[prop];
 		} else {
-			log.error('Property ' + prop + ' in config.default.js is malformed, user configuration should be done by creating a config.json to set or override values in config.default.json');
+			log.error('Property ' + prop + ' in config.default.js is missing or malformed, user configuration should be done by creating a config.json to set or override values in config.default.json');
 		}
 	} else {
 		log.error('Unable to get property: ' + prop);
@@ -30,12 +31,23 @@ function _set() {
 	// TODO?  Whats the use case?
 }
 
-function _load(path) {
+function _load(path, optional) {
 	try {
 		return require(path)
 	} catch (e) {
-		log.error('Unable to load config file: ' + path);
-		process.exit();
+
+		if (e.code && e.code === 'MODULE_NOT_FOUND') {
+			if (optional === true) {
+				log.warn('Optional config not found, using defaults');
+			} else {
+				log.error('Cannot find required config file: ' + path);
+				process.exit();
+			}
+		} else if(e instanceof SyntaxError) {
+			log.error('Config file contains a syntax error: ', e.message);
+			process.exit();
+		}
+
 	}
 }
 

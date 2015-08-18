@@ -2,26 +2,25 @@ Home Server
 ===========
 
 ##Core Features
-* Beautiful and usable interface for smart home devices
+* REST API to interact with home automation suite
 * User accounts and authentication
 * Resident location tracking (Home or Away)
+* Device control
 
 ##Technologies
 * Node
-* Handlebars
 * Express
-* MongoDB
-* Mongoose (Schema, Model)
-* JQuery
-* Underscore
-* Backbone (Router, View, Collection)
-* Backbone Relational (RelationalModel)
-* LESS
+* MongoDB & Mongoose (Schema, Model)
+* Gulp
+* Nodemon 
+
 
 ##Integrations
-* Indigo Home Automation Server to manage Insteon 
-* Foursquare (Swarm technically)
+* Indigo Home Automation Server to manage Insteon Hardware Devices
 * Geohopper for iOS geofencing
+* Foursquare (Swarm technically) to increase user geo awareness
+* Forecast.io for current weather conditions
+* Applescript for control of iTunes, Airfoil, and Spoken Alerts
 
 ##Organization
 
@@ -33,10 +32,7 @@ Home Server
   
 **/app/models** - Mongoose models and schema. Mongo is not queried directly, all database transactions go through Mongoose models.
   
-**/app/views & /app/templates** - Handlebars backend templated views and templates.  Sparsely used as much of the templating and views are managed by the JS applications.
+**/app/util** - General Utilities
 
-**/app/public/scripts/apps/** - Base directory for front end JS applications.
+**/app/middleware** - Express middleware for auth and logging
 
-
-  
-  

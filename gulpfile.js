@@ -1,14 +1,20 @@
 var config = require('./app/lib/config')
+var log = require('./app/lib/log')
 var gulp = require('gulp');
 
-
-var dashboardSource = config.get('DASHBOARD_SOURCE_DIRECTORY') + '/**/*';
-
 gulp.task('compile-dashboard', function(){
-	gulp.src(dashboardSource)
+	log.info('Starting gulp task: compile-dashboard')
+	gulp.src(dashboardSource())
 		.pipe(gulp.dest(config.get('SERVER_PUBLIC_DIRECTORY')));
 });
 
 gulp.task('watch-dashboard', function(){
-	gulp.watch(dashboardSource, ['compile-dashboard']);
+	log.info('Starting gulp task: watch-dashboard')
+	gulp.watch(dashboardSource(), ['compile-dashboard']);
 });
+
+function dashboardSource() {
+	var dashboardSource = config.get('DASHBOARD_SOURCE_DIRECTORY');
+	if (!dashboardSource) {process.exit();}
+	return dashboardSource + '/**/*';
+}

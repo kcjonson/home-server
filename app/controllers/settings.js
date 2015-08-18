@@ -9,7 +9,7 @@ exports.start = function(params) {
 	var app = params.app;
 
 
-	log.info('Starting Settings REST Endpoints');	
+	log.info('Starting Settings API Endpoints');	
 
 
 	// All Settings
