@@ -58,9 +58,7 @@ module.exports = {
 	warn: function() {
 		return _doLog(arguments, 'WARN');
 	},
-	error: function() {
-		return _doLog(arguments, 'ERROR');
-	}
+	error: _handleError.bind(this)
 };
 
 
@@ -95,6 +93,17 @@ function _doLog(args, level) {
 
 
 // Helpers
+
+// This is temporary hack to allow logging caught errors.
+// I need to think more about how I want it to work. -KCJ
+function _handleError(err) {
+	_doLog(arguments, 'ERROR');
+	if (process.env.NODE_ENV == 'development') {
+		if (err.stack && arguments.length == 1) {
+			console.log(err.stack)
+		}
+	}
+}
 
 function _stringifyArguments(args) {
 	args = Array.prototype.slice.call(args);

@@ -1,4 +1,4 @@
-var config = require('../../config/nest.json');
+var config = require('../lib/config');
 var log = require('../lib/log');
 var nest = require('../lib/devices/nest-thermostat');
 
@@ -18,7 +18,7 @@ exports.start = function(params){
 
 
 		// Listen for Incomming Registration Requests
-		app.get(config.NEST_AUTHENTICATE_URL, function(req, res){
+		app.get(config.get('NEST_AUTHENTICATE_URL'), function(req, res){
 			//console.log('Request: \n', req);
 			//console.log('\n Request Recieved: \n', req.query, req.query.code);
 			if (req && req.query && req.query.code) {

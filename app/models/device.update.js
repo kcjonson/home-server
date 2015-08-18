@@ -1,4 +1,4 @@
-var config = require('../../config/devices.json');
+var config = require('../lib/config');
 var mongoose = require('mongoose');
 
 var deviceUpdateSchema = new mongoose.Schema({
@@ -11,4 +11,4 @@ var deviceUpdateSchema = new mongoose.Schema({
 	}
 });
 
-module.exports =  mongoose.model(config.DEVICES_UPDATES_COLLECTION, deviceUpdateSchema);
+module.exports =  mongoose.model(config.get('DEVICES_UPDATES_COLLECTION'), deviceUpdateSchema);

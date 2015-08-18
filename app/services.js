@@ -4,16 +4,6 @@ var config = require('./lib/config');
 
 
 
-// var indigoController = require('./app/controllers/indigo');
-// var foursquareController = require('./app/controllers/foursquare');
-// var geohopperController = require('./app/controllers/geohopper');
-
-// var devicesController = require('./app/controllers/devices');
-// var nestController = require('./app/controllers/nest');
-// var actionsController = require('./app/controllers/actions');
-
-
-
 
 
 
@@ -24,40 +14,34 @@ module.exports = {
 
 function _attach(params) {
 	var app = params.app;
+
+
+	// Required 
 	
-	// Authenticion
-	var auth = require('./controllers/auth');
-	auth.start({app: app});
+	require('./controllers/auth').start({app: app});
+	require('./controllers/users').start({app: app});
+	require('./controllers/settings').start({app: app});
 
-	// User Data
-	var users = require('./controllers/users');
-	users.start({app: app});
 
-	// App Settings
-	var settings = require('./controllers/settings');
-	settings.start({app: app});
+	// APIs (outbound data)
 
-	if (config.get('ALARMS_ENABLED')) {
-		var alarms = require('./app/controllers/alarms');
-		// TODO: Alarms LIB
-		alarms.start();
-	};
+	if (config.get('DEVICES_API_ENABLED')) {require('./controllers/devices').start({app: app});}
+	if (config.get('ACTIONS_API_ENABLED')) {require('./controllers/actions').start({app: app});}
+	if (config.get('ALARMS_ENABLED')) {require('./controllers/alarms').start({app: app});};
+	if (config.get('ALARMS_API_ENABLED')) {require('./lib/alarms').start({app: app});}
+	if (config.get('WEATHER_API_ENABLED')) {require('./controllers/weather').start({app: app});}
+	if (config.get('DASHBOARD_ENABLED')) {require('./controllers/dashboard').start({app: app});}
 
-	// Serve Weather Data
-	if (config.get('WEATHER_API_ENABLED')) {
-		var weather = require('./controllers/weather'); 
-		weather.start({app: app});
-	}
+	// Webservices (Inbound requests)
+	if (config.get('INDIGO_WEBSERVICE_ENABLED')) {require('./controllers/indigo').start({app: app});};
+	// var foursquareController = require('./app/controllers/foursquare');
+	if (config.get('GEOHOPPER_WEBSERVICE_ENABLED')) {require('./controllers/geohopper').start({app: app});};
+	// var nestController = require('./app/controllers/nest');
 
-	// Servers static content for dashboard routes
-	if (config.get('DASHBOARD_ENABLED')) {
-		var dashboard = require('./controllers/dashboard');
-		dashboard.start({app: app});
-	}
-	
+
+	// Collector
 	// Needs to be last since it serves as a proxy
 	// to other endpoints.
-	var collector = require('./controllers/collector'); 
-	collector.start({app: app});
+	require('./controllers/collector').start({app: app});
 
 }

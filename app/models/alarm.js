@@ -1,4 +1,4 @@
-var config = require('../../config/alarms.json');
+var config = require('../lib/config');
 var mongoose = require('mongoose');
 
 var alarmSchema = new mongoose.Schema({
@@ -8,6 +8,6 @@ var alarmSchema = new mongoose.Schema({
 	running: Boolean
 });
 
-module.exports =  mongoose.model(config.ALARMS_COLLECTION, alarmSchema);
+module.exports =  mongoose.model(config.get('ALARMS_COLLECTION'), alarmSchema);
 
 

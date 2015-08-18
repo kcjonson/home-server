@@ -1,4 +1,4 @@
-var config = require('../../../config/devices.json');
+var config = require('../../lib/config');
 var mongoose = require('mongoose');
 
 var indigoDimmerSchema = new mongoose.Schema({
@@ -12,5 +12,5 @@ var indigoDimmerSchema = new mongoose.Schema({
 	}
 });
 
-module.exports =  mongoose.model('IndigoDimmer', indigoDimmerSchema, config.DEVICES_COLLECTION);
+module.exports =  mongoose.model('IndigoDimmer', indigoDimmerSchema, config.get('DEVICES_COLLECTION'));
 

@@ -10,7 +10,6 @@ var mongoose = require('mongoose');
 var path = require('path');
 
 // Express Middleware
-var hbs = require('hbs');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
@@ -38,8 +37,8 @@ connectDatabase()
 	.then(configureExpress)
 	.then(attachServices)
 	.then(createServer)
-	.catch(function(error) {
-		log.error('Server startup failed: ', error);
+	.catch(function(e) {
+		log.error(e);
 		process.exit();
 	});
 
@@ -113,6 +112,7 @@ function configureExpress() {
 
 function attachServices() {
 	services.attach({app: app});
+
 }
 
 function createServer() {

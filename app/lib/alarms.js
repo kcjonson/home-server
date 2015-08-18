@@ -30,7 +30,7 @@ exports.start = _start;
 
 // Startup
 
-_start: function() {
+function _start() {
 
 	_loadAlarms(function(){
 
@@ -150,7 +150,7 @@ function _set(id, data, callback) {
 
 function _loadAlarms(callback) {
 	database.getAll(AlarmModel, function(e, docs){
-		if (docs.forEach) {
+		if (docs.forEach && docs.length > 0) {
 			// Just use the first one
 			_setLocalAlarm(docs[0]);
 			callback();

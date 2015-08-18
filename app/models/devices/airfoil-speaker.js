@@ -1,4 +1,4 @@
-var config = require('../../../config/devices.json');
+var config = require('../../lib/config');
 var mongoose = require('mongoose');
 
 var airfoilSpeakerSchema = new mongoose.Schema({
@@ -12,5 +12,5 @@ var airfoilSpeakerSchema = new mongoose.Schema({
 	}
 });
 
-module.exports =  mongoose.model('AirfoilSpeaker', airfoilSpeakerSchema, config.DEVICES_COLLECTION);
+module.exports =  mongoose.model('AirfoilSpeaker', airfoilSpeakerSchema, config.get('DEVICES_COLLECTION'));
 

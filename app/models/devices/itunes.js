@@ -1,4 +1,4 @@
-var config = require('../../../config/devices.json');
+var config = require('../../lib/config');
 var mongoose = require('mongoose');
 
 var iTunesSchema = new mongoose.Schema({
@@ -12,5 +12,5 @@ var iTunesSchema = new mongoose.Schema({
 	}
 });
 
-module.exports =  mongoose.model('ITunes', iTunesSchema, config.DEVICES_COLLECTION);
+module.exports =  mongoose.model('ITunes', iTunesSchema, config.get('DEVICES_COLLECTION'));
 
