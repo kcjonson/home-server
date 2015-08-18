@@ -16,100 +16,105 @@ var CHECK_INTERVAL = 60 * 1000; // Every Minute.
 var ALARM_FADE_LENGTH = 30 * 60 * 1000; // 30 Minutes
 var MUSIC_START_DELAY = 5 * 60 * 1000; // 5 Minutes
 var MUSIC_MAX_VOLUME = 40; // Percentage of volume.
-var LIGHT_ID = '554d3dce743ed3ca3e4742b8';
+var LIGHT_ID = '554d3dce743ed3ca3e4742b8';  // TODO: Move to DB
 
 
 // Public API
 
 exports.get = _get;
-exports.set = _set
+exports.set = _set;
+exports.start = _start;
 
 
 
 
 // Startup
 
-_loadAlarms(function(){
+_start: function() {
 
-	// Delay the start until the minute.
-	var startDelay = CHECK_INTERVAL - new Date() % CHECK_INTERVAL;
-	setTimeout(function(){
-		setInterval(function(){
+	_loadAlarms(function(){
+
+		// Delay the start until the minute.
+		var startDelay = CHECK_INTERVAL - new Date() % CHECK_INTERVAL;
+		setTimeout(function(){
+			setInterval(function(){
 
 
-			var now = new Date();
-			var nowTime = now.getTime();  // Awwww yeeaaaahhh, its NOW time.
-			var startTime = START_DATE.getTime();
-			var endTime = END_DATE.getTime();
-			var lightPercentage;
-			var musicPercentage;
+				var now = new Date();
+				var nowTime = now.getTime();  // Awwww yeeaaaahhh, its NOW time.
+				var startTime = START_DATE.getTime();
+				var endTime = END_DATE.getTime();
+				var lightPercentage;
+				var musicPercentage;
 
-			// Determine which alarm should be running (if any) and take action.
- 			ALARMS.forEach(function(alarm){
+				// Determine which alarm should be running (if any) and take action.
+	 			ALARMS.forEach(function(alarm){
 
- 				// Compute Dates
- 				var now = new Date();
- 				var nowTime = now.getTime();
- 				var startDate = new Date(now.getTime());
- 				startDate.setMinutes(alarm.minute);
-				startDate.setHours(alarm.hour);
- 				var startTime = startDate.getTime();
-				var endDate = new Date(startDate.getTime() + ALARM_FADE_LENGTH);
-				var endTime = endDate.getTime();
+	 				// Compute Dates
+	 				var now = new Date();
+	 				var nowTime = now.getTime();
+	 				var startDate = new Date(now.getTime());
+	 				startDate.setMinutes(alarm.minute);
+					startDate.setHours(alarm.hour);
+	 				var startTime = startDate.getTime();
+					var endDate = new Date(startDate.getTime() + ALARM_FADE_LENGTH);
+					var endTime = endDate.getTime();
 
-				// Start Alarm if Applicable
-				// This should only run on the minute
- 				if (now.getHours() == alarm.hour && now.getMinutes() == alarm.minute && alarm.isOn) {
- 					log.info('Alarm Starting')
- 					alarm.running = true;
- 					database.findOne(AlarmModel, {'_id': alarm._id}, function(e, doc){
-						doc.set({running: true});
-						doc.save();
-					});
- 				};
+					// Start Alarm if Applicable
+					// This should only run on the minute
+	 				if (now.getHours() == alarm.hour && now.getMinutes() == alarm.minute && alarm.isOn) {
+	 					log.info('Alarm Starting')
+	 					alarm.running = true;
+	 					database.findOne(AlarmModel, {'_id': alarm._id}, function(e, doc){
+							doc.set({running: true});
+							doc.save();
+						});
+	 				};
 
- 				// End Alarm if Applicable
-				if ((nowTime > endTime && alarm.running) || (!alarm.isOn && alarm.running)) {
-					log.info('Alarm Ending')
-					alarm.running = false;
-					database.findOne(AlarmModel, {'_id': alarm._id}, function(e, doc){
-						doc.set({running: false});
-						doc.save()
-					});
-				};
-
-				if (alarm.running) {
-					log.info('Alarm Running');
-
-					if (nowTime >= startTime && nowTime <= endTime) {
-						console.log('Within Alarm Range')
-						lightPercentage = Math.round(((nowTime - startTime) / ALARM_FADE_LENGTH) * 100);
-					}
-
-					if (nowTime >= (startTime + MUSIC_START_DELAY) && nowTime <= endTime) {
-						musicPercentage = Math.round(((nowTime - (startTime + MUSIC_START_DELAY)) / (ALARM_FADE_LENGTH - MUSIC_START_DELAY)) * 100);
-					}
-
-					if (lightPercentage) {
-						console.log('Setting Light Percantage', lightPercentage);
-						devices.set(LIGHT_ID, {'brightness': lightPercentage}, function(e, data){
-							if (e) {log.error(e)}
+	 				// End Alarm if Applicable
+					if ((nowTime > endTime && alarm.running) || (!alarm.isOn && alarm.running)) {
+						log.info('Alarm Ending')
+						alarm.running = false;
+						database.findOne(AlarmModel, {'_id': alarm._id}, function(e, doc){
+							doc.set({running: false});
+							doc.save()
 						});
 					};
 
-					if (musicPercentage) {
-						console.log('Setting Music Percantage', musicPercentage);
-						// TODO
+					if (alarm.running) {
+						log.info('Alarm Running');
+
+						if (nowTime >= startTime && nowTime <= endTime) {
+							console.log('Within Alarm Range')
+							lightPercentage = Math.round(((nowTime - startTime) / ALARM_FADE_LENGTH) * 100);
+						}
+
+						if (nowTime >= (startTime + MUSIC_START_DELAY) && nowTime <= endTime) {
+							musicPercentage = Math.round(((nowTime - (startTime + MUSIC_START_DELAY)) / (ALARM_FADE_LENGTH - MUSIC_START_DELAY)) * 100);
+						}
+
+						if (lightPercentage) {
+							console.log('Setting Light Percantage', lightPercentage);
+							devices.set(LIGHT_ID, {'brightness': lightPercentage}, function(e, data){
+								if (e) {log.error(e)}
+							});
+						};
+
+						if (musicPercentage) {
+							console.log('Setting Music Percantage', musicPercentage);
+							// TODO
+						}
+
+
 					}
+	 			});
 
+			}, CHECK_INTERVAL);
+		}, startDelay);
 
-				}
- 			});
+	});
 
-		}, CHECK_INTERVAL);
-	}, startDelay);
-
-});
+}
 
 
 

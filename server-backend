@@ -1,15 +1,9 @@
 #!/usr/bin/env node
 
-var app = require('./app');
 var config = require('./app/lib/config');
 var log = require('./app/lib/log');
-var nodemon = require('nodemon');
-var gulp = require('gulp');
-require('./gulpfile'); // Gulp tasks will be available in this process
-
-
-//var nodemon = require('nodemon');
-
+var spawnSync = require('child_process').spawnSync;
+var spawn = require('child_process').spawn;
 
 
 
@@ -61,11 +55,6 @@ var argv = require('yargs')
 	.alias       ('b', 'build')
 	.describe    ('b', 'Build dependencies')
 
-	.boolean     ('d')
-	.alias       ('d', 'debug')
-	.describe    ('d', 'Turn on debug mode')
-	.describe    ('d', 'Debug mode will default to on if the NODE_ENV is development')
-
 	.boolean     ('w')
 	.alias       ('w', 'watch')
 	.describe    ('w', 'Turn on watch mode')
@@ -83,24 +72,41 @@ var argv = require('yargs')
 
 if (argv.build) {
 	if (config.get('DASHBOARD_ENABLED')) {
-		gulp.start('compile-dashboard');
+		runSync('gulp compile-dashboard')
 	}
 }
 
 if (argv.watch) {
 	if (config.get('DASHBOARD_ENABLED')) {
-		gulp.start('watch-dashboard');
+		run('gulp watch-dashboard')
 	}
 }
 
 if (argv.start) {
 	if (argv.watch) {
-		// TODO: Use nodemon to launch in watch mode
+		run('nodemon app.js')
 	} else {
-		app.start(argv);
+		//app.start(argv);
+		run('node app.js')
 	}
 }
 
+
+function runSync(cmd, where){
+	return spawnSync('sh', ['-c', cmd], {
+		env   : process.env,
+		cwd   : where ? __dirname + '/' + where : __dirname,
+		stdio : 'inherit',
+	})
+}
+
+function run(cmd, where){
+	return spawn('sh', ['-c', cmd], {
+		env   : process.env,
+		cwd   : where ? __dirname + '/' + where : __dirname,
+		stdio : 'inherit',
+	})
+}
 
 
 

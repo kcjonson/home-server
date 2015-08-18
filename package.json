@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "gulp": "^3.9.0",
-    "nodemon": "^1.4.1"
+    "gulp-sync": "^0.1.4"
   },
   "engines": {
     "node": ">= 0.12.7"

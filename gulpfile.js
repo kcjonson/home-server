@@ -1,6 +1,7 @@
 var config = require('./app/lib/config')
 var log = require('./app/lib/log')
 var gulp = require('gulp');
+var gulpsync = require('gulp-sync')(gulp);
 
 gulp.task('compile-dashboard', function(){
 	log.info('Starting gulp task: compile-dashboard')

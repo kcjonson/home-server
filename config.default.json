@@ -1,6 +1,9 @@
 {
+	"ACTIONS_API_ENABLED": false,
 	"ACTIONS_API_URL": "/api/actions",
-	"ALARM_API_URL": "/api/alarms",
+	"ALARMS_ENABLED": false, 
+	"ALARMS_API_ENABLED": false,
+	"ALARMS_API_URL": "/api/alarms",
 	"ALARMS_COLLECTION": "alarms",
 	"AUTH_DISABLED": false,
 	"AUTH_LOGIN_API_URL": "/api/login",
@@ -30,7 +33,6 @@
 		"/indigo/serverrequest",
 		"/favicon.ico"
 	],
-	"CHECKINS_API_URL": "/api/users",
 	"CHECKINS_COLLECTION": "checkins",
 	"CHECKINS_UNKNOWN_NAME": "Unknown",
 	"CHECKINS_HOME_NAME": "Home",
@@ -41,6 +43,7 @@
 	"DASHBOARD_URL": "/dashboard",
 	"DASHBOARD_API_URL": "/api/dashboard",
 	"DASHBOARD_SOURCE_DIRECTORY": "",
+	"DEVICES_API_ENABLED": false,
 	"DEVICES_API_URL": "/api/devices",
 	"DEVICES_COLLECTION": "devices",
 	"DEVICES_UPDATES_COLLECTION": "devices.updates",

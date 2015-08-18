@@ -13,21 +13,21 @@ exports.start = function(params) {
 
 
 	// All Alarms
-	collector.registerEndpoint(config.ALARM_API_URL);
-	app.get(config.ALARM_API_URL, function(req, res) {
-		log.info('GET ' + config.ALARM_API_URL);
+	collector.registerEndpoint(config.ALARMS_API_URL);
+	app.get(config.ALARMS_API_URL, function(req, res) {
+		log.info('GET ' + config.ALARMS_API_URL);
 		alarms.get(function(e, alarmsData){
 			res.send(alarmsData);
 		})
 	});
-	app.get(config.ALARM_API_URL + '/push', _handlePush);
+	app.get(config.ALARMS_API_URL + '/push', _handlePush);
 
-	app.post(config.ALARM_API_URL, function(req, res) {
-		log.info('POST ' + config.ALARM_API_URL);
+	app.post(config.ALARMS_API_URL, function(req, res) {
+		log.info('POST ' + config.ALARMS_API_URL);
 	});
 
-	app.patch(config.ALARM_API_URL, function(req, res) {
-		log.info('PATCH ' + config.ALARM_API_URL);
+	app.patch(config.ALARMS_API_URL, function(req, res) {
+		log.info('PATCH ' + config.ALARMS_API_URL);
 	});
 
 
@@ -36,9 +36,9 @@ exports.start = function(params) {
 
 	// Single Alarm
 
-	app.patch(config.ALARM_API_URL + '/:id', function(req, res) {
+	app.patch(config.ALARMS_API_URL + '/:id', function(req, res) {
 		var id = req.params.id;
-		log.info('PATCH ' + config.ALARM_API_URL + '/:id', id);
+		log.info('PATCH ' + config.ALARMS_API_URL + '/:id', id);
 		alarms.set(id, req.body, function(e, data){
 			if (e) {
 				log.error(e);
@@ -57,7 +57,7 @@ exports.start = function(params) {
 
 
 function _handlePush(req, res) {
-	log.info('GET ' + config.ALARM_API_URL + '/push');
+	log.info('GET ' + config.ALARMS_API_URL + '/push');
 	res.writeHead(200, {
 		'Content-Type': 'text/event-stream',
 		'Cache-Control': 'no-cache',

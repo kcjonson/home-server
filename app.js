@@ -31,33 +31,28 @@ var services = require('./app/services');
 var app;  // Ref to express application instance
 
 
-module.exports = {
 
-	start: function(args) {
-		log.info('Beginning server startup')
-		if (args.debug) {
-			log.setLevel(log.levels[1]);
-		}
+log.info('Beginning server startup')
 
-		connectDatabase()
-			.then(configureExpress)
-			.then(attachServices)
-			.then(createServer)
-			.catch(function(error) {
-				log.error('Server startup failed: ', error);
-				process.exit();
-			});
+connectDatabase()
+	.then(configureExpress)
+	.then(attachServices)
+	.then(createServer)
+	.catch(function(error) {
+		log.error('Server startup failed: ', error);
+		process.exit();
+	});
 
 
-			// TODO: Shouldn't the device eventing be started
-			// before the endpoints are set up?
-			// NOTE: Should we do this manually?  Why not just
-			// have it done at require time?
-			// devicesLib.start();
-			// triggersLib.start();
-	}
+	// TODO: Shouldn't the device eventing be started
+	// before the endpoints are set up?
+	// NOTE: Should we do this manually?  Why not just
+	// have it done at require time?
+	// devicesLib.start();
+	// triggersLib.start();
 
-}
+
+
 
 
 

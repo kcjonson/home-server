@@ -7,7 +7,7 @@ var config = require('./lib/config');
 // var indigoController = require('./app/controllers/indigo');
 // var foursquareController = require('./app/controllers/foursquare');
 // var geohopperController = require('./app/controllers/geohopper');
-// var alarmsController = require('./app/controllers/alarms');
+
 // var devicesController = require('./app/controllers/devices');
 // var nestController = require('./app/controllers/nest');
 // var actionsController = require('./app/controllers/actions');
@@ -36,6 +36,12 @@ function _attach(params) {
 	// App Settings
 	var settings = require('./controllers/settings');
 	settings.start({app: app});
+
+	if (config.get('ALARMS_ENABLED')) {
+		var alarms = require('./app/controllers/alarms');
+		// TODO: Alarms LIB
+		alarms.start();
+	};
 
 	// Serve Weather Data
 	if (config.get('WEATHER_API_ENABLED')) {
