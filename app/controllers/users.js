@@ -67,9 +67,8 @@ exports.start = function(params){
 				// create account workflow on the client
 				users.get(function(err, users){
 					if (users.length > 0) {
-						log.warn('The current user cannot be identified');
 						res.status(401).send({
-							error: 'The current user cannot be dentified',
+							error: log.warn('The current user cannot be identified'),
 							users: true
 						});
 					} else {			
