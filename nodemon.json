@@ -1,7 +1,7 @@
 {
 	"ignore": [
-		"app/public/*",
-		"dbs/",
+		"public/*",
+		"node_modules/*",
 		".tmp"
 	],
 	"verbose": false

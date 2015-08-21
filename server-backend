@@ -1,0 +1,112 @@
+#!/usr/bin/env node
+
+var config = require('./app/lib/config');
+var log = require('./app/lib/log');
+var spawnSync = require('child_process').spawnSync;
+var spawn = require('child_process').spawn;
+
+
+
+/*
+
+	== Server Backend ==
+
+	Primary launch script for the application.
+
+	NOTE: Allthough most of the build utilities that are being used
+		have node modules that could be consumed here, we want to keep 
+		the abiltiy to run the various steps directly from outside this 
+		manager.  For example, `gulp` keeps its external config 
+		files and can be launched directly.  This is mainly because it's 
+		simpler to debug the various steps that way.  We use `child_process`
+		here to run them exactly as they would be from the command line.
+
+*/
+
+
+
+
+// Store for child processes that need to be killed when the app exits.
+// This is primarly for the watch mode processes that are launced with spawn.
+var childProcesses = []; 
+process.on('exit', function cleanup() {
+	childProcesses.forEach(function(childProcess){
+		childProcess.exit();
+	});
+});
+
+// 
+if (!process.env.NODE_ENV) {
+	log.error('NODE_ENV not set, exiting');
+	log.debug('Recommended: Add "export NODE_ENV=development" to your ./bash_profile')
+	process.exit();
+}
+
+
+var argv = require('yargs')
+
+	.usage       ('Usage: server-backend [options]')
+
+	.boolean     ('s')
+	.alias       ('s', 'start')
+	.describe    ('s', 'Start the server')
+
+	.boolean     ('b')
+	.alias       ('b', 'build')
+	.describe    ('b', 'Build dependencies')
+
+	.boolean     ('w')
+	.alias       ('w', 'watch')
+	.describe    ('w', 'Turn on watch mode')
+
+	.help        ('h')
+	.alias       ('h', 'help')
+	.describe    ('h', 'Show this help message')
+
+	.example     ('server-backend -dsb', 'Start server in debug mode and build dependencies')
+	.example     ('server-backend -s', 'Start the server')
+
+	.argv;
+
+
+
+if (argv.build) {
+	if (config.get('DASHBOARD_ENABLED')) {
+		runSync('gulp compile-dashboard')
+	}
+}
+
+if (argv.watch) {
+	if (config.get('DASHBOARD_ENABLED')) {
+		run('gulp watch-dashboard')
+	}
+}
+
+if (argv.start) {
+	if (argv.watch) {
+		run('nodemon app.js')
+	} else {
+		//app.start(argv);
+		run('node app.js')
+	}
+}
+
+
+function runSync(cmd, where){
+	return spawnSync('sh', ['-c', cmd], {
+		env   : process.env,
+		cwd   : where ? __dirname + '/' + where : __dirname,
+		stdio : 'inherit',
+	})
+}
+
+function run(cmd, where){
+	return spawn('sh', ['-c', cmd], {
+		env   : process.env,
+		cwd   : where ? __dirname + '/' + where : __dirname,
+		stdio : 'inherit',
+	})
+}
+
+
+

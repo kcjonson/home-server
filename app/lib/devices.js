@@ -1,6 +1,6 @@
 var log = require('../lib/log');
 var database = require('./database');
-var config = require('../../config/devices.json');
+var config = require('../lib/config');
 var EventEmitter = require("events").EventEmitter;
 var EventUtil = require('../util/Event');
 var DeviceUpdateModel = require('../models/device.update');
@@ -126,25 +126,29 @@ function _get(callback) {
 
 	var devicesData = [];
 	var devicesLoaded = 0;
-	database.getCollection(config.DEVICES_COLLECTION, function(err, deviceDocs){
+	database.getCollection(config.get('DEVICES_COLLECTION'), function(err, deviceDocs){
 		if (err) {callback(err); return;}
-		deviceDocs.forEach(function(deviceDoc){
-			// Fully Hydrate the Data Object since we don't store
-			// state in the DB.  Do modify the objects slightly so that
-			// the front end only deals with the mongo document ID.
-			_getDevice(deviceDoc, function(err, deviceData){
-				if (err) {callback(err); return;}
-				if (deviceData) {
-					devicesData.push(_formatData(deviceDoc, deviceData));
-				} else {
-					log.warn('Unable to get device "' + deviceDoc.name + '" while getting all devices');
-				}
-				devicesLoaded += 1;
-				if (devicesLoaded === deviceDocs.length) {
-					callback(null, devicesData);
-				}
-			})
-		});
+		if (deviceDocs.length > 0) {
+			deviceDocs.forEach(function(deviceDoc){
+				// Fully Hydrate the Data Object since we don't store
+				// state in the DB.  Do modify the objects slightly so that
+				// the front end only deals with the mongo document ID.
+				_getDevice(deviceDoc, function(err, deviceData){
+					if (err) {callback(err); return;}
+					if (deviceData) {
+						devicesData.push(_formatData(deviceDoc, deviceData));
+					} else {
+						log.warn('Unable to get device "' + deviceDoc.name + '" while getting all devices');
+					}
+					devicesLoaded += 1;
+					if (devicesLoaded === deviceDocs.length) {
+						callback(null, devicesData);
+					}
+				})
+			});
+		} else {
+			callback(null, [])
+		}
 	});
 };
 
@@ -165,7 +169,7 @@ function _getDevice(data, callback) {
 // unique across all device types.
 function _set(databaseId, props, callback) {
 	log.debug(databaseId, props);
-	database.findOne(config.DEVICES_COLLECTION, {'_id': databaseId}, function(err, deviceDoc){
+	database.findOne(config.get('DEVICES_COLLECTION'), {'_id': databaseId}, function(err, deviceDoc){
 		if (deviceDoc && deviceDoc.type) {
 
 			var libProps = {};
@@ -285,7 +289,7 @@ function _start() {
 };
 
 function _startKeepAlive(deviceDocs) {
-	database.getCollection(config.DEVICES_COLLECTION, function(err, deviceDocs){
+	database.getCollection(config.get('DEVICES_COLLECTION'), function(err, deviceDocs){
 		// Keep Alive
 		var docsChecked = 0;
 		var devicesToKeepAlive = [];
@@ -314,7 +318,7 @@ function _startEvents(deviceDocs) {
 			}
 			// Attach listeners
 			LISTENERS[key] = deviceLib.events.on('change', function(eventPayload){
-				database.findOne(config.DEVICES_COLLECTION, {'hardwareId': eventPayload.id}, function(err, deviceDoc){
+				database.findOne(config.get('DEVICES_COLLECTION'), {'hardwareId': eventPayload.id}, function(err, deviceDoc){
 					if (deviceDoc && deviceDoc.type) {
 						var payload = _formatData(deviceDoc, eventPayload.data);
 						EventUtil.emit(exports.events, {
@@ -405,7 +409,7 @@ function _sync(callback) {
 
 function _saveDevices(devicesData, callback) {
 	log.debug('saving');
-	database.dropCollection(config.DEVICES_COLLECTION, function(err){
+	database.dropCollection(config.get('DEVICES_COLLECTION'), function(err){
 		var totalDevices = devicesData.length;
 		var devicesSaved = 0;
 		devicesData.forEach(function(deviceData, index){

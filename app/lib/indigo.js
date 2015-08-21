@@ -1,5 +1,5 @@
 var indigo = require('indigo/lib/indigo');
-var config = require('../../config/indigo.json');
+var config = require('../lib/config');
 var log = require('./log');
 var EventEmitter = require("events").EventEmitter;
 var EventUtil = require('../util/Event');
@@ -38,8 +38,8 @@ var HARDWARE_ID_TO_NAME_MAP = {};
 
 indigo.connectServer({
 	host: 'localhost',
-	port: config.INDIGO_PORT,
-	serverPath: config.INDIGO_ROOT_URL
+	port: config.get('INDIGO_PORT'),
+	serverPath: config.get('INDIGO_ROOT_URL')
 });
 
 // Seed Map

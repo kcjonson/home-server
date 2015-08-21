@@ -1,4 +1,4 @@
-var config = require('../../../config/devices.json');
+var config = require('../../lib/config');
 var mongoose = require('mongoose');
 
 var indigoMotionDetectorSchema = new mongoose.Schema({
@@ -12,5 +12,5 @@ var indigoMotionDetectorSchema = new mongoose.Schema({
 	}
 });
 
-module.exports =  mongoose.model('IndigoMotionDetector', indigoMotionDetectorSchema, config.DEVICES_COLLECTION);
+module.exports =  mongoose.model('IndigoMotionDetector', indigoMotionDetectorSchema, config.get('DEVICES_COLLECTION'));
 

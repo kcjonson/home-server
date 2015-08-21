@@ -1,4 +1,4 @@
-var config = require('../../config/devices.json');
+var config = require('../lib/config');
 var collector = require('./collector');
 var devices = require('../lib/devices');
 var log = require('../lib/log');
@@ -12,9 +12,9 @@ exports.start = function(params) {
 
 	log.info('Starting Devices REST Endpoints');	
 
-	collector.registerEndpoint(config.DEVICES_API_URL);
-	app.get(config.DEVICES_API_URL, function(req, res) {
-		log.info('GET ' + config.DEVICES_API_URL);
+	collector.registerEndpoint(config.get('DEVICES_API_URL'));
+	app.get(config.get('DEVICES_API_URL'), function(req, res) {
+		log.info('GET ' + config.get('DEVICES_API_URL'));
 		devices.get(function(e, data){
 			if (e) {
 				log.error(e);
@@ -27,15 +27,15 @@ exports.start = function(params) {
 		})
 	});
 
-	app.get(config.DEVICES_API_URL + '/sync', function(req, res) {
-		log.info('GET ' + config.DEVICES_API_URL + '/sync');
+	app.get(config.get('DEVICES_API_URL') + '/sync', function(req, res) {
+		log.info('GET ' + config.get('DEVICES_API_URL') + '/sync');
 		devices.sync(function(e){
 			res.send();
 		})
 	});
 
-	app.get(config.DEVICES_API_URL + '/push', function(req, res) {
-		log.info('GET ' + config.DEVICES_API_URL + '/push');
+	app.get(config.get('DEVICES_API_URL') + '/push', function(req, res) {
+		log.info('GET ' + config.get('DEVICES_API_URL') + '/push');
 		res.writeHead(200, {
 			'Content-Type': 'text/event-stream',
 			'Cache-Control': 'no-cache',
@@ -50,19 +50,19 @@ exports.start = function(params) {
 		});
 	});
 
-	app.get(config.DEVICES_API_URL + '/:id', function(req, res) {
+	app.get(config.get('DEVICES_API_URL') + '/:id', function(req, res) {
 		var id = req.params.id;
-		log.info('GET ' + config.DEVICES_API_URL + '/' + id);
+		log.info('GET ' + config.get('DEVICES_API_URL') + '/' + id);
 		// TODO
 		// devices.get(function(e, devicesData){
 		// 	res.send(devicesData);
 		// })
 	});
 
-	app.patch(config.DEVICES_API_URL + '/:id', function(req, res) {
+	app.patch(config.get('DEVICES_API_URL') + '/:id', function(req, res) {
 		var id = req.params.id;
 		var variableValue = req.body.value;
-		log.info('PATCH ' + config.DEVICES_API_URL + '/' + id);
+		log.info('PATCH ' + config.get('DEVICES_API_URL') + '/' + id);
 		devices.set(id, req.body, function(err, deviceData){
 			if (err) {res.send(err)} else {
 				res.send(deviceData);

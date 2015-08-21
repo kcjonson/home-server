@@ -1,4 +1,3 @@
-var config = require('../../config/actions.json');
 var Devices = require('../lib/devices');
 var log = require('../lib/log');
 

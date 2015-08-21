@@ -1,4 +1,4 @@
-var config = require('../../config/geohopper.json');
+var config = require('../lib/config');
 var users = require('./users');
 var checkins = require('./checkins');
 var log = require('./log');
@@ -13,7 +13,7 @@ exports.checkin = _checkin
 function _checkin(data) {
 	log.debug(data);
 
-	if (data.location == config.GEOHOPPER_HOME_NAME) {
+	if (data.location == config.get('GEOHOPPER_HOME_NAME')) {
 
 		users.getByGeohopperName(data.sender, function(error, user){
 			if (user) {
@@ -33,7 +33,7 @@ function _checkin(data) {
 					log.debug(err, settingsData);
 					checkins.add({
 						user: user._id,
-						name: config.GEOHOPPER_HOME_NAME, 
+						name: config.get('GEOHOPPER_HOME_NAME'), 
 						date: data.time,
 						action: action,
 						coordinates: settingsData.coordinates,

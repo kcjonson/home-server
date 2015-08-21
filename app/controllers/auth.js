@@ -1,65 +1,17 @@
-var view = require('../lib/view');
+
 var users = require('../lib/users');
-var config = require('../../config/auth.json');
+var config = require('../lib/config');
 var log = require('../lib/log');
 var cookieParser = require('cookie-parser');
 
-var started;
-
-var AUTH_DISABLED = false;
-
-if (AUTH_DISABLED) {
-	log.warn('Authentication Disabled');
-}
-
-exports.interceptor = function() {
-	return function auth(req, res, next) {
-
-
-
-		//log.info(new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '') + ' Request for: ' + req.url);		
-		if (started) {
-
-			if (req.ip == '::ffff:127.0.0.1') {
-				next();
-			} else {
-
-				// Anylize URL
-				var isPublicUrl = false;
-				config.PUBLIC_URLS.forEach(function(publicUrl){
-					if (req.url.indexOf(publicUrl, 0) === 0) {
-						isPublicUrl = true;
-					};
-				});
-
-				if (req.cookies) {
-					var insecureUserId = req.cookies['remote.userId'];
-				}
-				if (!isPublicUrl && !req.session.userId && AUTH_DISABLED && insecureUserId) {
-					log.warn('Allowing Access From Insecure User Cookie');
-				}
-				if (isPublicUrl || req.session.userId || (AUTH_DISABLED && insecureUserId)) {
-					next();
-				} else {
-					//req.session.destination = req.url;
-					//res.redirect(config.AUTH_LOGIN_URL);
-					log.warn('Authentication Denied Request for:', req.url);
-					res.status(401).send('Unauthorized');
-				};	
-			}
-		} else {
-			next();
-		};
-	};
-};
 
 
 exports.start = function(params) {
 	var app = params.app;
 	
 	// Serve Login Endpoint
-	app.post(config.AUTH_LOGIN_API_URL, function(req, res) {
-		log.info('POST ', config.AUTH_LOGIN_API_URL)
+	app.post(config.get('AUTH_LOGIN_API_URL'), function(req, res) {
+		log.info('POST ', config.get('AUTH_LOGIN_API_URL'))
 		_authenticate(req.body.username, req.body.password, function(err, user){
 			if (!err && user) {
 				log.info('Authentication Success');
@@ -84,14 +36,12 @@ exports.start = function(params) {
 	});
 
 	// Serve Logout Endpoint
-	app.get(config.AUTH_LOGOUT_API_URL, function(req, res){
-		log.info('GET ', config.AUTH_LOGOUT_API_URL);
+	app.get(config.get('AUTH_LOGOUT_API_URL'), function(req, res){
+		log.info('GET ', config.get('AUTH_LOGOUT_API_URL'));
 		req.session.destroy(function(){
 			res.send();
 		});
 	});
-
-	started = true;
 }
 
 

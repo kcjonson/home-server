@@ -1,4 +1,4 @@
-var config = require('../../../config/devices.json');
+var config = require('../../lib/config');
 var mongoose = require('mongoose');
 
 var nestSchema = new mongoose.Schema({
@@ -12,5 +12,5 @@ var nestSchema = new mongoose.Schema({
 	}
 });
 
-module.exports =  mongoose.model('NestThermostat', nestSchema, config.DEVICES_COLLECTION);
+module.exports =  mongoose.model('NestThermostat', nestSchema, config.get('DEVICES_COLLECTION'));
 

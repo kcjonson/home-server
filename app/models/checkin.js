@@ -1,4 +1,4 @@
-var config = require('../../config/checkins.json');
+var config = require('../lib/config');
 var users = require('../lib/users');
 var mongoose = require('mongoose');
 var log = require('../lib/log');
@@ -21,4 +21,4 @@ var checkinSchema = new mongoose.Schema({
 	}
 });
 
-module.exports =  mongoose.model(config.CHECKINS_COLLECTION, checkinSchema);
+module.exports =  mongoose.model(config.get('CHECKINS_COLLECTION'), checkinSchema);

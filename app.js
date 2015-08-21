@@ -1,67 +1,84 @@
-// Config
-var authConfig = require('./config/auth.json');
-var appConfig = require('./config/app.json');
-var indigoConfig = require('./config/indigo.json')
 
-// Controllers (Handle Endpoints)
-var usersController = require('./app/controllers/users');
-var authController = require('./app/controllers/auth');
-var indigoController = require('./app/controllers/indigo');
-var dashboardController = require('./app/controllers/dashboard');
-var foursquareController = require('./app/controllers/foursquare');
-var geohopperController = require('./app/controllers/geohopper');
-var alarmsController = require('./app/controllers/alarms');
-var devicesController = require('./app/controllers/devices');
-var nestController = require('./app/controllers/nest');
-var actionsController = require('./app/controllers/actions');
-var settingsController = require('./app/controllers/settings');
-var weatherController = require('./app/controllers/weather'); 
-var collectorController = require('./app/controllers/collector'); 
-
-// Lib (Utilities);
-var log = require('./app/lib/log');
-var database = require('./app/lib/database');
-var devicesLib = require('./app/lib/devices');
-var triggersLib = require('./app/lib/triggers');
 
 // Node Modules
 var express = require('express');
-var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
 var https = require('https');
 var http = require('http');
 var fs = require('fs');
-var hbs = require('hbs');
 var httpProxy = require('http-proxy');
 var mongoose = require('mongoose');
+var path = require('path');
 
-// Vars
-var app;
+// Express Middleware
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
+var auth = require('./app/middleware/auth');
+var request = require('./app/middleware/request');
+
+// Lib
+var config = require('./app/lib/config');
+var log = require('./app/lib/log');
+var database = require('./app/lib/database');
+var services = require('./app/services');
+
+// var devicesLib = require('./app/lib/devices');
+// var triggersLib = require('./app/lib/triggers');
+
+
+var app;  // Ref to express application instance
+
+
+
+log.info('Beginning server startup')
+
+connectDatabase()
+	.then(configureExpress)
+	.then(attachServices)
+	.then(createServer)
+	.catch(function(e) {
+		log.error(e);
+		process.exit();
+	});
+
+
+	// TODO: Shouldn't the device eventing be started
+	// before the endpoints are set up?
+	// NOTE: Should we do this manually?  Why not just
+	// have it done at require time?
+	// devicesLib.start();
+	// triggersLib.start();
 
 
 
 
-database.getConnection(function(){
-	configureExpress();
-	attachControllers();
-	startServer();
-	devicesLib.start();
-	triggersLib.start();
-})
 
 
-function configureExpress(mongooseConnection) {
-	// Express App Setup
+function connectDatabase() {
+	log.debug('')
+	return new Promise(function(resolve, reject){
+		database.getConnection(function(err, connection){
+			if (err) {
+				log.error('Startup failed: Unable to connect to database.');
+				process.exit();
+			}
+			resolve();
+		})
+	})
+}
+
+
+function configureExpress() {
+	log.debug('')
+
+	// Engine and views setup
 	app = express();
-	app.set('view engine', 'html');
-	app.engine('html', require('hbs').__express);
-	app.set('views', __dirname + '/app/views');
 
-	app.use(cookieParser(authConfig.AUTH_COOKIE_SECRET));
+	// Cookie and Session Setup
+	app.use(cookieParser(config.get('AUTH_COOKIE_SECRET')));
 	app.use(session({
-		secret: authConfig.AUTH_SESSION_SECRET,
+		secret: config.get('AUTH_SESSION_SECRET'),
 		resave: false,
 	    saveUninitialized: true,
 	    rolling: true,
@@ -71,18 +88,17 @@ function configureExpress(mongooseConnection) {
 			expires: new Date(new Date().getTime()+30*24*60*60*1000)
 		}
 	}));
-	app.use(authController.interceptor());
-	//app.use(express.logger('dev'));
-	app.use(express.static(__dirname + '/app/public/'));
 
-	// Start Indigo Proxy
-	var indigoProxy = httpProxy.createProxyServer();
-	app.get("/indigo*", function(req, res){
-		indigoProxy.web(req, res, {target: 'http://localhost:' + indigoConfig.INDIGO_PORT});
-	});
-	app.post("/indigo*", function(req, res){
-		indigoProxy.web(req, res, {target: 'http://localhost:' + indigoConfig.INDIGO_PORT});
-	});
+	// Auth and Static Setup
+	app.use(auth);
+	app.use(request);
+	//app.use(express.logger('dev'));
+
+	if (config.get('DASHBOARD_ENABLED')) {
+		var publicDirectory = path.resolve(__dirname, config.get('SERVER_PUBLIC_DIRECTORY'));
+		log.info('Mapping public directory: ', publicDirectory);
+		app.use(express.static(publicDirectory));
+	}
 
 	// bodyParser must go ofter proxy settings because it interrupts the 
 	// post stream.
@@ -91,51 +107,31 @@ function configureExpress(mongooseConnection) {
 	  extended: true
 	}));
 
-
 };
 
-function attachControllers() {
-	// Start Endpoints
-	//
-	// This is a bit of a half assed way to manage routes. 
-	// Each "controller" starts their own URL mappings and
-	// begins listening.
-	authController.start({app: app});
-	foursquareController.start({app: app});
-	geohopperController.start({app: app});
-	indigoController.start({app: app});
-	dashboardController.start({app: app});
-	usersController.start({app: app});
-	alarmsController.start({app: app});
-	devicesController.start({app: app});
-	nestController.start({app: app});
-	actionsController.start({app: app});
-	settingsController.start({app: app});
-	weatherController.start({app: app});
-	collectorController.start({app: app});
+
+function attachServices() {
+	services.attach({app: app});
+
 }
 
-function startServer() {
-	// Actually Start the Web Server
-	// Where we say "start" above is a bold faced lie.
+function createServer() {
 
-	// Unsecure Server
-	http.createServer(app).listen(appConfig.SERVER_PORT);
-	log.info('Starting server on port ' + appConfig.SERVER_PORT);
-
-	// Secure Server
-	var privateKey = fs.readFileSync(appConfig.SSL_PRIVATE_KEY);
-	var certificate = fs.readFileSync(appConfig.SSL_CERT);
-	if (privateKey && certificate) {
+	if (config.get('SERVER_SSL_ENABLED')) {
+		// Secure Server
 		https.createServer({
-			key: privateKey,
-			cert: certificate
-		}, app).listen(appConfig.SERVER_SECURE_PORT);
-		log.info('Starting secure server on port ' + appConfig.SERVER_SECURE_PORT);
-	} else {
-		log.info('Unable to start secure server: private key and certificate not found');
+			key: fs.readFileSync(config.get('SERVER_SSL_PRIVATE_KEY')),
+			cert: fs.readFileSync(config.get('SERVER_SSL_CERT'))
+		}, app).listen(config.get('SERVER_SECURE_PORT'));
+		log.info('Secure Server started on port ' + config.get('SERVER_SECURE_PORT'));
 	}
 
+	// Unsecure Server
+	http.createServer(app).listen(config.get('SERVER_PORT'));
+	log.info('Server started on port ' + config.get('SERVER_PORT'));
+
+
+	
 }
 
 

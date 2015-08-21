@@ -1,4 +1,4 @@
-var config = require('../../../config/nest.json');
+var config = require('../../lib/config');
 var request = require('request');
 var Firebase = require('firebase');
 var log = require('../../lib/log');
@@ -9,7 +9,7 @@ exports.get = _get;
 exports.set = _set;
 
 
-var ACCESS_TOKEN = config.NEST_ACCESS_TOKEN;
+var ACCESS_TOKEN = config.get('NEST_ACCESS_TOKEN');
 var ACCESS_TOKEN_EXPIRES;
 var REMOTE;
 
@@ -71,11 +71,11 @@ function _set(id, props, callback) {
 
 function _authenticate(code) {
 	request.post(
-		config.NEST_REMOTE_ACCESS_TOKEN_URL,
+		config.get('NEST_REMOTE_ACCESS_TOKEN_URL'),
 		{form: {
 			code: code,
-			client_id: config.NEST_CLIENT_ID,
-			client_secret: config.NEST_CLIENT_SECRET,
+			client_id: config.get('NEST_CLIENT_ID'),
+			client_secret: config.get('NEST_CLIENT_SECRET'),
 			grant_type: 'authorization_code'
 		}},
 		function(err, httpResponse, body){

@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "app-root-path": "^1.0.0",
     "body-parser": "x",
     "connect-mongo": "0.8.1",
     "cookie-parser": "x",
@@ -11,10 +12,8 @@
     "express": "x",
     "express-session": "x",
     "firebase": "2.2.4",
-    "forecast": "^0.2.1",
     "forecastio": "^0.2.0",
     "geolib": "^2.0.14",
-    "hbs": "x",
     "http-proxy": "x",
     "http2": "3.2.0",
     "indigo": "x",
@@ -23,9 +22,17 @@
     "mongoose": "x",
     "node-osascript": "1.0.2",
     "querystring": "x",
-    "request": "2.55.0"
+    "request": "2.55.0",
+    "yargs": "^3.18.0"
   },
   "scripts": {
-    "start": "sudo nodemon app.js"
+    "start": "./server-backend -s"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-sync": "^0.1.4"
+  },
+  "engines": {
+    "node": ">= 0.12.7"
   }
 }

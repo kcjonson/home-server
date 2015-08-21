@@ -1,4 +1,4 @@
-var config = require('../../config/settings.json');
+var config = require('../lib/config');
 var mongoose = require('mongoose');
 
 var settingSchema = new mongoose.Schema({
@@ -12,6 +12,6 @@ var settingSchema = new mongoose.Schema({
 	}
 });
 
-module.exports =  mongoose.model(config.SETTINGS_COLLECTION, settingSchema);
+module.exports =  mongoose.model(config.get('SETTINGS_COLLECTION'), settingSchema);
 
 
