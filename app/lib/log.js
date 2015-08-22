@@ -97,12 +97,13 @@ function _doLog(args, level) {
 // This is temporary hack to allow logging caught errors.
 // I need to think more about how I want it to work. -KCJ
 function _handleError(err) {
-	_doLog(arguments, 'ERROR');
+	var out = _doLog(arguments, 'ERROR');
 	if (process.env.NODE_ENV == 'development') {
 		if (err.stack && arguments.length == 1) {
 			console.log(err.stack)
 		}
 	}
+	return out;
 }
 
 function _stringifyArguments(args) {
