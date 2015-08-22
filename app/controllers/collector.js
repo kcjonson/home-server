@@ -33,9 +33,9 @@ exports.start = function start(params) {
 		});
 
 		var eventSourceRefs = {};
-		var server = 'http://localhost:' + config.get('SERVER_PORT');
+		//var server = 'http://localhost:' + config.get('SERVER_PORT');
 		endpoints.forEach(function getEndpoint(endpoint){
-			http.get(server + endpoint, function(dataRes){
+			http.get(endpoint, function(dataRes){
 				if (dataRes.statusCode === 200) {
 					var str = '';
 					dataRes.on('data', function (chunk) {
@@ -73,7 +73,7 @@ exports.start = function start(params) {
 							// Were going to route the data that we get from the endpoints
 							// through the same connection and trust that the browser will
 							// do the right thing.
-							eventSourceRefs[endpoint] = new EventSource(server + endpoint + '/push');
+							eventSourceRefs[endpoint] = new EventSource(endpoint + '/push');
 
 							req.connection.addListener('close', function() {
 								_closeEventSource(eventSourceRefs, endpoint);
