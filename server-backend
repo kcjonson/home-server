@@ -143,7 +143,7 @@ function run(cmd, where){
 
 	p.stdout.on('data', function (data) {
 		// This is our own hacky way to send events upstream.
-		if (data.indexOf('event:') !==  0) {
+		if (data && data.indexOf('event:') !==  0) {
 			process.stdout.write(data);
 		}
 	});
