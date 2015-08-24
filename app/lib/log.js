@@ -1,4 +1,5 @@
 var path = require('path');
+var fs = require('fs');
 
 
 // Statics
@@ -68,25 +69,44 @@ function _doLog(args, level) {
 	if (LOG_LEVELS.indexOf(level) >= LOG_LEVELS.indexOf(LOG_LEVEL)) {
 
 		// Write to stdout
-		var output = _addDate('');
-		output += ' - '
-		output += LEVEL_TO_COLOR_MAP[level];
-		output += '[' + level + '] ';
+		var consoleOutput = _addDate('');
+		consoleOutput += ' - '
+		consoleOutput += LEVEL_TO_COLOR_MAP[level];
+		consoleOutput += '[' + level + '] ';
 		if (LOG_LEVEL === 'DEBUG') {
-			output += LEVEL_TO_COLOR_MAP['light'];
-			output += _getPath() + ' '
+			consoleOutput += LEVEL_TO_COLOR_MAP['light'];
+			consoleOutput += _getPath() + ' '
 		}
-		output += LEVEL_TO_COLOR_MAP[level];
-		output += _stringifyArguments(args);
-		output += LEVEL_TO_COLOR_MAP['default'];
-		// TODO: Switch this to directly writing to stdout so that we
-		// can capture console output. -KCJ
-		// NOTE: This might be a very terrible idea... -KCJ
-		console.log(output);
+		consoleOutput += LEVEL_TO_COLOR_MAP[level];
+		consoleOutput += _stringifyArguments(args);
+		consoleOutput += LEVEL_TO_COLOR_MAP['default'];
+		process.stdout.write(consoleOutput + '\n');
+
+		// Race condition on loading config that requires we put it here.
+		var config = require('./config');
+		if (config.get('LOG_OUTPUT_ENABLED')){
+			var logDirectory = config.get('LOG_OUTPUT_DIRECTORY');
+			var logLocation;
+			switch (level) {
+				case 'INFO':
+				case 'WARN':
+					logLocation = path.resolve(logDirectory + '/output.log');
+					break;
+				case 'ERROR':
+					logLocation = path.resolve(logDirectory + '/error.log');
+			}
+			
+			if (logLocation) {
+				var logOutput = _addDate('')
+				logOutput += ' - ';
+				logOutput += '[' + level + '] ';
+				logOutput += _stringifyArguments(args);
+				logOutput += '\n';
+				fs.appendFile(logLocation, logOutput, function(){})
+			}
+		};
 		return  _stringifyArguments(args)
 
-		// Write to log files
-		// NOTE: The request middleware maintains its own log writing
 	}
 }
 

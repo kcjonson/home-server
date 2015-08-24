@@ -35,7 +35,6 @@ function _load(path, optional) {
 	try {
 		return require(path)
 	} catch (e) {
-
 		if (e.code && e.code === 'MODULE_NOT_FOUND') {
 			if (optional === true) {
 				log.warn('Optional config not found, using defaults');

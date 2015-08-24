@@ -5,9 +5,12 @@ var log = require('./app/lib/log');
 var spawnSync = require('child_process').spawnSync;
 var spawn = require('child_process').spawn;
 var prettyHrtime = require('pretty-hrtime');
+var fs = require('fs');
 
-var KEEPALIVE_TIMEOUT = 10000;
+
 var KEEPALIVE_DELAY = 2000;
+
+
 
 
 /*
@@ -27,12 +30,7 @@ var KEEPALIVE_DELAY = 2000;
 */
 
 
-// 
-if (!process.env.NODE_ENV) {
-	log.error('NODE_ENV not set, exiting');
-	log.debug('Recommended: Add "export NODE_ENV=development" to your ./bash_profile')
-	process.exit();
-}
+
 
 
 var argv = require('yargs')
@@ -64,6 +62,20 @@ var argv = require('yargs')
 
 	.argv;
 
+
+
+if (!process.env.NODE_ENV) {
+	log.error('NODE_ENV not set, exiting');
+	log.debug('Recommended: Add "export NODE_ENV=development" to your ./bash_profile')
+	process.exit();
+}
+
+
+if (config.get('LOG_OUTPUT_ENABLED')) {
+	if (!fs.existsSync(config.get('LOG_OUTPUT_DIRECTORY'))){
+		fs.mkdirSync(config.get('LOG_OUTPUT_DIRECTORY'));
+	}
+}
 
 
 if (argv.build) {

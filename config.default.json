@@ -61,6 +61,8 @@
 	"INDIGO_PORT": 8176,
 	"INDIGO_ROOT_URL": "/indigo",
 	"INDIGO_API_URL": "/api/indigo",
+	"LOG_OUTPUT_ENABLED": true,
+	"LOG_OUTPUT_DIRECTORY": "./logs",
 	"NEST_CLIENT_ID": "",
 	"NEST_CLIENT_SECRET": "",
 	"NEST_REMOTE_AUTHENTICATE_URL": "https://home.nest.com/login/oauth2",
