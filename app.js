@@ -30,13 +30,16 @@ var services = require('./app/services');
 var app;  // Ref to express application instance
 
 
-
-log.info('Beginning server startup')
-
 connectDatabase()
 	.then(configureExpress)
 	.then(attachServices)
 	.then(createServer)
+	.then(function(){
+		// Its a bit brute force, but we're going to capture this
+		// in the startup sequence to measure time and to enable keepalive.
+		// NOTE: This should be the absolutely last thing in the startup sequence.
+		process.stdout.write('event: SERVER_STARTED');
+	})
 	.catch(function(e) {
 		log.error(e);
 		process.exit();

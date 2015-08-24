@@ -4,7 +4,10 @@ var config = require('./app/lib/config');
 var log = require('./app/lib/log');
 var spawnSync = require('child_process').spawnSync;
 var spawn = require('child_process').spawn;
+var prettyHrtime = require('pretty-hrtime');
 
+var KEEPALIVE_TIMEOUT = 10000;
+var KEEPALIVE_DELAY = 2000;
 
 
 /*
@@ -23,17 +26,6 @@ var spawn = require('child_process').spawn;
 
 */
 
-
-
-
-// Store for child processes that need to be killed when the app exits.
-// This is primarly for the watch mode processes that are launced with spawn.
-var childProcesses = []; 
-process.on('exit', function cleanup() {
-	childProcesses.forEach(function(childProcess){
-		childProcess.exit();
-	});
-});
 
 // 
 if (!process.env.NODE_ENV) {
@@ -59,6 +51,10 @@ var argv = require('yargs')
 	.alias       ('w', 'watch')
 	.describe    ('w', 'Turn on watch mode')
 
+	.boolean     ('k')
+	.alias       ('k', 'keepAlive')
+	.describe    ('k', 'Automatically restart the server when it crashes')
+
 	.help        ('h')
 	.alias       ('h', 'help')
 	.describe    ('h', 'Show this help message')
@@ -71,9 +67,13 @@ var argv = require('yargs')
 
 
 if (argv.build) {
+	log.info('Beginning build')
+	var buildBegin = process.hrtime();
 	if (config.get('DASHBOARD_ENABLED')) {
-		runSync('gulp compile-dashboard')
+		runSync('gulp compile-dashboard');
 	}
+	var buildEnd = process.hrtime(buildBegin);
+	log.info('Build completed in ' + prettyHrtime(buildEnd))
 }
 
 if (argv.watch) {
@@ -83,14 +83,35 @@ if (argv.watch) {
 }
 
 if (argv.start) {
-	if (argv.watch) {
-		run('nodemon app.js')
-	} else {
-		//app.start(argv);
-		run('node app.js')
-	}
+	start();
 }
 
+function start() {
+	log.info('Beginning server startup')
+	var startupBegin = process.hrtime();
+	var p, startupEnd;
+	if (argv.watch) {
+		p = run('nodemon app.js')
+	} else {
+		p = run('node app.js');
+	}
+
+	p.stdout.on('data', function onServerData(data) {
+		if (data == 'event: SERVER_STARTED') {
+			startupEnd = process.hrtime(startupBegin);
+			log.info('Server startup completed in ' + prettyHrtime(startupEnd))
+		}
+	});
+
+	if (argv.keepAlive) {
+		p.on('exit', function cleanup() {
+			if (startupEnd) {
+				log.warn('The server unexpectedly crashed: restarting');
+				setTimeout(start, KEEPALIVE_DELAY)
+			}
+		})
+	}
+}
 
 function runSync(cmd, where){
 	return spawnSync('sh', ['-c', cmd], {
@@ -101,11 +122,25 @@ function runSync(cmd, where){
 }
 
 function run(cmd, where){
-	return spawn('sh', ['-c', cmd], {
+
+	var p = spawn('sh', ['-c', cmd], {
 		env   : process.env,
 		cwd   : where ? __dirname + '/' + where : __dirname,
-		stdio : 'inherit',
+		stdio : 'pipe',
 	})
+
+	p.stdout.on('data', function (data) {
+		// This is our own hacky way to send events upstream.
+		if (data.indexOf('event:') !==  0) {
+			process.stdout.write(data);
+		}
+	});
+
+	// Is this necessary?  What is on this channel?
+	p.stderr.on('data', function (data) {
+		process.stderr.write(data);
+	});
+	return p;
 }
 
 

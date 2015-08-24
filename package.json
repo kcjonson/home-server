@@ -18,9 +18,11 @@
     "http2": "3.2.0",
     "indigo": "x",
     "merge": "1.2.0",
+    "moment": "^2.10.6",
     "mongodb": "2.0.28",
     "mongoose": "x",
     "node-osascript": "1.0.2",
+    "pretty-hrtime": "^1.0.0",
     "querystring": "x",
     "request": "2.55.0",
     "yargs": "^3.18.0"
