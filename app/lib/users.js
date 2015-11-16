@@ -12,14 +12,18 @@ var EventUtil = require('../util/Event');
 // Public API
 exports.get = _get;
 exports.set = _set;
+exports.start = _start;
 exports.getById = _getById;
 exports.setMostRecentCheckin = _setMostRecentCheckin;
 exports.type = 'COLLECTION';
 
 // Events Setup
 exports.events = new EventEmitter();
-checkins.events.on('add', _onAddCheckin);
 
+
+function _start() {
+	checkins.events.on('add', _onAddCheckin);
+}
 
 // Getters
 function _get(callback) {

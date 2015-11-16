@@ -33,7 +33,7 @@ exports.start = function start(params) {
 		});
 
 		var eventSourceRefs = {};
-		var server = 'http://localhost:' + config.get('SERVER_PORT');
+		var server = 'http://127.0.0.1' 
 		endpoints.forEach(function getEndpoint(endpoint){
 			http.get(server + endpoint, function(dataRes){
 				if (dataRes.statusCode === 200) {

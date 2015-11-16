@@ -265,7 +265,7 @@ function _formatData(deviceDoc, deviceData) {
 */
 var KEEP_ALIVE_LOADED = false;
 function _start() {
-
+	log.warn('starting devices lib');
 
 
 	// Start Keep Alive and Listen to events from sub-libs
@@ -281,7 +281,7 @@ function _start() {
 
 		// Not sure why the wait?
 		setTimeout(function(){
-			_startKeepAlive();
+			_startKeepAlive(); 
 			_startEvents();
 		}, 1000);
 	};
@@ -307,6 +307,7 @@ function _startKeepAlive(deviceDocs) {
 };
 
 function _startEvents(deviceDocs) {
+	log.debug('Starging devices lib listeners')
 	var deviceTypesKeys = Object.keys(DEVICE_TYPES);
 	deviceTypesKeys.forEach(function(key, index) {
 		var deviceLib = DEVICE_TYPES[key].lib;
@@ -318,6 +319,9 @@ function _startEvents(deviceDocs) {
 			}
 			// Attach listeners
 			LISTENERS[key] = deviceLib.events.on('change', function(eventPayload){
+
+				log.debug('change', eventPayload)
+
 				database.findOne(config.get('DEVICES_COLLECTION'), {'hardwareId': eventPayload.id}, function(err, deviceDoc){
 					if (deviceDoc && deviceDoc.type) {
 						var payload = _formatData(deviceDoc, eventPayload.data);

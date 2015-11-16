@@ -1,7 +1,7 @@
 var indigo = require('../lib/indigo');
 var config = require('../lib/config');
 var log = require('../lib/log');
-
+var httpProxy = require('http-proxy');
 
 
 
@@ -18,7 +18,7 @@ exports.start = function(params){
 
 	app.post(config.get('INDIGO_API_URL') + '/push', function(req,res){
 		var data = req.body;
-		log.info('POST: ' + config.API_URL + '/push', data);
+		log.info('POST: ' + config.get('INDIGO_API_URL') + '/push', data);
 		indigo.push(data);
 		res.send();
 	});
@@ -32,13 +32,13 @@ exports.start = function(params){
 	// server.  This way we can log requests and optionally require
 	// authentication.
 	// 
-	// var indigoProxy = httpProxy.createProxyServer();
-	// app.get("/indigo*", function(req, res){
-	// 	indigoProxy.web(req, res, {target: 'http://localhost:' + indigoConfig.INDIGO_PORT});
-	// });
-	// app.post("/indigo*", function(req, res){
-	// 	indigoProxy.web(req, res, {target: 'http://localhost:' + indigoConfig.INDIGO_PORT});
-	// });
+	var indigoProxy = httpProxy.createProxyServer();
+	app.get("/indigo*", function(req, res){
+		indigoProxy.web(req, res, {target: 'http://localhost:' + config.get('INDIGO_PORT')});
+	});
+	app.post("/indigo*", function(req, res){
+		indigoProxy.web(req, res, {target: 'http://localhost:' + config.get('INDIGO_PORT')});
+	});
 
 
 };

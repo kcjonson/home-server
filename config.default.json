@@ -16,9 +16,18 @@
 			"url": "/api/login",
 			"method": "POST"
 		},
-		"/api/geohopper",
-		"/api/indigo/push",
-		"/api/foursquare/checkin",
+		{
+			"url": "/api/geohopper",
+			"method": "POST"
+		},
+		{
+			"url": "/api/indigo/push",
+			"method": "POST"
+		},
+		{
+			"url": "/api/foursquare/checkin",
+			"method": "POST"
+		},
 		"/api/users/current",
 		{
 			"url": "/api/users",
@@ -29,7 +38,15 @@
 		"/fonts",
 		"/styles",
 		"/images",
+		{
+			"url": "/indigo/servercommand",
+			"method": "POST"
+		},
 		"/indigo/servercommand",
+		{
+			"url": "/indigo/serverrequest",
+			"method": "POST"
+		},
 		"/indigo/serverrequest",
 		"/favicon.ico"
 	],

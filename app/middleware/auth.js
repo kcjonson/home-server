@@ -24,6 +24,7 @@ module.exports = function auth(req, res, next) {
 				url = publicUrl.url;
 				method = publicUrl.method || 'GET';
 			}
+
 			if (req.url.indexOf(url, 0) === 0 && req.method === method) {
 				isPublicUrl = true;
 			};
@@ -33,7 +34,7 @@ module.exports = function auth(req, res, next) {
 			next();
 		} else {
 			// TODO More info?
-			log.debug('Auth middleware denied request for:', req.url);
+			log.debug('Auth middleware denied request for: ' + req.method  + req.protocol + '://' + req.get('host') + req.originalUrl);
 			res.status(401).send('Unauthorized');
 		};	
 	}

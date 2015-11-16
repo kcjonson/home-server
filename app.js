@@ -5,7 +5,6 @@ var express = require('express');
 var https = require('https');
 var http = require('http');
 var fs = require('fs');
-var httpProxy = require('http-proxy');
 var mongoose = require('mongoose');
 var path = require('path');
 
@@ -23,8 +22,7 @@ var log = require('./app/lib/log');
 var database = require('./app/lib/database');
 var services = require('./app/services');
 
-// var devicesLib = require('./app/lib/devices');
-// var triggersLib = require('./app/lib/triggers');
+
 
 
 var app;  // Ref to express application instance
@@ -32,6 +30,7 @@ var app;  // Ref to express application instance
 
 connectDatabase()
 	.then(configureExpress)
+	.then(startEvents)
 	.then(attachServices)
 	.then(createServer)
 	.then(function(){
@@ -46,17 +45,6 @@ connectDatabase()
 	});
 
 
-	// TODO: Shouldn't the device eventing be started
-	// before the endpoints are set up?
-	// NOTE: Should we do this manually?  Why not just
-	// have it done at require time?
-	// devicesLib.start();
-	// triggersLib.start();
-
-
-
-
-
 
 function connectDatabase() {
 	log.debug('')
@@ -69,6 +57,13 @@ function connectDatabase() {
 			resolve();
 		})
 	})
+}
+
+
+function startEvents() {
+	require('./app/lib/devices').start();
+	require('./app/lib/triggers').start();
+	require('./app/lib/users').start();
 }
 
 
