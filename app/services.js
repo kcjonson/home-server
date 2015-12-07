@@ -21,6 +21,7 @@ function _attach(params) {
 	require('./controllers/users').start({app: app});
 	require('./controllers/settings').start({app: app});
 
+	require('./controllers/log').start({app: app});
 
 	// APIs (outbound data)
 	if (config.get('DEVICES_API_ENABLED')) {require('./controllers/devices').start({app: app});}
@@ -32,7 +33,14 @@ function _attach(params) {
 
 	// Webservices (Inbound requests)
 	if (config.get('INDIGO_WEBSERVICE_ENABLED')) {require('./controllers/indigo').start({app: app});};
-	// var foursquareController = require('./app/controllers/foursquare');
+	if (config.get('FOURSQUARE_WEBSERVICE_ENABLED')) {
+		if (config.get('SERVER_SSL_ENABLED') === true) {
+			require('./controllers/foursquare').start({app: app});
+		} else {
+			// Foursquare won't push to non secure endpoints.
+			log.error('Foursquare webservice requires SSL to be enabled, unable to start endpoints');
+		}
+	};
 	if (config.get('GEOHOPPER_WEBSERVICE_ENABLED')) {require('./controllers/geohopper').start({app: app});};
 	require('./controllers/nest').start({app: app});
 

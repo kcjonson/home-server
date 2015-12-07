@@ -265,7 +265,7 @@ function _formatData(deviceDoc, deviceData) {
 */
 var KEEP_ALIVE_LOADED = false;
 function _start() {
-	log.warn('starting devices lib');
+	log.debug('Starting devices lib');
 
 
 	// Start Keep Alive and Listen to events from sub-libs
@@ -307,7 +307,7 @@ function _startKeepAlive(deviceDocs) {
 };
 
 function _startEvents(deviceDocs) {
-	log.debug('Starging devices lib listeners')
+	log.debug('Starting devices lib listeners')
 	var deviceTypesKeys = Object.keys(DEVICE_TYPES);
 	deviceTypesKeys.forEach(function(key, index) {
 		var deviceLib = DEVICE_TYPES[key].lib;

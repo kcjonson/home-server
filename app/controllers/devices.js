@@ -41,6 +41,7 @@ exports.start = function(params) {
 			'Cache-Control': 'no-cache',
 			'Connection': 'keep-alive'
 		});
+		res.connection.setTimeout(0);
 		var writeData = function(event){
 			res.write("data: " + JSON.stringify(event.data) + "\n\n");
 		};
@@ -53,6 +54,11 @@ exports.start = function(params) {
 	app.get(config.get('DEVICES_API_URL') + '/:id', function(req, res) {
 		var id = req.params.id;
 		log.info('GET ' + config.get('DEVICES_API_URL') + '/' + id);
+
+		res.send({
+			error: 'Getting devices by ID is not implemented'
+		})
+
 		// TODO
 		// devices.get(function(e, devicesData){
 		// 	res.send(devicesData);

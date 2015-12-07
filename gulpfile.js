@@ -17,5 +17,5 @@ gulp.task('watch-dashboard', function(){
 function dashboardSource() {
 	var dashboardSource = config.get('DASHBOARD_SOURCE_DIRECTORY');
 	if (!dashboardSource) {process.exit();}
-	return dashboardSource + '/**/*';
+	return dashboardSource + '/lib/**/*';
 }

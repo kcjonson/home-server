@@ -68,38 +68,54 @@ module.exports = {
 function _doLog(args, level) {
 	if (LOG_LEVELS.indexOf(level) >= LOG_LEVELS.indexOf(LOG_LEVEL)) {
 
-		// Write to stdout
-		var consoleOutput = _addDate('');
-		consoleOutput += ' - '
-		consoleOutput += LEVEL_TO_COLOR_MAP[level];
-		consoleOutput += '[' + level + '] ';
-		if (LOG_LEVEL === 'DEBUG') {
+
+		var enviroment;
+		if (args[0] && args[0].env) {
+			enviroment = args[0].env;
+		} else {
+			enviroment = 'SERVER';
+		}
+
+		if (enviroment === 'SERVER') {
+			// Write to stdout
+			var consoleOutput = _addDate('');
+			consoleOutput += ' - '
+			consoleOutput += LEVEL_TO_COLOR_MAP[level];
+			consoleOutput += '[' + level + '] ';
 			consoleOutput += LEVEL_TO_COLOR_MAP['light'];
 			consoleOutput += _getPath() + ' '
+			consoleOutput += LEVEL_TO_COLOR_MAP[level];
+			consoleOutput += _stringifyArguments(args);
+			consoleOutput += LEVEL_TO_COLOR_MAP['default'];
+			process.stdout.write(consoleOutput + '\n');
+
 		}
-		consoleOutput += LEVEL_TO_COLOR_MAP[level];
-		consoleOutput += _stringifyArguments(args);
-		consoleOutput += LEVEL_TO_COLOR_MAP['default'];
-		process.stdout.write(consoleOutput + '\n');
 
 		// Race condition on loading config that requires we put it here.
 		var config = require('./config');
 		if (config.get('LOG_OUTPUT_ENABLED')){
-			var logDirectory = config.get('LOG_OUTPUT_DIRECTORY');
+			var baseDirectory = config.get('LOG_OUTPUT_DIRECTORY');
 			var logLocation;
+			var enviromentDirectory;
+			switch (enviroment) {
+				case 'SERVER': enviromentDirectory = '/server'; break;
+				case 'BROWSER': enviromentDirectory = '/browser'; break;
+			}
+
+			var logOutput = _addDate('')
 			switch (level) {
 				case 'INFO':
 				case 'WARN':
-					logLocation = path.resolve(logDirectory + '/output.log');
+					logLocation = path.resolve(baseDirectory + enviromentDirectory + '/output.log');
+					logOutput += ' - ';
+					logOutput += '[' + level + '] ';
 					break;
 				case 'ERROR':
-					logLocation = path.resolve(logDirectory + '/error.log');
+					logLocation = path.resolve(baseDirectory + enviromentDirectory + '/error.log');
+					consoleOutput += _getPath() + ' '
 			}
 			
 			if (logLocation) {
-				var logOutput = _addDate('')
-				logOutput += ' - ';
-				logOutput += '[' + level + '] ';
 				logOutput += _stringifyArguments(args);
 				logOutput += '\n';
 				fs.appendFile(logLocation, logOutput, function(){})
@@ -118,7 +134,7 @@ function _doLog(args, level) {
 // I need to think more about how I want it to work. -KCJ
 function _handleError(err) {
 	var out = _doLog(arguments, 'ERROR');
-	if (process.env.NODE_ENV == 'development') {
+	if (process.env.NODE_ENV === 'development' && err.env !== 'BROWSER') {
 		if (err.stack && arguments.length == 1) {
 			console.log(err.stack)
 		}
@@ -138,9 +154,8 @@ function _stringifyArguments(args) {
 				if (arg && arg.message) {
 					str += arg.message;
 				} else {
-					str += JSON.stringify(arg);
+					str += '\n' + JSON.stringify(arg, null, 2) + '\n';
 				}
-				
 				break;
 			default: 
 				str += arg;

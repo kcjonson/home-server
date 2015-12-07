@@ -30,13 +30,10 @@ function _get(id, callback) {
 	};
 
 	if (id) {
-		log.debug('Getting Nest Thermostat: ' + id);
+		//log.debug('Getting Nest Thermostat: ' + id);
 		REMOTE.once('value', function(snapshot) {
 			var thermostatData;
 			var thermostatsObject = snapshot.val().devices.thermostats
-
-			console.log('meta', snapshot.val().metadata)
-
 			var thermostatsKeys = Object.keys(thermostatsObject);
 			thermostatsKeys.forEach(function(key, index) {
 				if (key == id) {
@@ -52,12 +49,9 @@ function _get(id, callback) {
 			if (err) {callback(err); return;};
 		});
 	} else {
-		log.debug('Getting all Nest Thermostats')
+		//log.debug('Getting all Nest Thermostats')
 		REMOTE.once('value', function(snapshot) {
 			var thermostatsArray = []
-
-			console.log('meta', snapshot.val().metadata)
-
 			var thermostatsObject = snapshot.val().devices.thermostats
 			var thermostatsKeys = Object.keys(thermostatsObject);
 			thermostatsKeys.forEach(function(key, index) {
@@ -86,7 +80,7 @@ function _authenticate(code) {
 		}},
 		function(err, httpResponse, body){
 			body = JSON.parse(body);
-			log.info('Nest Auth Success', body.access_token);
+			//log.info('Nest Auth Success', body.access_token);
 			ACCESS_TOKEN_EXPIRES = body.expires_in;  // Should be added to date.
 			ACCESS_TOKEN = body.access_token;
 		}
@@ -94,8 +88,6 @@ function _authenticate(code) {
 };
 
 function _formatData(deviceData) {
-	//log.debug(deviceData)
-	log.debug('hvac_state ' + deviceData.hvac_state)
 	return {
 		name: deviceData.name,
 		hardwareId: deviceData.device_id,
@@ -104,6 +96,7 @@ function _formatData(deviceData) {
 		temperatureAwayLow: deviceData.away_temperature_low_f,
 		temperatureTarget: deviceData.target_temperature_f,
 		temperatureTargetHigh: deviceData.target_temperature_high_f,
-		temperatureTargetLow: deviceData.target_temperature_low_f
+		temperatureTargetLow: deviceData.target_temperature_low_f,
+		hvacState: deviceData.hvac_state
 	}
 }

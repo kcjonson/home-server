@@ -34,6 +34,7 @@ function _handlePush(req, res) {
 		'Cache-Control': 'no-cache',
 		'Connection': 'keep-alive'
 	});
+	res.connection.setTimeout(0);
 	// var writeData = function(devicesData){
 	// 	res.write("data: " + JSON.stringify(devicesData) + "\n\n");
 	// };

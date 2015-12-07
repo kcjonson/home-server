@@ -1,7 +1,7 @@
 var https = require('https');
 var users = require('./users');
 var checkins = require('./checkins');
-var config = require('../../config/foursquare.json');
+var config = require('../lib/config');
 
 
 
@@ -47,10 +47,10 @@ function _authenticateUser(code) {
 	console.log('handleAuthenticateRequest', code);
 
 	var requestPath = '/oauth2/access_token';
-    requestPath += '?client_id=' + config.FOURSQUARE_CLIENT_ID;
-    requestPath += '&client_secret=' + config.FOURSQUARE_CLIENT_SECRET;
+    requestPath += '?client_id=' + config.get('FOURSQUARE_CLIENT_ID');
+    requestPath += '&client_secret=' + config.get('FOURSQUARE_CLIENT_SECRET');
     requestPath += '&grant_type=authorization_code';
-    requestPath += '&redirect_uri=https://1825eglen.com' + config.SERVICE_AUTHENTICATE_SUCCESS_URL;
+    requestPath += '&redirect_uri=https://1825eglen.com' + config.get('SERVICE_AUTHENTICATE_SUCCESS_URL');
     requestPath += '&code=' + code;
 
 	var requestOptions = {

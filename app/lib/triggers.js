@@ -167,10 +167,10 @@ function _start() {
 }
 
 
-function _checkEventEquality(trigger, event, eventPayload) {
-	log.debug(trigger, event, eventPayload);
-	if (_checkEquality(event.equality, eventPayload, event.value)) {
-		_checkConditions(trigger, event, eventPayload);
+function _checkEventEquality(trigger, e, eventPayload) {
+	log.debug(trigger, e, eventPayload);
+	if (_checkEquality(e.equality, eventPayload.value, e.value)) {
+		_checkConditions(trigger, e, eventPayload);
 	}
 };
 
@@ -224,7 +224,7 @@ function _checkConditionOnCollection(condition, trigger) {
 				}
 				break;
 			case 'any':
-
+				log.error('"Any" trigger condition not implemented yet')
 				// TODO
 				
 				break;
@@ -258,6 +258,9 @@ function _checkConditionOnService(condition, trigger) {
 
 
 function _checkEquality(equalityString, first, second) {
+	log.debug(equalityString, first, second);
+	if (typeof first !== 'boolean' || typeof first !== 'string' || typeof first !== 'number') {log.error('\'first\' is in invalid format'); return false;}
+	if (typeof second !== 'boolean' || typeof second !== 'string' || typeof second !== 'number') {log.error('\'second\' is in invalid format'); return false;}
 	switch (equalityString) {
 		case undefined:
 		case null:

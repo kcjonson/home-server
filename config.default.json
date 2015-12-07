@@ -13,6 +13,10 @@
 	"AUTH_SESSION_SECRET": "default",
 	"AUTH_PUBLIC_URLS": [
 		{
+			"url": "/api/log",
+			"method": "POST"
+		},
+		{
 			"url": "/api/login",
 			"method": "POST"
 		},
@@ -64,6 +68,7 @@
 	"DEVICES_API_URL": "/api/devices",
 	"DEVICES_COLLECTION": "devices",
 	"DEVICES_UPDATES_COLLECTION": "devices.updates",
+	"FOURSQUARE_WEBSERVICE_ENABLED": false,
 	"FOURSQUARE_HOSTNAME":"foursquare.com",
 	"FOURSQUARE_ACCESS_TOKEN_URL":"/oauth2/access_token",
 	"FOURSQUARE_CLIENT_ID":"",
@@ -78,6 +83,7 @@
 	"INDIGO_PORT": 8176,
 	"INDIGO_ROOT_URL": "/indigo",
 	"INDIGO_API_URL": "/api/indigo",
+	"LOG_API_URL": "/api/log",
 	"LOG_OUTPUT_ENABLED": true,
 	"LOG_OUTPUT_DIRECTORY": "./logs",
 	"NEST_CLIENT_ID": "",

@@ -87,6 +87,10 @@ function _updateDeviceStates(deviceStates, deviceData, callback) {
 };
 
 function _addDeviceStateFromCommand(deviceStates, command, devicesData) {
+	if (!devicesData || devicesData.length < 1) {
+		log.error('devicesData is not properly formed');
+		callback('Unable to execute action');
+	}
 	switch (command.type) {
 		case 'DEVICE':
 			// Set properties of a single device

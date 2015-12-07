@@ -21,8 +21,11 @@ exports.start = function(params){
 	collector.registerEndpoint(config.get('USERS_API_URL'));
 	app.get(config.get('USERS_API_URL'), function(req, res) {
 		log.info('GET ' + config.get('USERS_API_URL'));
-		users.get(function(error, users){
-			if (error) {res.send(error)} else {
+		users.get(function(err, users){
+			if (err) {
+				log.error(err)
+				res.send({error: 'An error occured while fetching users'})
+			} else {
 				res.send(users);
 			}
 		});
@@ -36,6 +39,7 @@ exports.start = function(params){
 			'Cache-Control': 'no-cache',
 			'Connection': 'keep-alive'
 		});
+		res.connection.setTimeout(0);
 		var writeData = function(event){
 			res.write("data: " + JSON.stringify(event.data) + "\n\n");
 		};
@@ -80,6 +84,7 @@ exports.start = function(params){
 				})
 			};
 		} else {
+			log.error('User fetching endpoint is not finished!');
 			res.send({
 				error: 'User fetching endpoint is not finished!'	
 			});

@@ -11,7 +11,7 @@ exports.start = function(params) {
 	// Server all content to this route to the single static file
 	// On the client Backbone.Router handles the redirection to 
 	// the proper view, so we only serve the base html.
-	var view = path.join(appRoot.toString(), config.get('SERVER_PUBLIC_DIRECTORY'), '/dashboard.html')
+	var view = path.join(appRoot.toString(), config.get('SERVER_PUBLIC_DIRECTORY'), '/app.html')
 	app.get(url + '*', function(req, res) {
 		res.sendFile(view);
 	});

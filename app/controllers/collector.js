@@ -2,6 +2,7 @@ var log = require('../lib/log');
 var config = require('../lib/config');
 var http = require('http');
 var EventSource = require('eventsource');
+var prettyHrtime = require('pretty-hrtime');
 
 var endpoints;
 if (!endpoints) {endpoints =[]}
@@ -24,7 +25,17 @@ exports.start = function start(params) {
 	var app = params.app;
 
 	app.get('/api', function(req, res) {
+		var requestStart = process.hrtime();
 		log.info('GET /api');
+		res.connection.setTimeout(0);
+
+		var eventSourceRefs = {};
+		req.on('close', function(){
+			log.debug('request closed by client')
+			_closeEventSources(eventSourceRefs);
+			//var requestEnd = process.hrtime(requestStart);
+			//log.debug('Request ended in: ' + prettyHrtime(requestEnd))
+		})
 
 		res.writeHead(200, {
 			'Content-Type': 'text/event-stream',
@@ -32,7 +43,6 @@ exports.start = function start(params) {
 			'Connection': 'keep-alive'
 		});
 
-		var eventSourceRefs = {};
 		var server = 'http://127.0.0.1' 
 		endpoints.forEach(function getEndpoint(endpoint){
 			http.get(server + endpoint, function(dataRes){
@@ -96,7 +106,17 @@ exports.start = function start(params) {
 									endpoint: endpoint.substr(1), 
 									status: 500
 								}) + '\n\n')
-								_closeEventSource(eventSourceRefs, endpoint);
+								_closeEventSource(eventSourceRefs, endpoint, req, res);
+
+								// Close connection to client if all the streams fail
+								if (Object.keys(eventSourceRefs).length < 1) {
+									log.debug('all event streams have failed, ending response')
+
+									//var requestEnd = process.hrtime(requestStart);
+									//log.debug('Request ended in: ' + prettyHrtime(requestEnd))
+
+									res.end();
+								}
 							};
 						} 
 					});
@@ -109,12 +129,19 @@ exports.start = function start(params) {
 					}) + '\n\n')
 				}
 			}).on('error', function(e) {
-				console.log("Got error: " + e.message);
+				log.error("Got error: " + e.message);
 			});
 		});
+
+
 	});
 };
 
+function _closeEventSources(refs) {
+	endpoints.forEach(function(endpoint){
+		_closeEventSource(refs, endpoint);
+	});
+};
 
 function _closeEventSource(refs, endpoint) {
 	if (refs[endpoint]) {

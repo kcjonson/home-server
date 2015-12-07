@@ -118,6 +118,7 @@ function _setMostRecentCheckin(userId, checkin, callback){
 					name: 'change',
 					id: userId,
 					property: 'isHome',
+					value: populatedUserModel.isHome,
 					data: populatedUserModel
 				})
 			});
