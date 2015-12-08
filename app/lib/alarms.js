@@ -102,7 +102,9 @@ function _start() {
 
 						if (musicPercentage) {
 							console.log('Setting Music Percantage', musicPercentage);
-							// TODO
+							
+							// TODO: Move to DB, don't leave hard coded!
+							// 554d3dce743ed3ca3e4742ae
 						}
 
 
@@ -160,7 +162,7 @@ function _loadAlarms(callback) {
 
 
 function _setLocalAlarm(alarm) {
-	log.debug(alarm);
+	//log.debug(alarm);
 
 	// Copy the useful stuff
 	var oldStartDate = START_DATE || new Date();

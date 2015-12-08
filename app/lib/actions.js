@@ -1,5 +1,6 @@
 var Devices = require('../lib/devices');
 var log = require('../lib/log');
+var conditions = require('../util/conditions')
 
 
 
@@ -13,17 +14,37 @@ exports.executeCommand = _executeCommand;
 
 
 
+
+/*
+
+
+	TODOS:
+	- Currently these are only for devices, should change format to allow for other libs 
+	- Move data to DB once format is settled
+
+
+*/
+
+
+
+
 function _get(callback) {
 	var returnedActions = [];
 	ACTIONS_DATA.forEach(function(ACTION){
-		returnedActions.push({
-			name: ACTION.name,
-			_id: ACTION._id,
-			isEnabled: true,
-			commands: ACTION.commands
-		})
+		conditions.check(ACTION.conditions, function(isEnabled){
+			returnedActions.push({
+				name: ACTION.name,
+				_id: ACTION._id,
+				isEnabled: isEnabled,
+				commands: ACTION.commands,
+				conditions: ACTION.conditions
+			});
+			if (returnedActions.length === ACTIONS_DATA.length) {
+				callback(null, returnedActions);
+			}
+		});
 	});
-	callback(null, returnedActions);
+	
 };
 
 function _set(id, properties, callback) {
@@ -160,6 +181,15 @@ var ACTIONS_DATA = [
 				property: 'brightness',
 				value: 0
 			}
+		],
+		conditions: [
+			{
+				property: 'brightness',
+				relation: 'any',
+				library: 'devices',
+				equality: 'is greater than',
+				value: 0
+			}
 		]
 	},
 	{
@@ -170,6 +200,15 @@ var ACTIONS_DATA = [
 				type: 'TYPE',
 				name: 'INDIGO_DIMMER',
 				property: 'brightness',
+				value: 100
+			}
+		],
+		conditions: [
+			{
+				property: 'brightness',
+				relation: 'any',
+				library: 'devices',
+				equality: 'is less than',
 				value: 100
 			}
 		]
@@ -220,9 +259,33 @@ var ACTIONS_DATA = [
 			}
 		]
 	},
+	{
+		name: 'Pause Music',
+		_id: 6,
+		commands: [
+			{
+				type: 'DEVICE',
+				deviceId: '554d3dce743ed3ca3e4742ae',
+				property: 'state',
+				value: 'paused'
+			},
+		]
+	},
+	{
+		name: 'Play KEXP',
+		_id: 7,
+		commands: [
+			{
+				type: 'DEVICE',
+				deviceId: '554d3dce743ed3ca3e4742ae',
+				property: 'playlist',
+				value: 'Kexp'
+			},
+		]
+	}
 ]
 
-
+//currentTrackPlaylist
 
 
 

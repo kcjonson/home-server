@@ -18,7 +18,8 @@ exports.start = function(params){
 
 	app.post(config.get('INDIGO_API_URL') + '/push', function(req,res){
 		var data = req.body;
-		log.info('POST: ' + config.get('INDIGO_API_URL') + '/push', data);
+		log.info('POST: ' + config.get('INDIGO_API_URL') + '/push');
+		//log.debug(data);
 		indigo.push(data);
 		res.send();
 	});

@@ -1,5 +1,7 @@
 var path = require('path');
 var fs = require('fs');
+var pad = require('pad');
+require('pad/lib/colors')
 
 
 // Statics
@@ -81,7 +83,7 @@ function _doLog(args, level) {
 			var consoleOutput = _addDate('');
 			consoleOutput += ' - '
 			consoleOutput += LEVEL_TO_COLOR_MAP[level];
-			consoleOutput += '[' + level + '] ';
+			consoleOutput += pad('[' + level + '] ', 8);
 			consoleOutput += LEVEL_TO_COLOR_MAP['light'];
 			consoleOutput += _getPath() + ' '
 			consoleOutput += LEVEL_TO_COLOR_MAP[level];
@@ -108,7 +110,7 @@ function _doLog(args, level) {
 				case 'WARN':
 					logLocation = path.resolve(baseDirectory + enviromentDirectory + '/output.log');
 					logOutput += ' - ';
-					logOutput += '[' + level + '] ';
+					logOutput += pad('[' + level + '] ', 8);
 					break;
 				case 'ERROR':
 					logLocation = path.resolve(baseDirectory + enviromentDirectory + '/error.log');

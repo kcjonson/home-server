@@ -52,7 +52,8 @@
 			"method": "POST"
 		},
 		"/indigo/serverrequest",
-		"/favicon.ico"
+		"/favicon.ico",
+		"/api/test"
 	],
 	"CHECKINS_COLLECTION": "checkins",
 	"CHECKINS_UNKNOWN_NAME": "Unknown",
@@ -96,10 +97,10 @@
 	"SERVER_HOSTNAME": "",
 	"SERVER_PUBLIC_DIRECTORY": "./public",
 	"SERVER_SSL_ENABLED": false,
-	"SERVER_SSL_PRIVATE_KEY": "./certs/ssl.key",
-	"SERVER_SSL_CERT": "./certs/ssl.cert",
+	"SERVER_SSL_PRIVATE_KEY": "../certs/key.pem",
+	"SERVER_SSL_CERT": "../certs/cert.pem",
 	"SERVER_PORT": 8080,
-	"SERVER_SECURE_PORT": 8081,
+	"SERVER_SECURE_PORT": 8443,
 	"SETTINGS_API_URL": "/api/settings",
 	"SETTINGS_COLLECTION": "settings",
 	"TRIGGERS_API_URL": "/api/triggers",

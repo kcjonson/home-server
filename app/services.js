@@ -15,19 +15,19 @@ module.exports = {
 function _attach(params) {
 	var app = params.app;
 
-
 	// Required 
 	require('./controllers/auth').start({app: app});
 	require('./controllers/users').start({app: app});
 	require('./controllers/settings').start({app: app});
-
 	require('./controllers/log').start({app: app});
+
+
 
 	// APIs (outbound data)
 	if (config.get('DEVICES_API_ENABLED')) {require('./controllers/devices').start({app: app});}
 	if (config.get('ACTIONS_API_ENABLED')) {require('./controllers/actions').start({app: app});}
 	if (config.get('ALARMS_ENABLED')) {require('./controllers/alarms').start({app: app});};
-	if (config.get('ALARMS_API_ENABLED')) {require('./lib/alarms').start({app: app});}
+	if (config.get('ALARMS_API_ENABLED')) {require('./lib/alarms').start({app: app});}  // TODO? Move somewhere else?  Its not really an API...
 	if (config.get('WEATHER_API_ENABLED')) {require('./controllers/weather').start({app: app});}
 	if (config.get('DASHBOARD_ENABLED')) {require('./controllers/dashboard').start({app: app});}
 

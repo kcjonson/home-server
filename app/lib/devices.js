@@ -57,6 +57,7 @@ exports.set = _set;
 exports.sync = _sync;
 exports.start = _start;
 exports.events = new EventEmitter();
+exports.type = 'COLLECTION';
 
 
 // Devices that have keepAlive get checked
@@ -118,6 +119,37 @@ var LISTENERS = {};
 
 
 
+/*
+	Start Keep Alive and Listen To Change Events
+
+*/
+var KEEP_ALIVE_LOADED = false;
+function _start() {
+	log.debug('Starting devices lib');
+
+	// Start Keep Alive and Listen to events from sub-libs
+	if (KEEP_ALIVE_LOADED !== true) {
+		KEEP_ALIVE_LOADED = true;
+
+		// Start Device Libs
+		indigoMotionDetector.start();
+		indigoDimmer.start();
+
+		// Listen and Log Changes
+		exports.events.on('change', _logDeviceUpdate);
+
+		// Not sure why the wait?
+		//setTimeout(function(){
+			_startKeepAlive(); 
+			_startEvents();
+		//}, 1000);
+	};
+
+};
+
+
+
+
 
 
 function _get(callback) {
@@ -168,7 +200,7 @@ function _getDevice(data, callback) {
 // Note: databaseId not hardwareId since hardwareId is not 
 // unique across all device types.
 function _set(databaseId, props, callback) {
-	log.debug(databaseId, props);
+	//log.debug(databaseId, props);
 	database.findOne(config.get('DEVICES_COLLECTION'), {'_id': databaseId}, function(err, deviceDoc){
 		if (deviceDoc && deviceDoc.type) {
 
@@ -259,52 +291,9 @@ function _formatData(deviceDoc, deviceData) {
 
 
 
-/*
-	Start Keep Alive and Listen To Change Events
-
-*/
-var KEEP_ALIVE_LOADED = false;
-function _start() {
-	log.debug('Starting devices lib');
 
 
-	// Start Keep Alive and Listen to events from sub-libs
-	if (KEEP_ALIVE_LOADED !== true) {
-		KEEP_ALIVE_LOADED = true;
-
-		// Start Device Libs
-		indigoMotionDetector.start();
-		indigoDimmer.start();
-
-		// Listen and Log Changes
-		exports.events.on('change', _logDeviceUpdate);
-
-		// Not sure why the wait?
-		setTimeout(function(){
-			_startKeepAlive(); 
-			_startEvents();
-		}, 1000);
-	};
-
-};
-
-function _startKeepAlive(deviceDocs) {
-	database.getCollection(config.get('DEVICES_COLLECTION'), function(err, deviceDocs){
-		// Keep Alive
-		var docsChecked = 0;
-		var devicesToKeepAlive = [];
-		deviceDocs.forEach(function(deviceDoc){
-			// Attach Keepalive (hard coded for now)
-			if (deviceDoc.type == 'AIRFOIL_SPEAKER') {
-				devicesToKeepAlive.push(deviceDoc);
-			}
-			docsChecked += 1;
-			if (docsChecked == deviceDocs.length) {
-				_keepAlive(devicesToKeepAlive);
-			}
-		});
-	});
-};
+// Events
 
 function _startEvents(deviceDocs) {
 	log.debug('Starting devices lib listeners')
@@ -320,7 +309,7 @@ function _startEvents(deviceDocs) {
 			// Attach listeners
 			LISTENERS[key] = deviceLib.events.on('change', function(eventPayload){
 
-				log.debug('change', eventPayload)
+				//log.debug('change', eventPayload)
 
 				database.findOne(config.get('DEVICES_COLLECTION'), {'hardwareId': eventPayload.id}, function(err, deviceDoc){
 					if (deviceDoc && deviceDoc.type) {
@@ -353,6 +342,30 @@ function _logDeviceUpdate(e) {
 	}
 };
 
+
+
+
+// Keep Alive
+
+function _startKeepAlive(deviceDocs) {
+	database.getCollection(config.get('DEVICES_COLLECTION'), function(err, deviceDocs){
+		// Keep Alive
+		var docsChecked = 0;
+		var devicesToKeepAlive = [];
+		deviceDocs.forEach(function(deviceDoc){
+			// Attach Keepalive (hard coded for now)
+			if (deviceDoc.type == 'AIRFOIL_SPEAKER') {
+				devicesToKeepAlive.push(deviceDoc);
+			}
+			docsChecked += 1;
+			if (docsChecked == deviceDocs.length) {
+				_keepAlive(devicesToKeepAlive);
+			}
+		});
+	});
+};
+
+
 var CHECK_INTERVAL_HANDLE;
 function _keepAlive(deviceDocs){
 	var startDelay = CHECK_INTERVAL - new Date() % CHECK_INTERVAL;
@@ -374,10 +387,7 @@ function _keepAlive(deviceDocs){
 
 
 
-
-
-
-
+// Setup and Sync
 
 // Read all known device types from libraries and 
 // save the resulting list to the database.

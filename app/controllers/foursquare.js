@@ -11,9 +11,6 @@ exports.start = function(params){
 	var app = params.app;
 	var hostname = params.hostname;
 
-
-	console.log('foo', config.get('FOURSQUARE_PUSH_URL'))
-
 	// 	Listen for Checkins
 	app.post(config.get('FOURSQUARE_PUSH_URL'), function(req, res){
 		log.info('POST ' + config.get('FOURSQUARE_PUSH_URL'));

@@ -109,6 +109,10 @@ function start() {
 	}
 
 	p.stdout.on('data', function onServerData(data) {
+		// Re-record start for watch mode. (Could probally get an event from nodemon too)
+		if (data == 'event: SERVER_STARTING' && argv.watch) {
+			startupBegin = process.hrtime();
+		}
 		if (data == 'event: SERVER_STARTED') {
 			startupEnd = process.hrtime(startupBegin);
 			log.info('Server startup completed in ' + prettyHrtime(startupEnd))

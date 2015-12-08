@@ -4,46 +4,56 @@ var log = require('./log');
 var EventEmitter = require("events").EventEmitter;
 var EventUtil = require('../util/Event');
 
+exports.start = _start;
 exports.getDevices = _getDevices;
 exports.getDevicesByType = _getDevicesByType;
 exports.getDevice = _getDevice;
 exports.getDeviceByHardwareId = _getDeviceByHardwareId;
 exports.setDeviceProperties = _setDeviceProperties;
 exports.setDevicePropertiesByHardwareId = _setDevicePropertiesByHardwareId;
-exports.getVariables = _getVariables;
-exports.getVariable = _getVariable;
-exports.setVariable = _setVariable;
-exports.getActions = _getActions;
-exports.getAction = _getAction;
-exports.executeAction = _executeAction;
+//exports.getVariables = _getVariables;
+//exports.getVariable = _getVariable;
+//exports.setVariable = _setVariable;
+//exports.getActions = _getActions;
+//exports.getAction = _getAction;
+//exports.executeAction = _executeAction;
 exports.push = _push;
 exports.events = new EventEmitter();
 
 
-
-
-// Since the Indigo API only allows for info to be requested by "name"
-// but our API wants to request things by hardwareId we're going to maintain
-// a map to reduce the number of lookups.
-// 
-// We're using "addressStr" as "hardwareId" because thats whats printed on
-// the actual devices.
-var HARDWARE_ID_TO_NAME_MAP = {};
+var HARDWARE_ID_TO_NAME_MAP;
 
 
 
+// Start
+var STARTED = false;
+function _start() {
 
-// Server Connection
+	if (STARTED !== true) {
+		log.debug('Starting indigo lib')
+		STARTED = true; 
+
+		// Attach server
+		indigo.connectServer({
+			host: 'localhost',
+			port: config.get('INDIGO_PORT'),
+			serverPath: config.get('INDIGO_ROOT_URL')
+		});
+
+		// Seed Map
+		// Since the Indigo API only allows for info to be requested by "name"
+		// but our API wants to request things by hardwareId we're going to maintain
+		// a map to reduce the number of lookups.
+		// 
+		// We're using "addressStr" as "hardwareId" because thats whats printed on
+		// the actual devices.
+		HARDWARE_ID_TO_NAME_MAP = {};
+		_getDevices(function(){});
+	}
+
+}
 
 
-indigo.connectServer({
-	host: 'localhost',
-	port: config.get('INDIGO_PORT'),
-	serverPath: config.get('INDIGO_ROOT_URL')
-});
-
-// Seed Map
-_getDevices(function(){});
 
 
 
@@ -140,122 +150,122 @@ function _setDevicePropertiesByHardwareId(hardwareId, properties, callback) {
 
 // Variables Helpers
 
-function _getVariables(callback) {
-	indigo.getVariables(
-		function(variablesData){
-			var index = 0;
-			function getNextVariable() {
-				var variableData = variablesData[index];
-				_getVariable(variableData.name, function(error, newVariableData){
-					if (error) {callback(error)} else {
-						variablesData[index] = newVariableData;
-						if (index + 1 == variablesData.length) {
-							callback(null, variablesData);
-						} else {
-							index = index + 1;
-							getNextVariable();
-						}
-					}
-				});
-			}
-			getNextVariable();
-		},
-		function(error) {
-			callback(error);
-		}
-	)
-}
+// function _getVariables(callback) {
+// 	indigo.getVariables(
+// 		function(variablesData){
+// 			var index = 0;
+// 			function getNextVariable() {
+// 				var variableData = variablesData[index];
+// 				_getVariable(variableData.name, function(error, newVariableData){
+// 					if (error) {callback(error)} else {
+// 						variablesData[index] = newVariableData;
+// 						if (index + 1 == variablesData.length) {
+// 							callback(null, variablesData);
+// 						} else {
+// 							index = index + 1;
+// 							getNextVariable();
+// 						}
+// 					}
+// 				});
+// 			}
+// 			getNextVariable();
+// 		},
+// 		function(error) {
+// 			callback(error);
+// 		}
+// 	)
+// }
 
-function _getVariable(variableName, callback) {
-	indigo.getVariable(
-		variableName,
-		function(variableData) {
-			variableData.xmlPath = undefined;
-			variableData.isFalse = undefined;
-			callback(null, variableData);
-		},
-		function(error) {
-			callback(error);
-		}
-	);
-};
+// function _getVariable(variableName, callback) {
+// 	indigo.getVariable(
+// 		variableName,
+// 		function(variableData) {
+// 			variableData.xmlPath = undefined;
+// 			variableData.isFalse = undefined;
+// 			callback(null, variableData);
+// 		},
+// 		function(error) {
+// 			callback(error);
+// 		}
+// 	);
+// };
 
-function _setVariable(variableName, value, callback) {
-	log.info('Setting Indigo variable ', variableName, value);
-	indigo.setVariable(
-		variableName,
-		value, 
-		function(){
-			_getVariable(variableName, function(error, variableData){
-				if (error) {callback(error)} else {
-					callback(null, variableData)
-				}
-			});
-		},
-		function(error) {
-			callback(error);
-		}
-	)
-};
+// function _setVariable(variableName, value, callback) {
+// 	log.info('Setting Indigo variable ', variableName, value);
+// 	indigo.setVariable(
+// 		variableName,
+// 		value, 
+// 		function(){
+// 			_getVariable(variableName, function(error, variableData){
+// 				if (error) {callback(error)} else {
+// 					callback(null, variableData)
+// 				}
+// 			});
+// 		},
+// 		function(error) {
+// 			callback(error);
+// 		}
+// 	)
+// };
 
 
 
 // Actions Helpers
 
 
-function _getActions(callback) {
-	indigo.getActions(
-		function(actionsData){
-			var index = 0;
-			function getNextAction() {
-				var actionData = actionsData[index];
-				_getAction(actionData.name, function(error, newActionData){
-					if (error) {callback(error)} else {
-						actionsData[index] = newActionData;
-						if (index + 1 == actionsData.length) {
-							callback(null, actionsData);
-						} else {
-							index = index + 1;
-							getNextAction();
-						}
-					}
-				});
-			}
-			getNextAction();
-		},
-		function(error) {
-			callback(error);
-		}
-	)
-};
+// function _getActions(callback) {
+// 	indigo.getActions(
+// 		function(actionsData){
+// 			var index = 0;
+// 			function getNextAction() {
+// 				var actionData = actionsData[index];
+// 				_getAction(actionData.name, function(error, newActionData){
+// 					if (error) {callback(error)} else {
+// 						actionsData[index] = newActionData;
+// 						if (index + 1 == actionsData.length) {
+// 							callback(null, actionsData);
+// 						} else {
+// 							index = index + 1;
+// 							getNextAction();
+// 						}
+// 					}
+// 				});
+// 			}
+// 			getNextAction();
+// 		},
+// 		function(error) {
+// 			callback(error);
+// 		}
+// 	)
+// };
 
-function _getAction(actionName, callback) {
-	indigo.getAction(
-		actionName, 
-		function(actionData){
-			actionData.xmlPath = undefined;
-			callback(null, actionData);
-		},
-		function(error){
-			callback(error)
-		}
-	);
-};
+// function _getAction(actionName, callback) {
+// 	indigo.getAction(
+// 		actionName, 
+// 		function(actionData){
+// 			actionData.xmlPath = undefined;
+// 			callback(null, actionData);
+// 		},
+// 		function(error){
+// 			callback(error)
+// 		}
+// 	);
+// };
 
-function _executeAction(action, callback) {
-	log.info('Run Indigo Action', action);
-	indigo.executeAction(action, function(error){
-		if(!error) {
-			if (callback) {callback()}
-		} else {
-			if (callback) {callback(error)}
-		}
-	});
-};
+// function _executeAction(action, callback) {
+// 	log.info('Run Indigo Action', action);
+// 	indigo.executeAction(action, function(error){
+// 		if(!error) {
+// 			if (callback) {callback()}
+// 		} else {
+// 			if (callback) {callback(error)}
+// 		}
+// 	});
+// };
 
 // Fire an event for given push change.
 function _push(data) {
-	log.debug(data);
+	//log.debug(data);
 	if (data.addressStr) {
 		var payload = {};
 		payload[data.property] = data.value;

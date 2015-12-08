@@ -51,13 +51,13 @@ tell application "iTunes"
 	"
 	set output to output & "	\"volume\": \"" & currentVol & "\",
 	"
-	set output to output & "	\"currentTrackTitle\": \"" & trackName & "\",
+	set output to output & "	\"title\": \"" & trackName & "\",
 		"
-	set output to output & "	\"currentTrackArtist\": \"" & trackArtist & "\",
+	set output to output & "	\"artist\": \"" & trackArtist & "\",
 		"
-	set output to output & "	\"currentTrackPlaylist\": \"" & name of trackPlaylist & "\",
+	set output to output & "	\"playlist\": \"" & name of trackPlaylist & "\",
 		"
-	set output to output & "	\"currentTrackAlbum\": \"" & trackAlbum & "\"
+	set output to output & "	\"album\": \"" & trackAlbum & "\"
 		"
 	set output to output & "}
 "

@@ -1,4 +1,4 @@
-
+process.stdout.write('event: SERVER_STARTING');
 
 // Node Modules
 var express = require('express');
@@ -61,6 +61,7 @@ function connectDatabase() {
 
 
 function startEvents() {
+	// TODO: These should be a promise chain, not all startup is sync! (there are timeout hacks scattered around)
 	require('./app/lib/devices').start();
 	require('./app/lib/triggers').start();
 	require('./app/lib/users').start();
@@ -113,14 +114,17 @@ function attachServices() {
 
 }
 
+
 function createServer() {
 
 	if (config.get('SERVER_SSL_ENABLED')) {
 		// Secure Server
 		https.createServer({
-			key: fs.readFileSync(config.get('SERVER_SSL_PRIVATE_KEY')),
-			cert: fs.readFileSync(config.get('SERVER_SSL_CERT'))
-		}, app).listen(config.get('SERVER_SECURE_PORT'));
+			key: fs.readFileSync(config.get('SERVER_SSL_PRIVATE_KEY'), 'utf8'),
+			cert: fs.readFileSync(config.get('SERVER_SSL_CERT'), 'utf8'),
+		    requestCert: false,
+		    rejectUnauthorized: false
+		}, app).listen(config.get('SERVER_SECURE_PORT'))
 		log.info('Secure Server started on port ' + config.get('SERVER_SECURE_PORT'));
 	}
 
@@ -128,7 +132,10 @@ function createServer() {
 	http.createServer(app).listen(config.get('SERVER_PORT'));
 	log.info('Server started on port ' + config.get('SERVER_PORT'));
 
-
+	app.get('/api/test', function (req, res) {
+		res.writeHead(200);
+		res.end("server is running");
+	});
 	
 }
 

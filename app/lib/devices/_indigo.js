@@ -2,13 +2,15 @@
 var indigo = require('../indigo');
 var EventUtil = require('../../util/Event');
 
-
-
 exports.start = _start;
 
-
-
 function _start(LISTENERS) {
+
+	indigo.start();
+
+	// Run the getter on the indigo device lib that this is "mixed in to", which will return
+	// all the devices.  Attach event handlers from the indigo lib (which is recieving them)
+	// from the indigo controller, and pipe them through.
 	this.get(function(err, devicesData){
 		devicesData.forEach(function(deviceData){
 			var deviceEventName = "change[" + deviceData.hardwareId + "]";

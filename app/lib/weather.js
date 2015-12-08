@@ -4,6 +4,7 @@ var ForecastIO = require('forecastio');
 var log = require('../lib/log');
 
 exports.get = _get;
+exports.type = 'SERVICE';
 
 // TODO: Only create Forecast object on first request
 

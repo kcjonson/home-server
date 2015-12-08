@@ -3,10 +3,15 @@ var indigo = require('../indigo');
 
 exports.get = _get;
 exports.set = _set;
+exports.start = _start;
 
 var SWITCH_NAMES = [
 	'SwitchLinc Relay'
 ];
+
+function _start() {
+	_indigo.start.call(this, LISTENERS);
+};
 
 function _get(id, callback) {
 	if (typeof id === 'function') {
