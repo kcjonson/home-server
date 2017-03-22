@@ -1,13 +1,13 @@
 Home Server
 ===========
 
-##Core Features
+## Core Features
 * REST API to interact with home automation suite
 * User accounts and authentication
 * Resident location tracking (Home or Away)
 * Device control
 
-##Technologies
+## Technologies
 * Node
 * Express
 * MongoDB & Mongoose (Schema, Model)
@@ -15,14 +15,14 @@ Home Server
 * Nodemon 
 
 
-##Integrations
+## Integrations
 * Indigo Home Automation Server to manage Insteon Hardware Devices
 * Geohopper for iOS geofencing
 * Foursquare (Swarm technically) to increase user geo awareness
 * Forecast.io for current weather conditions
 * Applescript for control of iTunes, Airfoil, and Spoken Alerts
 
-##Organization
+## Organization
 
 **/app** - Core application, sets up the express server and starts up all the various controllers.  This single backend application creates functionality for multiple font end Javascript applications.
  
